@@ -2,6 +2,9 @@ import { env } from './config/env';
 import { Downloader } from '@tobyg74/tiktok-api-dl';
 import { Telegraf as Bot } from 'telegraf';
 import { message } from 'telegraf/filters';
+import { logger } from './utils/logger';
+import { ERROR_MESSAGES } from './constants/messages';
+import { validateTikTokUrl } from './utils/urls';
 
 const bot = new Bot(env.BOT_TOKEN, {
   telegram: {
@@ -13,6 +16,8 @@ bot.on(message('text'), async (ctx) => {
   try {
     const url = ctx.message.text;
 
+    if (!validateTikTokUrl(url)) return ctx.reply(ERROR_MESSAGES.INVALID_URL);
+
     const { result, message } = await Downloader(url, {
       version: 'v3',
     });
@@ -21,6 +26,10 @@ bot.on(message('text'), async (ctx) => {
 
     const videoUrl = result?.videoHD || result?.videoSD || result?.videoWatermark;
     const imagesUrls = result?.images;
+
+    if (!videoUrl && !imagesUrls?.length) {
+      return ctx.reply(ERROR_MESSAGES.INVALID_DOWNLOAD_URLS);
+    }
 
     if (result?.type === 'video' && videoUrl) {
       return ctx.replyWithVideo({
@@ -32,10 +41,13 @@ bot.on(message('text'), async (ctx) => {
       return ctx.replyWithMediaGroup(imagesUrls.map((image) => ({ media: image, type: 'photo' })));
     }
   } catch (error) {
-    const err_ = error as Error;
+    logger.error(error);
 
-    return ctx.reply(err_.message);
+    return ctx.reply(ERROR_MESSAGES.GENERIC);
   }
 });
 
-bot.launch();
+bot.launch(() => logger.info('Bot started'));
+
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
