@@ -38,10 +38,12 @@ bot.on('message:text', async (ctx) => {
     }
 
     if (result?.type === 'video' && videoUrl) {
+      await ctx.replyWithChatAction('upload_video');
       return ctx.replyWithVideo(new InputFile({ url: videoUrl }));
     }
 
     if (result?.type === 'image' && imagesUrls) {
+      await ctx.replyWithChatAction('upload_photo');
       return ctx.replyWithMediaGroup(imagesUrls.map((image) => ({ media: image, type: 'photo' })));
     }
   } catch (error) {
