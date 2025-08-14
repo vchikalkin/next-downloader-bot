@@ -1,21 +1,30 @@
 import { env } from './config/env';
 import { Downloader } from '@tobyg74/tiktok-api-dl';
-import { Bot, InputFile } from 'grammy';
+import { Bot, Context, InputFile } from 'grammy';
 import { logger } from './utils/logger';
-import { ERROR_MESSAGES } from './constants/messages';
 import { validateTikTokUrl } from './utils/urls';
+import { I18n, I18nFlavor } from '@grammyjs/i18n';
 
-const bot = new Bot(env.BOT_TOKEN, {
+type MyContext = Context & I18nFlavor;
+
+const bot = new Bot<MyContext>(env.BOT_TOKEN, {
   client: {
     apiRoot: env.TELEGRAM_API_ROOT,
   },
 });
 
+const i18n = new I18n<MyContext>({
+  defaultLocale: 'en', // see below for more information
+  directory: 'locales', // Load all translation files from locales/.
+});
+
+bot.use(i18n);
+
 bot.on('message:text', async (ctx) => {
   try {
     const url = ctx.message.text;
 
-    if (!validateTikTokUrl(url)) return ctx.reply(ERROR_MESSAGES.INVALID_URL);
+    if (!validateTikTokUrl(url)) return ctx.reply(ctx.t('invalid_url'));
 
     const { result, message } = await Downloader(url, { version: 'v3' });
 
@@ -25,7 +34,7 @@ bot.on('message:text', async (ctx) => {
     const imagesUrls = result?.images;
 
     if (!videoUrl && !imagesUrls?.length) {
-      return ctx.reply(ERROR_MESSAGES.INVALID_DOWNLOAD_URLS);
+      return ctx.reply(ctx.t('invalid_download_urls'));
     }
 
     if (result?.type === 'video' && videoUrl) {
@@ -38,7 +47,7 @@ bot.on('message:text', async (ctx) => {
   } catch (error) {
     logger.error(error);
 
-    return ctx.reply(ERROR_MESSAGES.GENERIC);
+    return ctx.reply(ctx.t('generic'));
   }
 });
 
