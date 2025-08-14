@@ -1,26 +1,23 @@
 import { env } from './config/env';
 import { Downloader } from '@tobyg74/tiktok-api-dl';
-import { Telegraf as Bot } from 'telegraf';
-import { message } from 'telegraf/filters';
+import { Bot, InputFile } from 'grammy';
 import { logger } from './utils/logger';
 import { ERROR_MESSAGES } from './constants/messages';
 import { validateTikTokUrl } from './utils/urls';
 
 const bot = new Bot(env.BOT_TOKEN, {
-  telegram: {
+  client: {
     apiRoot: env.TELEGRAM_API_ROOT,
   },
 });
 
-bot.on(message('text'), async (ctx) => {
+bot.on('message:text', async (ctx) => {
   try {
     const url = ctx.message.text;
 
     if (!validateTikTokUrl(url)) return ctx.reply(ERROR_MESSAGES.INVALID_URL);
 
-    const { result, message } = await Downloader(url, {
-      version: 'v3',
-    });
+    const { result, message } = await Downloader(url, { version: 'v3' });
 
     if (message) throw new Error(message);
 
@@ -32,9 +29,7 @@ bot.on(message('text'), async (ctx) => {
     }
 
     if (result?.type === 'video' && videoUrl) {
-      return ctx.replyWithVideo({
-        url: videoUrl,
-      });
+      return ctx.replyWithVideo(new InputFile({ url: videoUrl }));
     }
 
     if (result?.type === 'image' && imagesUrls) {
@@ -47,7 +42,11 @@ bot.on(message('text'), async (ctx) => {
   }
 });
 
-bot.launch(() => logger.info('Bot started'));
+// Stopping the bot when the Node.js process
+// is about to be terminated
+process.once('SIGINT', () => bot.stop());
+process.once('SIGTERM', () => bot.stop());
 
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+bot.start({
+  onStart: (bot) => logger.info(`Bot ${bot.username} started`),
+});
