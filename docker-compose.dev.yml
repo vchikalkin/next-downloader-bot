@@ -4,7 +4,7 @@ services:
       - .env
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./apps/bot/Dockerfile
     restart: always
   telegram-bot-api:
     env_file:
@@ -15,8 +15,8 @@ services:
     #   TELEGRAM_API_HASH: "<api-hash>"
     volumes:
       - telegram-bot-api-data:/var/lib/telegram-bot-api
-    ports:
-      - "8081:8081"
+#    ports:
+#      - "8081:8081"
 
 volumes:
   telegram-bot-api-data:
