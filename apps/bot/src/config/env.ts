@@ -3,6 +3,10 @@ import { z } from 'zod';
 
 export const envSchema = z.object({
   BOT_TOKEN: z.string(),
+  RATE_LIMIT: z
+    .string()
+    .transform((value) => Number.parseInt(value, 10))
+    .default('5000'),
   REDIS_HOST: z.string(),
   REDIS_PASSWORD: z.string(),
   REDIS_PORT: z
