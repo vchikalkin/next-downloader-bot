@@ -1,4 +1,11 @@
 services:
+  next-downloader-bot:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
   telegram-bot-api:
     env_file:
       - .env
