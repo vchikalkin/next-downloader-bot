@@ -2,7 +2,7 @@
 import { type Context } from '../context';
 import { logHandle } from '../helpers/logging';
 import { TTL } from '@/config/redis';
-import { createRedisInstance } from '@/utils/redis';
+import { getRedisInstance } from '@/utils/redis';
 import { validateTikTokUrl } from '@/utils/urls';
 import { Downloader } from '@tobyg74/tiktok-api-dl';
 import { Composer, InputFile } from 'grammy';
@@ -11,7 +11,7 @@ const composer = new Composer<Context>();
 
 const feature = composer.chatType('private');
 
-const redis = createRedisInstance();
+const redis = getRedisInstance();
 
 feature.on('message:text', logHandle('download-message'), async (context) => {
   try {
