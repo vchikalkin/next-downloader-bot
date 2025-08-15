@@ -13,18 +13,7 @@
     "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "ES2022",
-
-    "baseUrl": ".",
-    "outDir": "dist",
-    "alwaysStrict": true,
     "strict": true,
-    // "moduleResolution": "Node",
-    // "module": "CommonJS",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["."],
-  "exclude": ["dist", "build", "node_modules"]
+    "target": "ES2022"
+  }
 }

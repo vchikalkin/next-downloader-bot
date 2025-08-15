@@ -1,0 +1,17 @@
+{
+  "name": "@repo/eslint-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./base": "./base.js",
+    "./node": "./node.js",
+    "./typescript": "./typescript.js"
+  },
+  "devDependencies": {
+    "@vchikalkin/eslint-config-awesome": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-tailwindcss": "^3.17.5",
+    "eslint-plugin-turbo": "^2.3.0"
+  }
+}

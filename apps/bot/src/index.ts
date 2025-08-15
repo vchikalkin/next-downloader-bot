@@ -1,10 +1,10 @@
 import { createBot } from './bot';
-import { env } from './config/env';
+import { env as environment } from './config/env';
 import { logger } from './utils/logger';
 
 const bot = createBot({
-  token: env.BOT_TOKEN,
-  apiRoot: env.TELEGRAM_API_ROOT,
+  apiRoot: environment.TELEGRAM_API_ROOT,
+  token: environment.BOT_TOKEN,
 });
 
 // Stopping the bot when the Node.js process
@@ -12,6 +12,6 @@ const bot = createBot({
 process.once('SIGINT', () => bot.stop());
 process.once('SIGTERM', () => bot.stop());
 
-bot.start({
-  onStart: (bot) => logger.info(`Bot ${bot.username} started`),
+await bot.start({
+  onStart: ({ username }) => logger.info(`Bot ${username} started`),
 });

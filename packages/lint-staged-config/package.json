@@ -1,0 +1,13 @@
+{
+  "name": "@repo/lint-staged-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    "./config": "./config.mjs"
+  }
+}
