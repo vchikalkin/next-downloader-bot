@@ -40,7 +40,7 @@ services:
           memory: 512M
     env_file:
       - .env
-    image: aiogram/telegram-bot-api:latest=
+    image: aiogram/telegram-bot-api:latest
     volumes:
       - telegram-bot-api-data:/var/lib/telegram-bot-api
 
