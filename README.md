@@ -99,6 +99,7 @@ docker-compose -f docker-compose.dev.yml up -d
 
 - TikTok video URLs: `https://www.tiktok.com/@username/video/1234567890`
 - TikTok image URLs: `https://www.tiktok.com/@username/photo/1234567890`
+- Short TikTok URLs: `https://vt.tiktok.com/ZSHs35NpuL1nt-mE2tD`
 
 ## 🏗️ Project Structure
 
