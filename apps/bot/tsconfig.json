@@ -6,7 +6,7 @@
     "alwaysStrict": true,
     "strict": true,
     "moduleResolution": "Node",
-    "module": "esnext",
+    "module": "CommonJS",
     "paths": {
       "@/*": ["./src/*"]
     }

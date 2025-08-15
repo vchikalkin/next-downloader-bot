@@ -12,6 +12,6 @@ const bot = createBot({
 process.once('SIGINT', () => bot.stop());
 process.once('SIGTERM', () => bot.stop());
 
-await bot.start({
+bot.start({
   onStart: ({ username }) => logger.info(`Bot ${username} started`),
 });

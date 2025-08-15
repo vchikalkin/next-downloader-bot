@@ -22,6 +22,21 @@ RUN turbo prune --scope=${PROJECT} --docker
 FROM base AS builder
 WORKDIR /app
 
+# Install build dependencies for native modules (canvas)
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    musl-dev \
+    giflib-dev \
+    pixman-dev \
+    pangomm-dev \
+    libjpeg-turbo-dev \
+    freetype-dev
+
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
@@ -39,6 +54,17 @@ RUN rm -rf ./**/*/src
 
 FROM alpine AS runner
 ARG PROJECT
+
+# Install runtime dependencies for canvas
+RUN apk add --no-cache \
+    cairo \
+    jpeg \
+    pango \
+    giflib \
+    pixman \
+    pangomm \
+    libjpeg-turbo \
+    freetype
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 botuser
