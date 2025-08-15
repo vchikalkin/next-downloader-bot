@@ -4,11 +4,9 @@ services:
       - .env
     image: redis:8-alpine
     restart: always
-    ports:
-      - "127.0.0.1:6379:6379"
     volumes:
       - redis-data:/data
-    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}']
     deploy:
       resources:
         limits:
@@ -18,18 +16,16 @@ services:
           cpus: '0.25'
           memory: 256M
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
 
   next-downloader-bot:
+    image: vchikalkin/next-downloader-bot:latest
     env_file:
       - .env
-    build:
-      context: .
-      dockerfile: ./apps/bot/Dockerfile
     restart: always
     depends_on:
       - redis
@@ -37,16 +33,16 @@ services:
 
   telegram-bot-api:
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
     env_file:
       - .env
-    image: aiogram/telegram-bot-api:latest
-    # environment:
-    #   TELEGRAM_API_ID: "<api-id>"
-    #   TELEGRAM_API_HASH: "<api-hash>"
+    image: aiogram/telegram-bot-api:latest=
     volumes:
       - telegram-bot-api-data:/var/lib/telegram-bot-api
-    ports:
-      - "127.0.0.1:8081:8081"
 
 volumes:
   telegram-bot-api-data:

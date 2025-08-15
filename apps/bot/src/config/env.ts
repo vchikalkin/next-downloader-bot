@@ -7,7 +7,7 @@ export const envSchema = z.object({
     .string()
     .transform((value) => Number.parseInt(value, 10))
     .default('5000'),
-  REDIS_HOST: z.string(),
+  REDIS_HOST: z.string().default('redis'),
   REDIS_PASSWORD: z.string(),
   REDIS_PORT: z
     .string()

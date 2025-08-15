@@ -1,0 +1,93 @@
+name: Build & Deploy Bot
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-push:
+    name: Build and Push to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create fake .env file for build
+        run: |
+          echo "BOT_TOKEN=fake" > .env
+          echo "TELEGRAM_API_ROOT=http://localhost:8081" >> .env
+          echo "TELEGRAM_API_ID=fake" >> .env
+          echo "TELEGRAM_API_HASH=fake" >> .env
+          echo "REDIS_PASSWORD=fake" >> .env
+          echo "REDIS_HOST=redis" >> .env
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build bot image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/next-downloader-bot:latest -f ./apps/bot/Dockerfile .
+
+      - name: Push bot image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/next-downloader-bot:latest
+
+  deploy:
+    name: Deploy to VPS
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.VPS_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Ensure next-downloader-bot directory exists on VPS
+        run: |
+          ssh -i ~/.ssh/id_rsa -p ${{ secrets.VPS_PORT }} -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "mkdir -p /home/${{ secrets.VPS_USER }}/next-downloader-bot"
+
+      - name: Create real .env file for production
+        run: |
+          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" > .env
+          echo "TELEGRAM_API_ROOT=${{ secrets.TELEGRAM_API_ROOT }}" >> .env
+          echo "TELEGRAM_API_ID=${{ secrets.TELEGRAM_API_ID }}" >> .env
+          echo "TELEGRAM_API_HASH=${{ secrets.TELEGRAM_API_HASH }}" >> .env
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+
+      - name: Copy .env to VPS via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: '.env'
+          target: '/home/${{ secrets.VPS_USER }}/next-downloader-bot/'
+
+      - name: Copy docker-compose.yml to VPS via SCP
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: 'docker-compose.yml'
+          target: '/home/${{ secrets.VPS_USER }}/next-downloader-bot/'
+
+      - name: Login and deploy on VPS
+        run: |
+          ssh -i ~/.ssh/id_rsa -p ${{ secrets.VPS_PORT }} -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            cd /home/${{ secrets.VPS_USER }}/next-downloader-bot && \
+            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }} && \
+            docker compose pull && \
+            docker compose down && \
+            docker compose up -d
+          "
