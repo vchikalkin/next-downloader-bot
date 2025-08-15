@@ -23,7 +23,7 @@ services:
       start_period: 30s
 
   next-downloader-bot:
-    image: vchikalkin/next-downloader-bot:latest
+    image: "${DOCKERHUB_USERNAME}/next-downloader-bot:${BOT_IMAGE_TAG}"
     env_file:
       - .env
     restart: always
