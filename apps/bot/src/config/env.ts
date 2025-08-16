@@ -6,7 +6,11 @@ export const envSchema = z.object({
   RATE_LIMIT: z
     .string()
     .transform((value) => Number.parseInt(value, 10))
-    .default('5000'),
+    .default('2'),
+  RATE_LIMIT_TIME: z
+    .string()
+    .transform((value) => Number.parseInt(value, 10))
+    .default('3000'),
   REDIS_HOST: z.string().default('redis'),
   REDIS_PASSWORD: z.string(),
   REDIS_PORT: z

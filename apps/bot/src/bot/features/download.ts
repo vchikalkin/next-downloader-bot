@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 import { type Context } from '../context';
 import { logHandle } from '../helpers/logging';
-import { TTL } from '@/config/redis';
+import { TTL_URLS } from '@/config/redis';
 import { getRedisInstance } from '@/utils/redis';
 import { validateTikTokUrl } from '@/utils/urls';
 import { Downloader } from '@tobyg74/tiktok-api-dl';
@@ -39,7 +39,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
 
     if (result?.type === 'video' && videoUrl) {
       const { video } = await context.replyWithVideo(new InputFile({ url: videoUrl }));
-      await redis.set(url, video.file_id, 'EX', TTL);
+      await redis.set(url, video.file_id, 'EX', TTL_URLS);
       return;
     }
 

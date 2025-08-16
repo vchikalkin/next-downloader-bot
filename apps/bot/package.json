@@ -24,6 +24,8 @@
     "@grammyjs/i18n": "^1.1.2",
     "@grammyjs/parse-mode": "^2.2.0",
     "@grammyjs/ratelimiter": "^1.2.1",
+    "@grammyjs/runner": "^2.0.3",
+    "@grammyjs/storage-redis": "^2.5.1",
     "@grammyjs/types": "^3.21.0",
     "@repo/typescript-config": "workspace:*",
     "@tobyg74/tiktok-api-dl": "^1.3.4",

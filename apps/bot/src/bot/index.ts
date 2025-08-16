@@ -5,12 +5,15 @@ import * as features from './features';
 import { errorHandler } from './handlers/errors';
 import { i18n } from './i18n';
 import * as middlewares from './middlewares';
+import { session } from './middlewares';
 import { env } from '@/config/env';
 import { logger } from '@/utils/logger';
 import { getRedisInstance } from '@/utils/redis';
+import { getSessionKey } from '@/utils/session';
 import { autoChatAction } from '@grammyjs/auto-chat-action';
 import { hydrate } from '@grammyjs/hydrate';
 import { limit } from '@grammyjs/ratelimiter';
+import { sequentialize } from '@grammyjs/runner';
 import { Bot } from 'grammy';
 
 type Parameters_ = {
@@ -34,12 +37,12 @@ export function createBot({ apiRoot, token }: Parameters_) {
       keyGenerator: (ctx) => {
         return ctx.from?.id.toString();
       },
-      limit: 1,
+      limit: env.RATE_LIMIT,
       onLimitExceeded: async (ctx) => {
         await ctx.reply(ctx.t('err-limit-exceeded'));
       },
       storageClient: redis,
-      timeFrame: env.RATE_LIMIT,
+      timeFrame: env.RATE_LIMIT_TIME,
     }),
   );
 
@@ -52,6 +55,9 @@ export function createBot({ apiRoot, token }: Parameters_) {
   });
 
   const protectedBot = bot.errorBoundary(errorHandler);
+
+  protectedBot.use(sequentialize(getSessionKey));
+  protectedBot.use(session());
 
   protectedBot.use(middlewares.updateLogger());
   protectedBot.use(setCommands);

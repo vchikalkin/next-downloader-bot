@@ -3,13 +3,16 @@ import { type AutoChatActionFlavor } from '@grammyjs/auto-chat-action';
 import { type CommandsFlavor } from '@grammyjs/commands';
 import { type HydrateFlavor } from '@grammyjs/hydrate';
 import { type I18nFlavor } from '@grammyjs/i18n';
-import { type Context as DefaultContext } from 'grammy';
+import { type Context as DefaultContext, type SessionFlavor } from 'grammy';
 
 export type Context = HydrateFlavor<
   AutoChatActionFlavor &
     CommandsFlavor &
     DefaultContext &
-    I18nFlavor & {
+    I18nFlavor &
+    SessionFlavor<SessionData> & {
       logger: typeof logger;
     }
 >;
+
+export type SessionData = {};
