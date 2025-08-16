@@ -4,6 +4,7 @@ import { type Context } from './context';
 import * as features from './features';
 import { errorHandler } from './handlers/errors';
 import { i18n } from './i18n';
+import * as middlewares from './middlewares';
 import { env } from '@/config/env';
 import { logger } from '@/utils/logger';
 import { getRedisInstance } from '@/utils/redis';
@@ -52,6 +53,7 @@ export function createBot({ apiRoot, token }: Parameters_) {
 
   const protectedBot = bot.errorBoundary(errorHandler);
 
+  protectedBot.use(middlewares.updateLogger());
   protectedBot.use(setCommands);
   protectedBot.use(autoChatAction(bot.api));
   protectedBot.use(hydrate());
