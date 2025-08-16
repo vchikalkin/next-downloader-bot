@@ -34,7 +34,7 @@ export function createBot({ apiRoot, token }: Parameters_) {
       },
       limit: 1,
       onLimitExceeded: async (ctx) => {
-        await ctx.reply(ctx.t('err_limit_exceeded'));
+        await ctx.reply(ctx.t('err-limit-exceeded'));
       },
       storageClient: redis,
       timeFrame: env.RATE_LIMIT,

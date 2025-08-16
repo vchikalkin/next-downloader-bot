@@ -17,7 +17,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     const url = context.message.text.trim();
 
     if (!validateTikTokUrl(url)) {
-      return context.reply(context.t('err_invalid_url'));
+      return context.reply(context.t('err-invalid-url'));
     }
 
     const cachedFileId = await redis.get(url);
@@ -34,7 +34,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     const imagesUrls = result?.images;
 
     if (!videoUrl && !imagesUrls?.length) {
-      return context.reply(context.t('err_invalid_download_urls'));
+      return context.reply(context.t('err-invalid-download-urls'));
     }
 
     if (result?.type === 'video' && videoUrl) {
@@ -50,7 +50,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     }
   } catch (error) {
     context.logger.error(error);
-    return context.reply(context.t('err_generic'));
+    return context.reply(context.t('err-generic'));
   }
 });
 
