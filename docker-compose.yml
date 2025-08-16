@@ -1,12 +1,12 @@
 services:
   redis:
-    env_file:
-      - .env
     image: redis:8-alpine
     restart: always
+    env_file:
+      - .env
+    command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}']
     volumes:
       - redis-data:/data
-    command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}']
     deploy:
       resources:
         limits:
@@ -23,26 +23,31 @@ services:
       start_period: 30s
 
   next-downloader-bot:
-    image: "${DOCKERHUB_USERNAME}/next-downloader-bot:${BOT_IMAGE_TAG}"
+    image: '${DOCKERHUB_USERNAME}/next-downloader-bot:${BOT_IMAGE_TAG}'
+    restart: always
     env_file:
       - .env
-    restart: always
     depends_on:
       - redis
       - telegram-bot-api
-
-  telegram-bot-api:
-    restart: always
     deploy:
       resources:
         limits:
           cpus: '0.50'
           memory: 512M
+
+  telegram-bot-api:
+    image: aiogram/telegram-bot-api:latest
+    restart: always
     env_file:
       - .env
-    image: aiogram/telegram-bot-api:latest
     volumes:
       - telegram-bot-api-data:/var/lib/telegram-bot-api
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
 
 volumes:
   telegram-bot-api-data:
