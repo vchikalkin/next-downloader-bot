@@ -57,6 +57,9 @@ importers:
       '@grammyjs/auto-chat-action':
         specifier: ^0.1.1
         version: 0.1.1(grammy@1.37.1)
+      '@grammyjs/commands':
+        specifier: ^1.1.0
+        version: 1.1.0(grammy@1.37.1)
       '@grammyjs/hydrate':
         specifier: ^1.4.1
         version: 1.5.0(grammy@1.37.1)
@@ -500,6 +503,11 @@ packages:
     resolution: {integrity: sha512-70Jdy+keIri4452tluaZpKtHag5gD8pNczoXqajsnsx7pJC5wg3DAQ5unpt0xJb8KsVBAGWuJb298SBl3TVecg==}
     peerDependencies:
       grammy: ^1.0.0
+
+  '@grammyjs/commands@1.1.0':
+    resolution: {integrity: sha512-yU95GZLOfZabXGmbb5ImJ5cmVVxLk81iypvriiVpr2NGJ2DIAH3dzSJQNOgFbfX6li3rGm7l2h0JR1mvLkfF/w==}
+    peerDependencies:
+      grammy: ^1.17.1
 
   '@grammyjs/hydrate@1.5.0':
     resolution: {integrity: sha512-5OtGidRbqD3TGxQ9HXrVxCWhjzR0uJQ32SFNeJO/I+g2iMQ7pkBkhp7QK11x/K2nWfyu+EcPQE3fubLNb75xQw==}
@@ -4277,6 +4285,10 @@ snapshots:
   '@fluent/langneg@0.6.2': {}
 
   '@grammyjs/auto-chat-action@0.1.1(grammy@1.37.1)':
+    dependencies:
+      grammy: 1.37.1
+
+  '@grammyjs/commands@1.1.0(grammy@1.37.1)':
     dependencies:
       grammy: 1.37.1
 

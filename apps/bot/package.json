@@ -19,6 +19,7 @@
   ],
   "dependencies": {
     "@grammyjs/auto-chat-action": "^0.1.1",
+    "@grammyjs/commands": "^1.1.0",
     "@grammyjs/hydrate": "^1.4.1",
     "@grammyjs/i18n": "^1.1.2",
     "@grammyjs/parse-mode": "^2.2.0",

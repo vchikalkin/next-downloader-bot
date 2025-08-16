@@ -1,3 +1,7 @@
+start =
+    .description = Start the bot
+
+
 err-invalid-url = ❌ Invalid URL! Please send a valid TikTok link (e.g., https://vt.tiktok.com/...)
 err-invalid-download-urls = 🔍 Download links not found. The video might be deleted or unavailable
 err-generic = ⚠️ Something went wrong. Please try again in a few seconds

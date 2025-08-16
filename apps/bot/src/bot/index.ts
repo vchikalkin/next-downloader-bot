@@ -1,4 +1,5 @@
 /* eslint-disable n/callback-return */
+import { setCommands } from './commands';
 import { type Context } from './context';
 import * as features from './features';
 import { errorHandler } from './handlers/errors';
@@ -51,6 +52,7 @@ export function createBot({ apiRoot, token }: Parameters_) {
 
   const protectedBot = bot.errorBoundary(errorHandler);
 
+  protectedBot.use(setCommands);
   protectedBot.use(autoChatAction(bot.api));
   protectedBot.use(hydrate());
   protectedBot.use(features.welcome);
