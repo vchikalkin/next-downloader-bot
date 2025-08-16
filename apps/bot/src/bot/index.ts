@@ -53,6 +53,7 @@ export function createBot({ apiRoot, token }: Parameters_) {
 
   protectedBot.use(autoChatAction(bot.api));
   protectedBot.use(hydrate());
+  protectedBot.use(features.welcome);
   protectedBot.use(features.download);
 
   return bot;
