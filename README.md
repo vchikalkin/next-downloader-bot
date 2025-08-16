@@ -2,6 +2,14 @@
 
 A Telegram bot for downloading TikTok videos and images without watermarks. Built with TypeScript, Grammy.js, and Redis for caching.
 
+## 🤖 Try the Bot
+
+**The bot is already live and ready to use!** 
+
+👉 **[Start Next Downloader Bot](https://t.me/next_downloader_bot)**
+
+Simply send a TikTok video or image URL to the bot and it will download the content without watermarks for you.
+
 ## 🚀 Features
 
 - **TikTok Video Download**: Download TikTok videos without watermarks
@@ -20,6 +28,8 @@ A Telegram bot for downloading TikTok videos and images without watermarks. Buil
 - Telegram Bot Token
 
 ## 🛠️ Installation
+
+> **Note**: This is an open-source project. You can either use the [live bot](https://t.me/next_downloader_bot) or deploy your own instance.
 
 ### 1. Clone the repository
 
@@ -67,6 +77,8 @@ pnpm start
 
 ## 🐳 Docker Deployment
 
+> **Quick Start**: Use the [live bot](https://t.me/next_downloader_bot) instead of deploying your own instance.
+
 ### Quick Start with Docker Compose
 
 1. Create your `.env` file with the required environment variables
@@ -90,6 +102,16 @@ docker-compose -f docker-compose.dev.yml up -d
 ```
 
 ## 📱 Usage
+
+### Using the Live Bot
+
+1. **[Start the bot](https://t.me/next_downloader_bot)** on Telegram
+2. Send a TikTok video or image URL
+3. The bot will download and send you the content without watermarks
+
+### Self-Hosting
+
+If you want to run your own instance:
 
 1. Start a conversation with your bot on Telegram
 2. Send a TikTok video or image URL
