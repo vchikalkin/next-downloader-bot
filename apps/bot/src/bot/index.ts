@@ -1,12 +1,12 @@
 /* eslint-disable n/callback-return */
-import { setCommands } from './commands';
 import { type Context } from './context';
 import * as features from './features';
 import { errorHandler } from './handlers/errors';
 import { i18n } from './i18n';
-import { setInfo } from './info';
 import * as middlewares from './middlewares';
 import { session } from './middlewares';
+import { setCommands } from './settings/commands';
+import { setInfo } from './settings/info';
 import { env } from '@/config/env';
 import { logger } from '@/utils/logger';
 import { getRedisInstance } from '@/utils/redis';
@@ -55,14 +55,15 @@ export function createBot({ apiRoot, token }: Parameters_) {
     await next();
   });
 
+  setInfo(bot);
+  setCommands(bot);
+
   const protectedBot = bot.errorBoundary(errorHandler);
 
   protectedBot.use(sequentialize(getSessionKey));
   protectedBot.use(session());
 
   protectedBot.use(middlewares.updateLogger());
-  protectedBot.use(setInfo);
-  protectedBot.use(setCommands);
   protectedBot.use(autoChatAction(bot.api));
   protectedBot.use(hydrate());
   protectedBot.use(features.welcome);

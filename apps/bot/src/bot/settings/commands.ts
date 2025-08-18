@@ -2,9 +2,9 @@ import { type Context } from '@/bot/context';
 import { i18n } from '@/bot/i18n';
 import { Command, CommandGroup } from '@grammyjs/commands';
 import { type LanguageCode } from '@grammyjs/types';
-import { type NextFunction } from 'grammy';
+import { type Api, type Bot, type RawApi } from 'grammy';
 
-export async function setCommands(ctx: Context, next: NextFunction) {
+export async function setCommands({ api }: Bot<Context, Api<RawApi>>) {
   const start = createCommand('start');
 
   const commands = [start];
@@ -15,8 +15,7 @@ export async function setCommands(ctx: Context, next: NextFunction) {
 
   const commandsGroup = new CommandGroup().add([start]);
 
-  await commandsGroup.setCommands(ctx);
-  return next();
+  await commandsGroup.setCommands({ api });
 }
 
 function addLocalizations(command: Command) {
