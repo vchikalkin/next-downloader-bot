@@ -1,3 +1,18 @@
+description = 
+            🎬 **Universal Video Downloader**
+            This bot allows you to quickly download videos and images from popular platforms directly to Telegram.
+            
+            🟢 **Currently supported:**
+            - TikTok (without watermark)
+
+            ⚡ Simply send the video link, and the bot will download it for you.
+
+short-description = 
+                Download TikTok videos (without watermark).
+
+                For any questions: @vchikalkin
+
+
 start =
     .description = Start the bot
 

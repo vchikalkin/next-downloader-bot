@@ -4,6 +4,7 @@ import { type Context } from './context';
 import * as features from './features';
 import { errorHandler } from './handlers/errors';
 import { i18n } from './i18n';
+import { setInfo } from './info';
 import * as middlewares from './middlewares';
 import { session } from './middlewares';
 import { env } from '@/config/env';
@@ -60,6 +61,7 @@ export function createBot({ apiRoot, token }: Parameters_) {
   protectedBot.use(session());
 
   protectedBot.use(middlewares.updateLogger());
+  protectedBot.use(setInfo);
   protectedBot.use(setCommands);
   protectedBot.use(autoChatAction(bot.api));
   protectedBot.use(hydrate());
