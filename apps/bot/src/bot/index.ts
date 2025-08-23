@@ -1,6 +1,7 @@
 /* eslint-disable n/callback-return */
 import { type Context } from './context';
 import * as features from './features';
+import { unhandledFeature } from './features/unhandled';
 import { errorHandler } from './handlers/errors';
 import { i18n } from './i18n';
 import * as middlewares from './middlewares';
@@ -66,8 +67,12 @@ export function createBot({ apiRoot, token }: Parameters_) {
   protectedBot.use(middlewares.updateLogger());
   protectedBot.use(autoChatAction(bot.api));
   protectedBot.use(hydrate());
-  protectedBot.use(features.welcome);
-  protectedBot.use(features.download);
+
+  for (const feature of Object.values(features)) {
+    protectedBot.use(feature);
+  }
+
+  protectedBot.use(unhandledFeature);
 
   return bot;
 }
