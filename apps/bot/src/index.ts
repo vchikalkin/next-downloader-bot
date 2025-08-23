@@ -9,6 +9,12 @@ const bot = createBot({
   token: environment.BOT_TOKEN,
 });
 
+bot.catch((error) => {
+  logger.error('Grammy bot error:');
+  logger.error(`Message: ${error?.message}`);
+  logger.error(error.error); // собственно, ошибка
+});
+
 const runner = run(bot);
 
 const redis = getRedisInstance();
@@ -35,5 +41,13 @@ async function gracefulShutdown(signal: string) {
 // is about to be terminated
 process.once('SIGINT', () => gracefulShutdown('SIGINT'));
 process.once('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+process.on('unhandledRejection', (reason) => {
+  logger.error('Unhandled Rejection: ' + reason);
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception: ' + error);
+});
 
 logger.info('Bot started');
