@@ -14,4 +14,4 @@ feature.on('callback_query', logHandle('unhandled-callback-query'), (ctx) => {
   return ctx.answerCallbackQuery();
 });
 
-export { composer as unhandledFeature };
+export { composer as unhandled };
