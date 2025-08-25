@@ -12,23 +12,19 @@ const bot = createBot({
 bot.catch((error) => {
   logger.error('Grammy bot error:');
   logger.error(`Message: ${error?.message}`);
-  logger.error(error.error); // собственно, ошибка
+  logger.error(error.error);
 });
 
 const runner = run(bot);
-
 const redis = getRedisInstance();
 
-// Graceful shutdown function
 async function gracefulShutdown(signal: string) {
   logger.info(`Received ${signal}, starting graceful shutdown...`);
 
   try {
-    // Stop the bot
     await runner.stop();
     logger.info('Bot stopped');
 
-    // Disconnect Redis
     redis.disconnect();
     logger.info('Redis disconnected');
   } catch (error) {
@@ -37,8 +33,6 @@ async function gracefulShutdown(signal: string) {
   }
 }
 
-// Stopping the bot when the Node.js process
-// is about to be terminated
 process.once('SIGINT', () => gracefulShutdown('SIGINT'));
 process.once('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
