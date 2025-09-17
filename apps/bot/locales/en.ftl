@@ -10,7 +10,7 @@ description =
 short-description = 
                 Download TikTok videos (without watermark).
 
-                For any questions: @vchikalkin
+                For any questions: @v_dev_support
 
 
 start =

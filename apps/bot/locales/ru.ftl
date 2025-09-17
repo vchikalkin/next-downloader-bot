@@ -10,7 +10,7 @@ description =
 short-description = 
                 Скачивай видео и изображения из TikTok (без водяного знака).
 
-                По всем вопросам: @vchikalkin
+                По всем вопросам: @v_dev_support
 
 
 start =
