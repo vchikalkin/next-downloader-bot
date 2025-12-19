@@ -1,6 +1,6 @@
 # Next-Downloader-Bot
 
-A Telegram bot for downloading TikTok videos and images without watermarks. Built with TypeScript, Grammy.js, and Redis for caching.
+A Telegram bot for downloading TikTok and Instagram videos and images without watermarks. Built with TypeScript, Grammy.js, and Redis for caching.
 
 ## 🤖 Try the Bot
 
@@ -8,12 +8,13 @@ A Telegram bot for downloading TikTok videos and images without watermarks. Buil
 
 👉 **[Start Next Downloader Bot](https://t.me/next_downloader_bot)**
 
-Simply send a TikTok video or image URL to the bot and it will download the content without watermarks for you.
+Simply send a TikTok or Instagram video or image URL to the bot and it will download the content without watermarks for you.
 
 ## 🚀 Features
 
 - **TikTok Video Download**: Download TikTok videos without watermarks
-- **Image Support**: Download TikTok image collections
+- **Instagram Video Download**: Download Instagram Reels, posts, and IGTV videos without watermarks
+- **Image/Photo Support**: Download TikTok and Instagram image collections
 - **Caching**: Redis-based caching to avoid re-downloading the same content
 - **Rate Limiting**: Built-in rate limiting to prevent abuse
 - **Internationalization**: Multi-language support (English, Russian)
@@ -106,7 +107,7 @@ docker-compose -f docker-compose.dev.yml up -d
 ### Using the Live Bot
 
 1. **[Start the bot](https://t.me/next_downloader_bot)** on Telegram
-2. Send a TikTok video or image URL
+2. Send a TikTok or Instagram video or image URL
 3. The bot will download and send you the content without watermarks
 
 ### Self-Hosting
@@ -114,14 +115,13 @@ docker-compose -f docker-compose.dev.yml up -d
 If you want to run your own instance:
 
 1. Start a conversation with your bot on Telegram
-2. Send a TikTok video or image URL
+2. Send a TikTok or Instagram video or image URL
 3. The bot will download and send you the content without watermarks
 
 ### Supported URL Formats
 
-- TikTok video URLs: `https://www.tiktok.com/@username/video/1234567890`
-- TikTok image URLs: `https://www.tiktok.com/@username/photo/1234567890`
 - Short TikTok URLs: `https://vt.tiktok.com/ZSHs35NpuL1nt-mE2tD`
+- Instagram post URLs: `https://www.instagram.com/p/SHORTCODE/`
 
 ## 🏗️ Project Structure
 
@@ -229,7 +229,7 @@ The bot includes comprehensive logging using Pino:
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+4. Push to the branch (`git push origin feature/amazing-feature'`)
 5. Open a Pull Request
 
 ## 📄 License
@@ -238,7 +238,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## ⚠️ Disclaimer
 
-This bot is for educational purposes only. Please respect TikTok's terms of service and copyright laws. Users are responsible for ensuring they have the right to download and use the content.
+This bot is for educational purposes only. Please respect TikTok's and Instagram's terms of service and copyright laws. Users are responsible for ensuring they have the right to download and use the content.
 
 ## 🆘 Support
 
@@ -254,3 +254,4 @@ If you encounter any issues:
 - [Telegram Bot API](https://core.telegram.org/bots/api)
 - [TikTok API DL](https://github.com/tobyg74/tiktok-api-dl)
 - [Redis Documentation](https://redis.io/documentation)
+- [Instagram Platform Documentation](https://developers.facebook.com/docs/instagram)

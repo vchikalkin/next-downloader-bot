@@ -4,7 +4,8 @@ import { logHandle } from '../helpers/logging';
 import { TTL_URLS } from '@/config/redis';
 import { getRedisInstance } from '@/utils/redis';
 import { getTiktokDownloadUrl } from '@/utils/tiktok';
-import { validateTikTokUrl } from '@/utils/urls';
+import { getInstagramDownloadUrl } from '@/utils/instagram';
+import { validateTikTokUrl, validateInstagramUrl } from '@/utils/urls';
 import { Composer, InputFile } from 'grammy';
 import { cluster } from 'radashi';
 
@@ -16,7 +17,10 @@ const redis = getRedisInstance();
 feature.on('message:text', logHandle('download-message'), async (context) => {
   const url = context.message.text.trim();
 
-  if (!validateTikTokUrl(url)) {
+  const isTikTok = validateTikTokUrl(url);
+  const isInstagram = validateInstagramUrl(url);
+
+  if (!isTikTok && !isInstagram) {
     return context.reply(context.t('err-invalid-url'));
   }
 
@@ -25,7 +29,18 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     return context.replyWithVideo(cachedFileId);
   }
 
-  const { images: imagesUrls, play: videoUrl } = await getTiktokDownloadUrl(url);
+  let imagesUrls: string[] | undefined;
+  let videoUrl: string | undefined;
+
+  if (isTikTok) {
+    const result = await getTiktokDownloadUrl(url);
+    imagesUrls = result.images;
+    videoUrl = result.play;
+  } else if (isInstagram) {
+    const result = await getInstagramDownloadUrl(url);
+    imagesUrls = result.images;
+    videoUrl = result.play;
+  }
 
   if (!videoUrl && !imagesUrls?.length) {
     return context.reply(context.t('err-invalid-download-urls'));
