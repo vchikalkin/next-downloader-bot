@@ -53,51 +53,46 @@ export interface DownloadRoot {
 const qualityOrder = ['144p', '240p', '360p', '480p', '1080p', '720p'].reverse();
 
 export async function getYoutubeDownloadUrl(url: string) {
-  try {
-    // get session cookie
-    await client.get('https://downr.org/.netlify/functions/analytics');
+  // get session cookie
+  await client.get('https://downr.org/.netlify/functions/analytics');
 
-    // fetch video info
-    const { data: infoData } = await client.post<InfoRoot>(
-      'https://downr.org/.netlify/functions/video-info',
-      {
-        url,
-      },
+  // fetch video info
+  const { data: infoData } = await client.post<InfoRoot>(
+    'https://downr.org/.netlify/functions/video-info',
+    {
+      url,
+    },
+  );
+
+  if (!infoData?.medias.length) throw new Error('Invalid YouTube response');
+  if (infoData.duration > 120) throw new Error('Video duration exceeds limit');
+
+  let quality: string | undefined;
+
+  for (const q of qualityOrder) {
+    const hasQuality = infoData.medias.find(
+      (media) => media.type === 'video' && media.quality === q && media.extension === 'mp4',
     );
 
-    if (!infoData?.medias.length) throw new Error('Invalid YouTube response');
-    if (infoData.duration > 120) throw new Error('Video duration exceeds limit');
-
-    let quality: string | undefined;
-
-    for (const q of qualityOrder) {
-      const hasQuality = infoData.medias.find(
-        (media) => media.type === 'video' && media.quality === q && media.extension === 'mp4',
-      );
-
-      if (hasQuality) {
-        quality = q;
-        break;
-      }
+    if (hasQuality) {
+      quality = q;
+      break;
     }
-
-    if (!quality) throw new Error('No suitable quality found');
-
-    // fetch download link
-    const { data: downloadData } = await client.post<DownloadRoot>(
-      'https://downr.org/.netlify/functions/youtube-download',
-      {
-        downloadMode: 'video',
-        url,
-        videoQuality: quality,
-      },
-    );
-
-    return {
-      play: downloadData.url,
-    };
-  } catch (error) {
-    console.error('Error fetching YouTube download URL:', error);
-    return { play: undefined };
   }
+
+  if (!quality) throw new Error('No suitable quality found');
+
+  // fetch download link
+  const { data: downloadData } = await client.post<DownloadRoot>(
+    'https://downr.org/.netlify/functions/youtube-download',
+    {
+      downloadMode: 'video',
+      url,
+      videoQuality: quality,
+    },
+  );
+
+  return {
+    play: downloadData.url,
+  };
 }
