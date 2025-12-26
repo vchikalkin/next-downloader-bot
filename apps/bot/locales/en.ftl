@@ -24,5 +24,11 @@ err-invalid-download-urls = 🔍 Download links not found. The video might be de
 err-generic = ⚠️ Something went wrong. Please try again in a few seconds
 err-limit-exceeded = 🚫 Too many requests! Please wait
 
+err-invalid-tiktok-response = 🔍 Invalid TikTok response. The video might be deleted or unavailable
+err-invalid-instagram-response = 🔍 Invalid Instagram response. The post might be deleted or unavailable
+err-invalid-youtube-response = 🔍 Invalid YouTube response. The video might be deleted or unavailable
+err-youtube-duration-exceeded = 🚫 Video duration exceeds limit
+err-youtube-no-quality = 🔍 No suitable quality found for this video
+
 
 msg-welcome = Welcome! I can download TikTok, Instagram or YouTube videos and images for you without watermark. Just send me the link (for example: https://vt.tiktok.com/ or https://www.instagram.com/p/ or https://www.youtube.com/)

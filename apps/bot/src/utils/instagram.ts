@@ -27,7 +27,7 @@ export async function getInstagramDownloadUrl(url: string) {
     url,
   });
 
-  if (!data) throw new Error('Invalid Instagram response');
+  if (!data) throw new Error('err-invalid-instagram-response');
 
   const isVideo = data.type === 'video' || !data.carouselItems.length;
 

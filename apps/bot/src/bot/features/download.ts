@@ -34,17 +34,26 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   let imagesUrls: string[] | undefined;
   let videoUrl: string | undefined;
 
-  if (isTikTok) {
-    const result = await getTiktokDownloadUrl(url);
-    imagesUrls = result.images;
-    videoUrl = result.play;
-  } else if (isInstagram) {
-    const result = await getInstagramDownloadUrl(url);
-    imagesUrls = result.images;
-    videoUrl = result.play;
-  } else if (isYoutube) {
-    const result = await getYoutubeDownloadUrl(url);
-    videoUrl = result.play;
+  try {
+    if (isTikTok) {
+      const result = await getTiktokDownloadUrl(url);
+      imagesUrls = result.images;
+      videoUrl = result.play;
+    } else if (isInstagram) {
+      const result = await getInstagramDownloadUrl(url);
+      imagesUrls = result.images;
+      videoUrl = result.play;
+    } else if (isYoutube) {
+      const result = await getYoutubeDownloadUrl(url);
+      videoUrl = result.play;
+    }
+  } catch (err: any) {
+    const message = err?.message ?? String(err);
+    if (typeof message === 'string' && message.startsWith('err-')) {
+      return context.reply(context.t(message));
+    }
+
+    return context.reply(context.t('err-generic'));
   }
 
   if (!videoUrl && !imagesUrls?.length) {

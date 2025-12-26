@@ -1,3 +1,4 @@
+import { MAX_VIDEO_DURATION_SECONDS } from '@/constants/limits';
 import axios from 'axios';
 import { wrapper } from 'axios-cookiejar-support';
 import * as tough from 'tough-cookie';
@@ -64,8 +65,8 @@ export async function getYoutubeDownloadUrl(url: string) {
     },
   );
 
-  if (!infoData?.medias.length) throw new Error('Invalid YouTube response');
-  if (infoData.duration > 120) throw new Error('Video duration exceeds limit');
+  if (!infoData?.medias.length) throw new Error('err-invalid-youtube-response');
+  if (infoData.duration > MAX_VIDEO_DURATION_SECONDS) throw new Error('err-youtube-duration-exceeded');
 
   let quality: string | undefined;
 
@@ -80,7 +81,7 @@ export async function getYoutubeDownloadUrl(url: string) {
     }
   }
 
-  if (!quality) throw new Error('No suitable quality found');
+  if (!quality) throw new Error('err-youtube-no-quality');
 
   // fetch download link
   const { data: downloadData } = await client.post<DownloadRoot>(

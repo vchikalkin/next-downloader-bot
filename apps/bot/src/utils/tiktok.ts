@@ -39,7 +39,7 @@ export async function getTiktokDownloadUrl(url: string) {
   const res = await axios.get(`https://tikwm.com/api/?url=${encodeURIComponent(url)}`);
   const { data } = res.data as Root;
 
-  if (!data) throw new Error('Invalid TikTok response');
+  if (!data) throw new Error('err-invalid-tiktok-response');
 
   return data;
 }
