@@ -5,9 +5,10 @@ import { TTL_URLS } from '@/config/redis';
 import { getRedisInstance } from '@/utils/redis';
 import { getTiktokDownloadUrl } from '@/utils/tiktok';
 import { getInstagramDownloadUrl } from '@/utils/instagram';
-import { validateTikTokUrl, validateInstagramUrl } from '@/utils/urls';
+import { validateTikTokUrl, validateInstagramUrl, validateYoutubeUrl } from '@/utils/urls';
 import { Composer, InputFile } from 'grammy';
 import { cluster } from 'radashi';
+import { getYoutubeDownloadUrl } from '@/utils/youtube';
 
 const composer = new Composer<Context>();
 const feature = composer.chatType('private');
@@ -19,8 +20,9 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
 
   const isTikTok = validateTikTokUrl(url);
   const isInstagram = validateInstagramUrl(url);
+  const isYoutube = validateYoutubeUrl(url);
 
-  if (!isTikTok && !isInstagram) {
+  if (!isTikTok && !isInstagram && !isYoutube) {
     return context.reply(context.t('err-invalid-url'));
   }
 
@@ -39,6 +41,9 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   } else if (isInstagram) {
     const result = await getInstagramDownloadUrl(url);
     imagesUrls = result.images;
+    videoUrl = result.play;
+  } else if (isYoutube) {
+    const result = await getYoutubeDownloadUrl(url);
     videoUrl = result.play;
   }
 
