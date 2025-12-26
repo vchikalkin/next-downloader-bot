@@ -1,6 +1,6 @@
 # Next-Downloader-Bot
 
-A Telegram bot for downloading TikTok and Instagram videos and images without watermarks. Built with TypeScript, Grammy.js, and Redis for caching.
+A Telegram bot for downloading TikTok, Instagram, YouTube, and YouTube Shorts videos and images without watermarks. Built with TypeScript, Grammy.js, and Redis for caching.
 
 ## 🤖 Try the Bot
 
@@ -8,12 +8,14 @@ A Telegram bot for downloading TikTok and Instagram videos and images without wa
 
 👉 **[Start Next Downloader Bot](https://t.me/next_downloader_bot)**
 
-Simply send a TikTok or Instagram video or image URL to the bot and it will download the content without watermarks for you.
+Simply send a TikTok, Instagram, YouTube, or YouTube Shorts video or image URL to the bot and it will download the content without watermarks for you.
 
 ## 🚀 Features
 
 - **TikTok Video Download**: Download TikTok videos without watermarks
 - **Instagram Video Download**: Download Instagram Reels, posts, and IGTV videos without watermarks
+- **YouTube Video Download**: Download YouTube videos in various qualities
+- **YouTube Shorts Download**: Download YouTube Shorts with ease
 - **Image/Photo Support**: Download TikTok and Instagram image collections
 - **Caching**: Redis-based caching to avoid re-downloading the same content
 - **Rate Limiting**: Built-in rate limiting to prevent abuse
@@ -252,6 +254,5 @@ If you encounter any issues:
 
 - [Grammy.js Documentation](https://grammy.dev/)
 - [Telegram Bot API](https://core.telegram.org/bots/api)
-- [TikTok API DL](https://github.com/tobyg74/tiktok-api-dl)
 - [Redis Documentation](https://redis.io/documentation)
 - [Instagram Platform Documentation](https://developers.facebook.com/docs/instagram)
