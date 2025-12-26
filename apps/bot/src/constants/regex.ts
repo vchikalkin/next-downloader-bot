@@ -4,3 +4,5 @@ export const TIKTOK_URL_REGEX =
 
 export const INSTAGRAM_URL_REGEX =
   /https?:\/\/(www\.)?instagram\.com\/(p|reel|tv|stories)\/([a-zA-Z0-9_-]+)(\/)?(\?utm_source=ig_web_copy_link&igshid=[a-z0-9]+)?/u;
+
+export const YOUTUBE_URL_REGEX = /(youtu.*be.*)\/(watch\?v=|embed\/|v|shorts|)(.*?((?=[&#?])|$))/u;
