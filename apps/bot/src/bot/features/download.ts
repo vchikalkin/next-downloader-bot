@@ -22,7 +22,9 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   const isInstagram = validateInstagramUrl(url);
   const isYoutube = validateYoutubeUrl(url);
 
-  if (!isTikTok && !isInstagram && !isYoutube) {
+  const isServiceSupported = isTikTok || isInstagram || isYoutube;
+
+  if (!isServiceSupported) {
     return context.reply(context.t('err-invalid-url'));
   }
 
@@ -67,11 +69,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
         chunk.map((imageUrl) => ({ media: imageUrl, type: 'photo' })),
       );
     }
-
-    return;
-  }
-
-  if (videoUrl) {
+  } else {
     const { video } = await context.replyWithVideo(new InputFile({ url: videoUrl }));
     await redis.set(url, video.file_id, 'EX', TTL_URLS);
   }
