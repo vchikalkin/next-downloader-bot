@@ -9,6 +9,8 @@ import { validateTikTokUrl, validateInstagramUrl, validateYoutubeUrl } from '@/u
 import { Composer, InputFile } from 'grammy';
 import { cluster } from 'radashi';
 import { getYoutubeDownloadUrl } from '@/utils/youtube';
+import { getDownloadUrl } from '@/utils/yt-dlp';
+import { logger } from '@/utils/logger';
 
 const composer = new Composer<Context>();
 const feature = composer.chatType('private');
@@ -34,28 +36,31 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   }
 
   let imagesUrls: string[] | undefined;
-  let videoUrl: string | undefined;
+  let videoUrl = await getDownloadUrl(url);
 
-  try {
-    if (isTikTok) {
-      const result = await getTiktokDownloadUrl(url);
-      imagesUrls = result.images;
-      videoUrl = result.play;
-    } else if (isInstagram) {
-      const result = await getInstagramDownloadUrl(url);
-      imagesUrls = result.images;
-      videoUrl = result.play;
-    } else if (isYoutube) {
-      const result = await getYoutubeDownloadUrl(url);
-      videoUrl = result.play;
-    }
-  } catch (err: any) {
-    const message = err?.message ?? String(err);
-    if (typeof message === 'string' && message.startsWith('err-')) {
-      return context.reply(context.t(message));
-    }
+  if (!videoUrl) {
+    logger.info(`Failed to get download URL for ${url}, using fallback`);
+    try {
+      if (isTikTok) {
+        const result = await getTiktokDownloadUrl(url);
+        imagesUrls = result.images;
+        videoUrl = result.play;
+      } else if (isInstagram) {
+        const result = await getInstagramDownloadUrl(url);
+        imagesUrls = result.images;
+        videoUrl = result.play;
+      } else if (isYoutube) {
+        const result = await getYoutubeDownloadUrl(url);
+        videoUrl = result.play;
+      }
+    } catch (err: any) {
+      const message = err?.message ?? String(err);
+      if (typeof message === 'string' && message.startsWith('err-')) {
+        return context.reply(context.t(message));
+      }
 
-    return context.reply(context.t('err-generic'));
+      return context.reply(context.t('err-generic'));
+    }
   }
 
   if (!videoUrl && !imagesUrls?.length) {
