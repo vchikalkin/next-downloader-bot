@@ -7,3 +7,5 @@ export const INSTAGRAM_URL_REGEX =
 
 export const YOUTUBE_URL_REGEX =
   /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([\w-]{11})(?:[?&]\S*)?/u;
+
+export const TAGS = /#[\p{L}\p{N}_]+/gu;

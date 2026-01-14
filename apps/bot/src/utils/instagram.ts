@@ -14,6 +14,7 @@ export type CarouselItem = {
 
 export type Root = {
   authorInfo: AuthorInfo;
+  caption: string;
   carouselItems: CarouselItem[];
   id: number;
   mediaUrls: string[];
@@ -33,12 +34,14 @@ export async function getInstagramDownloadUrl(url: string) {
 
   if (isVideo) {
     return {
+      caption: data.caption,
       images: [],
       play: data.mediaUrls.at(0),
     };
   }
 
   return {
+    caption: data.caption,
     images: data.mediaUrls,
     play: undefined,
   };
