@@ -24,32 +24,32 @@ const headers = {
 
 const client = wrapper(
   axios.create({
+    headers,
     jar,
     withCredentials: true,
-    headers,
   }),
 );
 
-export interface Media {
-  type: string;
-  quality: string;
-  extension: string;
-  fileSize: number;
-}
-
-export interface InfoRoot {
-  title: string;
-  thumbnail: string;
+export type DownloadRoot = {
   duration: number;
-  medias: Media[];
-}
-
-export interface DownloadRoot {
+  filename: string;
   status: string;
   url: string;
-  filename: string;
+};
+
+export type InfoRoot = {
   duration: number;
-}
+  medias: Media[];
+  thumbnail: string;
+  title: string;
+};
+
+export type Media = {
+  extension: string;
+  fileSize: number;
+  quality: string;
+  type: string;
+};
 
 const qualityOrder = ['144p', '240p', '360p', '480p', '1080p', '720p'].reverse();
 
@@ -66,7 +66,8 @@ export async function getYoutubeDownloadUrl(url: string) {
   );
 
   if (!infoData?.medias.length) throw new Error('err-invalid-youtube-response');
-  if (infoData.duration > MAX_VIDEO_DURATION_SECONDS) throw new Error('err-youtube-duration-exceeded');
+  if (infoData.duration > MAX_VIDEO_DURATION_SECONDS)
+    throw new Error('err-youtube-duration-exceeded');
 
   let quality: string | undefined;
 

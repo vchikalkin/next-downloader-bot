@@ -2,13 +2,13 @@
 import { type Context } from '../context';
 import { logHandle } from '../helpers/logging';
 import { TTL_URLS } from '@/config/redis';
+import { getInstagramDownloadUrl } from '@/utils/instagram';
 import { getRedisInstance } from '@/utils/redis';
 import { getTiktokDownloadUrl } from '@/utils/tiktok';
-import { getInstagramDownloadUrl } from '@/utils/instagram';
-import { validateTikTokUrl, validateInstagramUrl, validateYoutubeUrl } from '@/utils/urls';
+import { validateInstagramUrl, validateTikTokUrl, validateYoutubeUrl } from '@/utils/urls';
+import { getYoutubeDownloadUrl } from '@/utils/youtube';
 import { Composer, InputFile } from 'grammy';
 import { cluster } from 'radashi';
-import { getYoutubeDownloadUrl } from '@/utils/youtube';
 
 const composer = new Composer<Context>();
 const feature = composer.chatType('private');
@@ -22,7 +22,9 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   const isInstagram = validateInstagramUrl(url);
   const isYoutube = validateYoutubeUrl(url);
 
-  if (!isTikTok && !isInstagram && !isYoutube) {
+  const isSupportedService = isTikTok || isInstagram || isYoutube;
+
+  if (!isSupportedService) {
     return context.reply(context.t('err-invalid-url'));
   }
 
@@ -47,8 +49,9 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
       const result = await getYoutubeDownloadUrl(url);
       videoUrl = result.play;
     }
-  } catch (err: any) {
-    const message = err?.message ?? String(err);
+  } catch (error_: unknown) {
+    const error = error_ as Error;
+    const message = error?.message ?? String(error);
     if (typeof message === 'string' && message.startsWith('err-')) {
       return context.reply(context.t(message));
     }

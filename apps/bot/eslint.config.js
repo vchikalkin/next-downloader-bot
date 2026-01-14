@@ -11,6 +11,7 @@ export default [
       '@typescript-eslint/naming-convention': 'off',
       'unicorn/prevent-abbreviations': 'off',
       'canonical/id-match': 'off',
+      'id-length': 'off',
     },
   },
 ];

@@ -1,26 +1,26 @@
 import axios from 'axios';
 
-export interface Root {
-  type: string;
-  id: number;
-  url: string;
-  username: string;
-  mediaUrls: string[];
-  carouselItems: CarouselItem[];
-  authorInfo: AuthorInfo;
-}
-
-export interface CarouselItem {
-  url: string;
-  type: string;
-}
-
-export interface AuthorInfo {
-  id: number;
-  username: string;
-  nickname: string;
+export type AuthorInfo = {
   avatar: string;
-}
+  id: number;
+  nickname: string;
+  username: string;
+};
+
+export type CarouselItem = {
+  type: string;
+  url: string;
+};
+
+export type Root = {
+  authorInfo: AuthorInfo;
+  carouselItems: CarouselItem[];
+  id: number;
+  mediaUrls: string[];
+  type: string;
+  url: string;
+  username: string;
+};
 
 export async function getInstagramDownloadUrl(url: string) {
   const { data } = await axios.post<Root>('https://thesocialcat.com/api/instagram-download', {
@@ -33,8 +33,8 @@ export async function getInstagramDownloadUrl(url: string) {
 
   if (isVideo) {
     return {
-      play: data.mediaUrls.at(0),
       images: [],
+      play: data.mediaUrls.at(0),
     };
   }
 
