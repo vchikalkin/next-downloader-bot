@@ -14,9 +14,9 @@ import { cluster } from 'radashi';
 
 const composer = new Composer<Context>();
 const feature = composer.chatType('private');
-
 const redis = getRedisInstance();
 
+// Форматирование подписи как expandable blockquote
 function formatCaption(caption: string) {
   return fmt`${expandableBlockquote} ${caption} ${expandableBlockquote}`;
 }
@@ -24,6 +24,7 @@ function formatCaption(caption: string) {
 feature.on('message:text', logHandle('download-message'), async (context) => {
   const url = context.message.text.trim();
 
+  // Проверка поддерживаемых сервисов
   const isTikTok = validateTikTokUrl(url);
   const isInstagram = validateInstagramUrl(url);
   const isYoutube = validateYoutubeUrl(url);
@@ -34,11 +35,13 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     return context.reply(context.t('err-invalid-url'));
   }
 
+  // Проверка кеша
   const cachedFileId = await redis.get(url);
-  let cachedMessageId: number | undefined;
+  let contentMessageId: number | undefined;
+
   if (cachedFileId) {
     const cachedMessage = await context.replyWithVideo(cachedFileId);
-    cachedMessageId = cachedMessage.message_id;
+    contentMessageId = cachedMessage.message_id;
   }
 
   const cachedCaption = await redis.get(`caption:${url}`);
@@ -46,10 +49,11 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     const { entities, text } = formatCaption(cachedCaption);
     return context.reply(text, {
       entities,
-      reply_parameters: cachedMessageId ? { message_id: cachedMessageId } : undefined,
+      reply_parameters: contentMessageId ? { message_id: contentMessageId } : undefined,
     });
   }
 
+  // Загрузка данных с сервисов
   let imagesUrls: string[] | undefined;
   let videoUrl: string | undefined;
   let caption: string | undefined;
@@ -69,9 +73,8 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
       const result = await getYoutubeDownloadUrl(url);
       videoUrl = result.play;
     }
-  } catch (error_: unknown) {
-    const error = error_ as Error;
-    const message = error?.message ?? String(error);
+  } catch (error: unknown) {
+    const message = (error as Error)?.message ?? String(error);
     if (typeof message === 'string' && message.startsWith('err-')) {
       return context.reply(context.t(message));
     }
@@ -83,8 +86,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     return context.reply(context.t('err-invalid-download-urls'));
   }
 
-  let contentMessageId: number | undefined;
-
+  // Отправка изображений
   if (imagesUrls?.length) {
     const chunks = cluster(imagesUrls, 10);
     for (const chunk of chunks) {
@@ -98,17 +100,21 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     }
   }
 
-  if (videoUrl) {
+  // Отправка видео
+  if (videoUrl && !contentMessageId) {
     const { video, ...videoMessage } = await context.replyWithVideo(
       new InputFile({ url: videoUrl }),
     );
     contentMessageId = videoMessage.message_id;
+
     await redis.set(url, video.file_id, 'EX', TTL_URLS);
   }
 
+  // Отправка описания
   if (caption) {
     const { entities, text } = formatCaption(caption);
     await redis.set(`caption:${url}`, caption, 'EX', TTL_URLS);
+
     await context.reply(text, {
       entities,
       reply_parameters: contentMessageId ? { message_id: contentMessageId } : undefined,
