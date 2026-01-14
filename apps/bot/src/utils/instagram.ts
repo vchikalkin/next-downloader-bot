@@ -32,9 +32,17 @@ export async function getInstagramDownloadUrl(url: string) {
 
   const isVideo = data.type === 'video' || !data.carouselItems.length;
 
+  if (isVideo) {
+    return {
+      caption: data.caption,
+      images: [],
+      play: data.mediaUrls.at(0),
+    };
+  }
+
   return {
     caption: data.caption,
-    images: isVideo ? undefined : data.mediaUrls,
-    play: isVideo ? data.mediaUrls.at(0) : undefined,
+    images: data.mediaUrls,
+    play: undefined,
   };
 }

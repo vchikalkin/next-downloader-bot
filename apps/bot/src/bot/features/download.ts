@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/cognitive-complexity */
 /* eslint-disable consistent-return */
 import { type Context } from '../context';
 import { logHandle } from '../helpers/logging';
@@ -9,7 +8,7 @@ import { removeHashtags } from '@/utils/text';
 import { getTiktokDownloadUrl } from '@/utils/tiktok';
 import { validateInstagramUrl, validateTikTokUrl, validateYoutubeUrl } from '@/utils/urls';
 import { getYoutubeDownloadUrl } from '@/utils/youtube';
-import { expandableBlockquote, fmt } from '@grammyjs/parse-mode';
+import { code, expandableBlockquote, fmt } from '@grammyjs/parse-mode';
 import { Composer, InputFile } from 'grammy';
 import { cluster } from 'radashi';
 
@@ -17,10 +16,103 @@ const composer = new Composer<Context>();
 const feature = composer.chatType('private');
 const redis = getRedisInstance();
 
+// Проверить кэш и, при наличии, ответить видеo/подписью.
+// Возвращает { contentMessageId?, captionSent? }
+async function checkCacheAndReply(context: Context, url: string) {
+  let contentMessageId: number | undefined;
+
+  const cachedVideoId = await redis.get(url);
+  if (cachedVideoId) {
+    const cachedMessage = await context.replyWithVideo(cachedVideoId);
+    contentMessageId = cachedMessage.message_id;
+  }
+
+  if (contentMessageId) {
+    const cachedCaption = await redis.get(`caption:${url}`);
+    if (cachedCaption) {
+      const { entities, text } = formatCaption(cachedCaption);
+
+      if (text.trim().length)
+        await context.reply(text, {
+          entities,
+          reply_parameters: contentMessageId ? { message_id: contentMessageId } : undefined,
+        });
+      return { captionSent: true, contentMessageId };
+    }
+  }
+
+  return { contentMessageId };
+}
+
 // Форматирование подписи как expandable blockquote
 function formatCaption(caption: string) {
   const cleanCaption = removeHashtags(caption);
-  return fmt`${expandableBlockquote} ${cleanCaption} ${expandableBlockquote}`;
+  return fmt`${expandableBlockquote} ${code} ${cleanCaption} ${code} ${expandableBlockquote}`;
+}
+
+// Отправка подписи и запись в кэш
+async function sendCaptionAndCache(
+  context: Context,
+  caption: string | undefined,
+  url: string,
+  contentMessageId?: number,
+) {
+  if (!caption) return;
+
+  const { entities, text } = formatCaption(caption);
+  await redis.set(`caption:${url}`, caption, 'EX', TTL_URLS);
+
+  if (text.trim().length)
+    await context.reply(text, {
+      entities,
+      reply_parameters: contentMessageId ? { message_id: contentMessageId } : undefined,
+    });
+}
+
+// Отправка изображений (порциями). Возвращает contentMessageId (если установлен)
+async function sendImages(
+  context: Context,
+  imagesUrls: string[],
+  existingContentMessageId?: number,
+) {
+  if (!imagesUrls?.length) return existingContentMessageId;
+
+  const chunks = cluster(imagesUrls, 10);
+  let contentMessageId = existingContentMessageId;
+
+  for (const chunk of chunks) {
+    const imageMessages = await context.replyWithMediaGroup(
+      chunk.map((imageUrl) => ({ media: imageUrl, type: 'photo' })),
+    );
+
+    if (!contentMessageId && imageMessages.length) {
+      contentMessageId = imageMessages.at(0)?.message_id;
+    }
+  }
+
+  return contentMessageId;
+}
+
+// Отправка видео и запись в кэш (только если видео отправлено впервые)
+async function sendVideoAndCache(
+  context: Context,
+  videoUrl: string | undefined,
+  url: string,
+  existingContentMessageId?: number,
+) {
+  let contentMessageId = existingContentMessageId;
+
+  if (videoUrl && !contentMessageId) {
+    const { video, ...videoMessage } = await context.replyWithVideo(
+      new InputFile({ url: videoUrl }),
+    );
+    contentMessageId = videoMessage.message_id;
+
+    // сохраняем file_id полученного видео
+    await redis.set(url, video.file_id, 'EX', TTL_URLS);
+  }
+
+  return contentMessageId;
 }
 
 feature.on('message:text', logHandle('download-message'), async (context) => {
@@ -37,25 +129,10 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     return context.reply(context.t('err-invalid-url'));
   }
 
-  let contentMessageId: number | undefined;
-
-  // Проверка кеша
-  const cachedVideoId = await redis.get(url);
-  if (cachedVideoId) {
-    const cachedMessage = await context.replyWithVideo(cachedVideoId);
-    contentMessageId = cachedMessage.message_id;
-  }
-
-  if (contentMessageId) {
-    const cachedCaption = await redis.get(`caption:${url}`);
-    if (cachedCaption) {
-      const { entities, text } = formatCaption(cachedCaption);
-      return context.reply(text, {
-        entities,
-        reply_parameters: contentMessageId ? { message_id: contentMessageId } : undefined,
-      });
-    }
-  }
+  // Проверка кеша и быстрый ответ, если есть подпись в кеше
+  const cacheResult = await checkCacheAndReply(context, url);
+  if (cacheResult.captionSent) return;
+  let contentMessageId = cacheResult.contentMessageId;
 
   // Загрузка данных с сервисов
   let imagesUrls: string[] | undefined;
@@ -91,39 +168,13 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   }
 
   // Отправка изображений
-  if (imagesUrls?.length) {
-    const chunks = cluster(imagesUrls, 10);
-    for (const chunk of chunks) {
-      const imageMessages = await context.replyWithMediaGroup(
-        chunk.map((imageUrl) => ({ media: imageUrl, type: 'photo' })),
-      );
+  contentMessageId = await sendImages(context, imagesUrls ?? [], contentMessageId);
 
-      if (!contentMessageId && imageMessages.length) {
-        contentMessageId = imageMessages.at(0)?.message_id;
-      }
-    }
-  }
+  // Отправка видео (если ещё не отправлено) и запись в кэш
+  contentMessageId = await sendVideoAndCache(context, videoUrl, url, contentMessageId);
 
-  // Отправка видео
-  if (videoUrl && !contentMessageId) {
-    const { video, ...videoMessage } = await context.replyWithVideo(
-      new InputFile({ url: videoUrl }),
-    );
-    contentMessageId = videoMessage.message_id;
-
-    await redis.set(url, video.file_id, 'EX', TTL_URLS);
-  }
-
-  // Отправка описания
-  if (caption) {
-    const { entities, text } = formatCaption(caption);
-    await redis.set(`caption:${url}`, caption, 'EX', TTL_URLS);
-
-    await context.reply(text, {
-      entities,
-      reply_parameters: contentMessageId ? { message_id: contentMessageId } : undefined,
-    });
-  }
+  // Отправка описания и запись в кэш
+  await sendCaptionAndCache(context, caption, url, contentMessageId);
 });
 
 export { composer as download };
