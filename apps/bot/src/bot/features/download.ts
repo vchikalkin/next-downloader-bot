@@ -5,6 +5,7 @@ import { logHandle } from '../helpers/logging';
 import { TTL_URLS } from '@/config/redis';
 import { getInstagramDownloadUrl } from '@/utils/instagram';
 import { getRedisInstance } from '@/utils/redis';
+import { removeHashtags } from '@/utils/text';
 import { getTiktokDownloadUrl } from '@/utils/tiktok';
 import { validateInstagramUrl, validateTikTokUrl, validateYoutubeUrl } from '@/utils/urls';
 import { getYoutubeDownloadUrl } from '@/utils/youtube';
@@ -18,7 +19,8 @@ const redis = getRedisInstance();
 
 // Форматирование подписи как expandable blockquote
 function formatCaption(caption: string) {
-  return fmt`${expandableBlockquote} ${caption} ${expandableBlockquote}`;
+  const cleanCaption = removeHashtags(caption);
+  return fmt`${expandableBlockquote} ${cleanCaption} ${expandableBlockquote}`;
 }
 
 feature.on('message:text', logHandle('download-message'), async (context) => {
