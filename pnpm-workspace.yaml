@@ -3,7 +3,7 @@ packages:
   - packages/*
 catalog:
   "@types/node": ^20
-  "@vchikalkin/eslint-config-awesome": ^2.2.2
+  "@vchikalkin/eslint-config-awesome": ^2.2.3
   dotenv-cli: ^7.4.4
   eslint: ^9.17.0
   husky: ^9.1.7
