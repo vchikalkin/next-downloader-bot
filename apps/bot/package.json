@@ -40,7 +40,6 @@
     "tough-cookie": "^6.0.0",
     "tsup": "^8.5.0",
     "typescript": "catalog:",
-    "ytdlp-nodejs": "^2.3.5",
     "zod": "catalog:"
   },
   "devDependencies": {

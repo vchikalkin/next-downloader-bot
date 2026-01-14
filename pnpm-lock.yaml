@@ -117,9 +117,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.2
-      ytdlp-nodejs:
-        specifier: ^2.3.5
-        version: 2.3.5
       zod:
         specifier: 'catalog:'
         version: 3.25.76
@@ -3602,11 +3599,6 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-
-  ytdlp-nodejs@2.3.5:
-    resolution: {integrity: sha512-7V08DRv8C1K0HxJFvRoaoLYFS/reJ9VJBlaMVhEvdi2IsYK/9Hae1Mah65Y+bhk3RAmx7G9eTfpOhkj3bp0Zbw==}
-    engines: {node: '>=16.0.0'}
-    hasBin: true
 
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
@@ -7448,7 +7440,5 @@ snapshots:
     optional: true
 
   yocto-queue@0.1.0: {}
-
-  ytdlp-nodejs@2.3.5: {}
 
   zod@3.25.76: {}
