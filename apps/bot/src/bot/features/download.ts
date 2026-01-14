@@ -37,22 +37,24 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     return context.reply(context.t('err-invalid-url'));
   }
 
-  // Проверка кеша
-  const cachedFileId = await redis.get(url);
   let contentMessageId: number | undefined;
 
-  if (cachedFileId) {
-    const cachedMessage = await context.replyWithVideo(cachedFileId);
+  // Проверка кеша
+  const cachedVideoId = await redis.get(url);
+  if (cachedVideoId) {
+    const cachedMessage = await context.replyWithVideo(cachedVideoId);
     contentMessageId = cachedMessage.message_id;
   }
 
-  const cachedCaption = await redis.get(`caption:${url}`);
-  if (cachedCaption) {
-    const { entities, text } = formatCaption(cachedCaption);
-    return context.reply(text, {
-      entities,
-      reply_parameters: contentMessageId ? { message_id: contentMessageId } : undefined,
-    });
+  if (contentMessageId) {
+    const cachedCaption = await redis.get(`caption:${url}`);
+    if (cachedCaption) {
+      const { entities, text } = formatCaption(cachedCaption);
+      return context.reply(text, {
+        entities,
+        reply_parameters: contentMessageId ? { message_id: contentMessageId } : undefined,
+      });
+    }
   }
 
   // Загрузка данных с сервисов
