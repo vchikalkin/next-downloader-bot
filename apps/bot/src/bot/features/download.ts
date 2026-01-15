@@ -16,8 +16,6 @@ const composer = new Composer<Context>();
 const feature = composer.chatType('private');
 const redis = getRedisInstance();
 
-// Проверить кэш и, при наличии, ответить видеo/подписью.
-// Возвращает { contentMessageId?, captionSent? }
 async function checkCacheAndReply(context: Context, url: string) {
   let contentMessageId: number | undefined;
 
@@ -44,13 +42,11 @@ async function checkCacheAndReply(context: Context, url: string) {
   return { contentMessageId };
 }
 
-// Форматирование подписи как expandable blockquote
 function formatCaption(caption: string) {
   const cleanCaption = removeHashtags(caption);
   return fmt`${expandableBlockquote} ${code} ${cleanCaption} ${code} ${expandableBlockquote}`;
 }
 
-// Отправка подписи и запись в кэш
 async function sendCaptionAndCache(
   context: Context,
   caption: string | undefined,
@@ -69,7 +65,6 @@ async function sendCaptionAndCache(
     });
 }
 
-// Отправка изображений (порциями). Возвращает contentMessageId (если установлен)
 async function sendImages(
   context: Context,
   imagesUrls: string[],
@@ -93,7 +88,6 @@ async function sendImages(
   return contentMessageId;
 }
 
-// Отправка видео и запись в кэш (только если видео отправлено впервые)
 async function sendVideoAndCache(
   context: Context,
   videoUrl: string | undefined,
@@ -108,7 +102,6 @@ async function sendVideoAndCache(
     );
     contentMessageId = videoMessage.message_id;
 
-    // сохраняем file_id полученного видео
     await redis.set(url, video.file_id, 'EX', TTL_URLS);
   }
 
@@ -118,7 +111,6 @@ async function sendVideoAndCache(
 feature.on('message:text', logHandle('download-message'), async (context) => {
   const url = context.message.text.trim();
 
-  // Проверка поддерживаемых сервисов
   const isTikTok = validateTikTokUrl(url);
   const isInstagram = validateInstagramUrl(url);
   const isYoutube = validateYoutubeUrl(url);
@@ -129,12 +121,10 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     return context.reply(context.t('err-invalid-url'));
   }
 
-  // Проверка кеша и быстрый ответ, если есть подпись в кеше
   const cacheResult = await checkCacheAndReply(context, url);
   if (cacheResult.captionSent) return;
   let contentMessageId = cacheResult.contentMessageId;
 
-  // Загрузка данных с сервисов
   let imagesUrls: string[] | undefined;
   let videoUrl: string | undefined;
   let caption: string | undefined;
@@ -167,13 +157,10 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     return context.reply(context.t('err-invalid-download-urls'));
   }
 
-  // Отправка изображений
   contentMessageId = await sendImages(context, imagesUrls ?? [], contentMessageId);
 
-  // Отправка видео (если ещё не отправлено) и запись в кэш
   contentMessageId = await sendVideoAndCache(context, videoUrl, url, contentMessageId);
 
-  // Отправка описания и запись в кэш
   await sendCaptionAndCache(context, caption, url, contentMessageId);
 });
 
