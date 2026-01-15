@@ -16,6 +16,12 @@ const composer = new Composer<Context>();
 const feature = composer.chatType('private');
 const redis = getRedisInstance();
 
+type DownloadResult = {
+  caption?: string;
+  imagesUrls?: string[];
+  videoUrl?: string;
+};
+
 async function checkCacheAndReply(context: Context, url: string) {
   let contentMessageId: number | undefined;
 
@@ -30,11 +36,13 @@ async function checkCacheAndReply(context: Context, url: string) {
     if (cachedCaption) {
       const { entities, text } = formatCaption(cachedCaption);
 
-      if (text.trim().length)
+      if (text.trim().length) {
         await context.reply(text, {
           entities,
-          reply_parameters: contentMessageId ? { message_id: contentMessageId } : undefined,
+          reply_parameters: { message_id: contentMessageId },
         });
+      }
+
       return { captionSent: true, contentMessageId };
     }
   }
@@ -45,6 +53,44 @@ async function checkCacheAndReply(context: Context, url: string) {
 function formatCaption(caption: string) {
   const cleanCaption = removeHashtags(caption);
   return fmt`${expandableBlockquote} ${code} ${cleanCaption} ${code} ${expandableBlockquote}`;
+}
+
+async function getDownloadData(
+  url: string,
+  opts: {
+    isInstagram: boolean;
+    isTikTok: boolean;
+    isYoutube: boolean;
+  },
+): Promise<DownloadResult> {
+  const { isInstagram, isTikTok, isYoutube } = opts;
+
+  if (isTikTok) {
+    const result = await getTiktokDownloadUrl(url);
+    return {
+      caption: result.title,
+      imagesUrls: result.images,
+      videoUrl: result.play,
+    };
+  }
+
+  if (isInstagram) {
+    const result = await getInstagramDownloadUrl(url);
+    return {
+      caption: result.caption,
+      imagesUrls: result.images,
+      videoUrl: result.play,
+    };
+  }
+
+  if (isYoutube) {
+    const result = await getYoutubeDownloadUrl(url);
+    return {
+      videoUrl: result.play,
+    };
+  }
+
+  return {};
 }
 
 async function sendCaptionAndCache(
@@ -58,11 +104,12 @@ async function sendCaptionAndCache(
   const { entities, text } = formatCaption(caption);
   await redis.set(`caption:${url}`, caption, 'EX', TTL_URLS);
 
-  if (text.trim().length)
+  if (text.trim().length) {
     await context.reply(text, {
       entities,
       reply_parameters: contentMessageId ? { message_id: contentMessageId } : undefined,
     });
+  }
 }
 
 async function sendImages(
@@ -70,7 +117,7 @@ async function sendImages(
   imagesUrls: string[],
   existingContentMessageId?: number,
 ) {
-  if (!imagesUrls?.length) return existingContentMessageId;
+  if (!imagesUrls.length) return existingContentMessageId;
 
   const chunks = cluster(imagesUrls, 10);
   let contentMessageId = existingContentMessageId;
@@ -100,8 +147,8 @@ async function sendVideoAndCache(
     const { video, ...videoMessage } = await context.replyWithVideo(
       new InputFile({ url: videoUrl }),
     );
-    contentMessageId = videoMessage.message_id;
 
+    contentMessageId = videoMessage.message_id;
     await redis.set(url, video.file_id, 'EX', TTL_URLS);
   }
 
@@ -115,14 +162,13 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   const isInstagram = validateInstagramUrl(url);
   const isYoutube = validateYoutubeUrl(url);
 
-  const isSupportedService = isTikTok || isInstagram || isYoutube;
-
-  if (!isSupportedService) {
+  if (!isTikTok && !isInstagram && !isYoutube) {
     return context.reply(context.t('err-invalid-url'));
   }
 
   const cacheResult = await checkCacheAndReply(context, url);
   if (cacheResult.captionSent) return;
+
   let contentMessageId = cacheResult.contentMessageId;
 
   let imagesUrls: string[] | undefined;
@@ -130,20 +176,15 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   let caption: string | undefined;
 
   try {
-    if (isTikTok) {
-      const result = await getTiktokDownloadUrl(url);
-      imagesUrls = result.images;
-      videoUrl = result.play;
-      caption = result.title;
-    } else if (isInstagram) {
-      const result = await getInstagramDownloadUrl(url);
-      imagesUrls = result.images;
-      videoUrl = result.play;
-      caption = result.caption;
-    } else if (isYoutube) {
-      const result = await getYoutubeDownloadUrl(url);
-      videoUrl = result.play;
-    }
+    const result = await getDownloadData(url, {
+      isInstagram,
+      isTikTok,
+      isYoutube,
+    });
+
+    imagesUrls = result.imagesUrls;
+    videoUrl = result.videoUrl;
+    caption = result.caption;
   } catch (error: unknown) {
     const message = (error as Error)?.message ?? String(error);
     if (typeof message === 'string' && message.startsWith('err-')) {
@@ -158,9 +199,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   }
 
   contentMessageId = await sendImages(context, imagesUrls ?? [], contentMessageId);
-
   contentMessageId = await sendVideoAndCache(context, videoUrl, url, contentMessageId);
-
   await sendCaptionAndCache(context, caption, url, contentMessageId);
 });
 
