@@ -75,7 +75,7 @@ async function getDownloadData(
   }
 
   if (isInstagram) {
-    const result = await getInstagramDownloadUrl(url);
+    const result = await getInstagramDownloadUrl(url.replace('/reel/', '/p/'));
     return {
       caption: result.caption,
       imagesUrls: result.images,
