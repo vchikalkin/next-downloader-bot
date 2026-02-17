@@ -26,6 +26,7 @@ jobs:
           echo "TELEGRAM_API_HASH=fake" >> .env
           echo "REDIS_PASSWORD=fake" >> .env
           echo "REDIS_HOST=redis" >> .env
+          echo "DONATE_LINK=https://example.com" >> .env
 
       - name: Set image tag
         id: vars
@@ -71,6 +72,7 @@ jobs:
           echo "TELEGRAM_API_HASH=${{ secrets.TELEGRAM_API_HASH }}" >> .env
           echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
           echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+          echo "DONATE_LINK=${{ secrets.DONATE_LINK }}" >> .env
           echo "BOT_IMAGE_TAG=${{ needs.build-and-push.outputs.tag }}" >> .env
           echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> .env
 
