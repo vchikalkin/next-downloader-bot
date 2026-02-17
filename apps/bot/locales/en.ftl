@@ -10,9 +10,9 @@ description =
             ⚡ Simply send the video link, and the bot will download it for you.
 
 short-description = 
-                Download TikTok, Instagram and YouTube videos and images.
-
-                For any questions: @v_dev_support
+                Bot downloads videos and pictures
+                Support: @v_dev_support
+                Donate: { $donateLink }
 
 
 start =

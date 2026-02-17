@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 export const envSchema = z.object({
   BOT_TOKEN: z.string(),
+  DONATE_LINK: z.string(),
   RATE_LIMIT: z
     .string()
     .transform((value) => Number.parseInt(value, 10))

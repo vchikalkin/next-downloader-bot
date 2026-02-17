@@ -10,9 +10,9 @@ description =
             ⚡ Просто отправьте ссылку на видео и изображения, и бот сразу скачает его для вас!
 
 short-description = 
-                Скачивай видео и изображения из TikTok, Instagram и YouTube.
-
-                По всем вопросам: @v_dev_support
+                Бот скачивает видео и изображения
+                Поддержка: @v_dev_support
+                Поблагодарить: { $donateLink }
 
 
 start =
