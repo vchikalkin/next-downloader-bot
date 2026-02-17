@@ -64,7 +64,8 @@ RUN apk add --no-cache \
     pixman \
     pangomm \
     libjpeg-turbo \
-    freetype
+    freetype \
+    yt-dlp
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 botuser
