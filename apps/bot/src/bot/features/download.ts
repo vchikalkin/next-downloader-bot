@@ -75,7 +75,7 @@ async function getDownloadData(
   }
 
   if (isInstagram) {
-    const result = await getInstagramDownloadUrl(url.replace('/reel/', '/p/'));
+    const result = await getInstagramDownloadUrl(url.replaceAll(/\/reels?\//gu, '/p/'));
     return {
       caption: result.caption,
       imagesUrls: result.images,
@@ -143,7 +143,7 @@ async function sendVideoAndCache(
 ) {
   let contentMessageId = existingContentMessageId;
 
-  if (videoUrl && !contentMessageId) {
+  if (videoUrl) {
     const { video, ...videoMessage } = await context.replyWithVideo(
       new InputFile({ url: videoUrl }),
     );
@@ -153,6 +153,24 @@ async function sendVideoAndCache(
   }
 
   return contentMessageId;
+}
+
+async function withTypingIndicator<T>(context: Context, fn: () => Promise<T>): Promise<T> {
+  const typingInterval = setInterval(async () => {
+    try {
+      if (context.chatId) {
+        await context.api.sendChatAction(context.chatId, 'typing');
+      }
+    } catch {
+      // Ignore errors when sending typing action
+    }
+  }, 3_000);
+
+  try {
+    return await fn();
+  } finally {
+    clearInterval(typingInterval);
+  }
 }
 
 feature.on('message:text', logHandle('download-message'), async (context) => {
@@ -169,6 +187,20 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   const cacheResult = await checkCacheAndReply(context, url);
   if (cacheResult.captionSent) return;
 
+  // Send initial message that link is accepted
+  const statusMessage = await context.reply(context.t('downloading-started'));
+  const statusMessageId = statusMessage.message_id;
+
+  const deleteStatusMessage = async () => {
+    try {
+      if (context.chatId) {
+        await context.api.deleteMessage(context.chatId, statusMessageId);
+      }
+    } catch {
+      // Ignore if we can't delete
+    }
+  };
+
   let contentMessageId = cacheResult.contentMessageId;
 
   let imagesUrls: string[] | undefined;
@@ -176,16 +208,19 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   let caption: string | undefined;
 
   try {
-    const result = await getDownloadData(url, {
-      isInstagram,
-      isTikTok,
-      isYoutube,
-    });
+    const result = await withTypingIndicator(context, () =>
+      getDownloadData(url, {
+        isInstagram,
+        isTikTok,
+        isYoutube,
+      }),
+    );
 
     imagesUrls = result.imagesUrls;
     videoUrl = result.videoUrl;
     caption = result.caption;
   } catch (error: unknown) {
+    await deleteStatusMessage();
     const message = (error as Error)?.message ?? String(error);
     if (typeof message === 'string' && message.startsWith('err-')) {
       return context.reply(context.t(message));
@@ -195,11 +230,18 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   }
 
   if (!videoUrl && !imagesUrls?.length) {
+    await deleteStatusMessage();
     return context.reply(context.t('err-invalid-download-urls'));
   }
 
   contentMessageId = await sendImages(context, imagesUrls ?? [], contentMessageId);
   contentMessageId = await sendVideoAndCache(context, videoUrl, url, contentMessageId);
+
+  // Delete status message after video is sent
+  if (contentMessageId && contentMessageId !== statusMessageId) {
+    await deleteStatusMessage();
+  }
+
   await sendCaptionAndCache(context, caption, url, contentMessageId);
 });
 

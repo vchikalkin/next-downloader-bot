@@ -1,4 +1,9 @@
 import { getClient } from './client';
+import { logger } from './logger';
+import { retry } from './retry';
+
+const INSTAGRAM_DOWNLOAD_RETRY_COUNT = 5;
+const INSTAGRAM_DOWNLOAD_RETRY_DELAY_MS = 500;
 
 export type InfoRoot = {
   author: string;
@@ -51,10 +56,24 @@ export type Owner = {
 
 export async function getInstagramDownloadUrl(url: string) {
   const client = await getClient();
-  // fetch video info
-  const { data } = await client.post<InfoRoot>('https://downr.org/.netlify/functions/nyt', {
-    url,
-  });
+
+  const { data } = await retry(
+    () =>
+      client.post<InfoRoot>('https://downr.org/.netlify/functions/nyt', {
+        url,
+      }),
+    {
+      delayMs: INSTAGRAM_DOWNLOAD_RETRY_DELAY_MS,
+      factor: 2,
+      onRetry: (error, attempt) => {
+        logger.warn(
+          { attempt, error: (error as Error)?.message, url },
+          `Instagram download attempt ${attempt}/${INSTAGRAM_DOWNLOAD_RETRY_COUNT} failed, retrying...`,
+        );
+      },
+      retries: INSTAGRAM_DOWNLOAD_RETRY_COUNT,
+    },
+  );
 
   if (!data) throw new Error('err-invalid-instagram-response');
 
