@@ -24,6 +24,8 @@ err-invalid-download-urls = 🔍 Download links not found. The video might be de
 err-generic = ⚠️ Something went wrong. Please try again in a few seconds
 err-limit-exceeded = 🚫 Too many requests! Please wait
 
+downloading-started = ⏳ Link accepted! Downloading video, please wait...
+
 err-invalid-tiktok-response = 🔍 Invalid TikTok response. The video might be deleted or unavailable
 err-invalid-instagram-response = 🔍 Invalid Instagram response. The post might be deleted or unavailable
 err-invalid-youtube-response = 🔍 Invalid YouTube response. The video might be deleted or unavailable
