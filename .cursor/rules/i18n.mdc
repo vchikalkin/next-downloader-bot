@@ -1,0 +1,461 @@
+# Cursor Rule: Internationalization (i18n) for Grammy Telegram Bot
+
+## Purpose
+
+This project must support multiple languages from the beginning. Any new user-facing text must be internationalized. Hardcoded strings are not allowed outside the localization files.
+
+Target stack:
+
+- Node.js
+- TypeScript
+- Grammy
+- @grammyjs/i18n
+
+---
+
+# General Rules
+
+## Never hardcode user-facing text
+
+❌ Bad
+
+```ts
+await ctx.reply('Welcome!');
+```
+
+```ts
+await ctx.answerCallbackQuery('Saved');
+```
+
+```ts
+new InlineKeyboard().text('Open profile', 'profile');
+```
+
+✅ Good
+
+```ts
+await ctx.reply(ctx.t('welcome.message'));
+```
+
+```ts
+await ctx.answerCallbackQuery({
+  text: ctx.t('callback.saved'),
+});
+```
+
+```ts
+new InlineKeyboard().text(ctx.t('buttons.profile'), 'profile');
+```
+
+---
+
+## What must be translated
+
+Everything visible to the user:
+
+- reply()
+- replyWithPhoto caption
+- replyWithVideo caption
+- replyWithDocument caption
+- editMessageText()
+- editMessageCaption()
+- answerCallbackQuery()
+- button labels
+- inline keyboard labels
+- reply keyboard labels
+- menu commands
+- command descriptions
+- errors
+- validation messages
+- success messages
+- loading texts
+- onboarding
+- help
+- settings
+- placeholders
+- confirmations
+
+Everything.
+
+---
+
+# Translation Keys
+
+Keys must be descriptive.
+
+Good
+
+```yaml
+welcome:
+  title:
+  description:
+
+profile:
+  title:
+  stats:
+
+buttons:
+  back:
+  next:
+  cancel:
+```
+
+Bad
+
+```yaml
+text1:
+text2:
+hello:
+abc:
+```
+
+---
+
+# Folder Structure
+
+```
+src/
+
+locales/
+    en.ftl
+    ru.ftl
+    de.ftl
+
+bot/
+commands/
+handlers/
+middlewares/
+utils/
+```
+
+Only localization files may contain translated text.
+
+---
+
+# Language Files
+
+Use Fluent syntax.
+
+Example
+
+```ftl
+welcome-title = Welcome!
+welcome-description = Choose an action below.
+
+buttons-profile = Profile
+buttons-settings = Settings
+
+errors-generic = Something went wrong.
+```
+
+---
+
+# Accessing Translations
+
+Always use
+
+```ts
+ctx.t(...)
+```
+
+Example
+
+```ts
+await ctx.reply(ctx.t('welcome-title'));
+```
+
+---
+
+# Variables
+
+Never concatenate strings.
+
+❌
+
+```ts
+ctx.reply('Hello ' + user.name);
+```
+
+✅
+
+```ftl
+welcome-user = Hello, {$name}!
+```
+
+```ts
+ctx.reply(
+  ctx.t('welcome-user', {
+    name: user.name,
+  }),
+);
+```
+
+---
+
+# Pluralization
+
+Always use Fluent plural rules.
+
+Example
+
+```ftl
+notifications =
+    { $count ->
+        [one] You have {$count} notification.
+       *[other] You have {$count} notifications.
+    }
+```
+
+Never implement plural logic in TypeScript.
+
+---
+
+# Dates
+
+Never manually format dates.
+
+Use
+
+- Intl.DateTimeFormat
+- Intl.RelativeTimeFormat
+
+Locale must depend on the user's language.
+
+---
+
+# Numbers
+
+Use
+
+```ts
+Intl.NumberFormat;
+```
+
+Never build numbers manually.
+
+---
+
+# Currency
+
+Always use
+
+```ts
+Intl.NumberFormat;
+```
+
+Example
+
+```ts
+new Intl.NumberFormat(locale, {
+  style: 'currency',
+  currency: 'USD',
+});
+```
+
+---
+
+# Emoji
+
+Emoji may stay inside translations.
+
+Example
+
+```ftl
+welcome-title = 👋 Welcome!
+```
+
+Avoid embedding emoji directly in TypeScript unless they are part of UI logic.
+
+---
+
+# Markdown
+
+Formatting belongs inside translations whenever possible.
+
+Example
+
+```ftl
+subscription-active = ✅ **Subscription is active**
+```
+
+Instead of
+
+```ts
+ctx.reply('✅ **Subscription is active**');
+```
+
+---
+
+# HTML
+
+Same rule.
+
+Keep formatting in localization.
+
+---
+
+# Buttons
+
+Every button label must come from i18n.
+
+```ts
+new InlineKeyboard().text(ctx.t('buttons-back'), 'back');
+```
+
+Never
+
+```ts
+.text("Back", "back")
+```
+
+---
+
+# Errors
+
+Every error message must be translated.
+
+Never
+
+```ts
+throw new Error('Invalid token');
+```
+
+If the error is user-visible:
+
+```ts
+await ctx.reply(ctx.t('errors-invalid-token'));
+```
+
+Developer errors may remain in English.
+
+---
+
+# Logging
+
+Logs do NOT require translation.
+
+English is preferred.
+
+Example
+
+```ts
+logger.info('Telegram update received');
+```
+
+---
+
+# Internal Constants
+
+Allowed without translation.
+
+```ts
+const CACHE_KEY = 'user_profile';
+```
+
+---
+
+# Callback Data
+
+Never translate callback data.
+
+Correct
+
+```ts
+.text(ctx.t("buttons-settings"), "settings")
+```
+
+Only the visible label is translated.
+
+---
+
+# Commands
+
+Commands themselves remain stable.
+
+```
+/start
+/help
+/settings
+```
+
+Descriptions are translated.
+
+---
+
+# Locale Detection
+
+Priority
+
+1. Saved user preference
+2. Telegram language_code
+3. English
+
+---
+
+# Default Language
+
+English is the fallback language.
+
+Missing translations should fall back to English.
+
+---
+
+# Naming Convention
+
+Prefer kebab-case.
+
+Examples
+
+```
+welcome-title
+
+profile-balance
+
+subscription-expired
+
+buttons-back
+
+buttons-next
+
+errors-network
+```
+
+---
+
+# Reusing Keys
+
+If the same text has the same meaning, reuse the key.
+
+Do not duplicate translations.
+
+---
+
+# Translation Reviews
+
+When adding a new feature:
+
+- add English translation
+- add Russian translation
+- update all supported locales
+- remove unused keys
+- verify no missing translations
+
+---
+
+# Code Review Checklist
+
+Before finishing any task, verify:
+
+- No hardcoded user-facing strings
+- All buttons use translations
+- All replies use translations
+- All callback notifications use translations
+- All captions use translations
+- Variables use Fluent placeholders
+- No string concatenation
+- Locale-aware formatting is used
+- New keys exist in every locale
+- Translation keys are descriptive
+- English remains the fallback language
+
+If any rule is violated, refactor before completing the task.
