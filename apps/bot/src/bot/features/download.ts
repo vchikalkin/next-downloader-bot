@@ -26,31 +26,27 @@ type DownloadResult = {
 };
 
 async function checkCacheAndReply(context: Context, url: string) {
-  let contentMessageId: number | undefined;
-
   const cachedVideoId = await redis.get(url);
-  if (cachedVideoId) {
-    const cachedMessage = await context.replyWithVideo(cachedVideoId);
-    contentMessageId = cachedMessage.message_id;
+  if (!cachedVideoId) {
+    return { hit: false as const };
   }
 
-  if (contentMessageId) {
-    const cachedCaption = await redis.get(`caption:${url}`);
-    if (cachedCaption) {
-      const { entities, text } = formatCaption(cachedCaption);
+  const cachedMessage = await context.replyWithVideo(cachedVideoId);
+  const contentMessageId = cachedMessage.message_id;
 
-      if (text.trim().length) {
-        await context.reply(text, {
-          entities,
-          reply_parameters: { message_id: contentMessageId },
-        });
-      }
+  const cachedCaption = await redis.get(`caption:${url}`);
+  if (cachedCaption) {
+    const { entities, text } = formatCaption(cachedCaption);
 
-      return { captionSent: true, contentMessageId };
+    if (text.trim().length) {
+      await context.reply(text, {
+        entities,
+        reply_parameters: { message_id: contentMessageId },
+      });
     }
   }
 
-  return { contentMessageId };
+  return { contentMessageId, hit: true as const };
 }
 
 async function cleanupTempFile(filePath: string) {
@@ -207,7 +203,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   }
 
   const cacheResult = await checkCacheAndReply(context, url);
-  if (cacheResult.captionSent) return;
+  if (cacheResult.hit) return;
 
   // Send initial message that link is accepted
   const statusMessage = await context.reply(context.t('downloading-started'));
@@ -223,7 +219,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     }
   };
 
-  let contentMessageId = cacheResult.contentMessageId;
+  let contentMessageId: number | undefined;
 
   let imagesUrls: string[] | undefined;
   let videoUrl: string | undefined;
