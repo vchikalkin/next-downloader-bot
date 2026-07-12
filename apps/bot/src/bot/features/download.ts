@@ -10,6 +10,8 @@ import { validateInstagramUrl, validateTikTokUrl, validateYoutubeUrl } from '@/u
 import { getYoutubeDownloadUrl } from '@/utils/youtube';
 import { code, expandableBlockquote, fmt } from '@grammyjs/parse-mode';
 import { Composer, InputFile } from 'grammy';
+import { rm } from 'node:fs/promises';
+import { dirname } from 'node:path';
 import { cluster } from 'radashi';
 
 const composer = new Composer<Context>();
@@ -19,6 +21,7 @@ const redis = getRedisInstance();
 type DownloadResult = {
   caption?: string;
   imagesUrls?: string[];
+  videoFilePath?: string;
   videoUrl?: string;
 };
 
@@ -48,6 +51,14 @@ async function checkCacheAndReply(context: Context, url: string) {
   }
 
   return { contentMessageId };
+}
+
+async function cleanupTempFile(filePath: string) {
+  try {
+    await rm(dirname(filePath), { force: true, recursive: true });
+  } catch {
+    // Ignore cleanup errors
+  }
 }
 
 function formatCaption(caption: string) {
@@ -86,7 +97,7 @@ async function getDownloadData(
   if (isYoutube) {
     const result = await getYoutubeDownloadUrl(url);
     return {
-      videoUrl: result.play,
+      videoFilePath: result.filePath,
     };
   }
 
@@ -137,19 +148,30 @@ async function sendImages(
 
 async function sendVideoAndCache(
   context: Context,
-  videoUrl: string | undefined,
-  url: string,
-  existingContentMessageId?: number,
+  opts: {
+    existingContentMessageId?: number;
+    url: string;
+    videoFilePath?: string;
+    videoUrl?: string;
+  },
 ) {
+  const { existingContentMessageId, url, videoFilePath, videoUrl } = opts;
   let contentMessageId = existingContentMessageId;
 
-  if (videoUrl) {
-    const { video, ...videoMessage } = await context.replyWithVideo(
-      new InputFile({ url: videoUrl }),
-    );
+  if (!videoUrl && !videoFilePath) return contentMessageId;
+
+  try {
+    const source = videoFilePath
+      ? new InputFile(videoFilePath)
+      : new InputFile({ url: videoUrl as string });
+    const { video, ...videoMessage } = await context.replyWithVideo(source);
 
     contentMessageId = videoMessage.message_id;
     await redis.set(url, video.file_id, 'EX', TTL_URLS);
+  } finally {
+    if (videoFilePath) {
+      await cleanupTempFile(videoFilePath);
+    }
   }
 
   return contentMessageId;
@@ -205,6 +227,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
 
   let imagesUrls: string[] | undefined;
   let videoUrl: string | undefined;
+  let videoFilePath: string | undefined;
   let caption: string | undefined;
 
   try {
@@ -218,6 +241,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
 
     imagesUrls = result.imagesUrls;
     videoUrl = result.videoUrl;
+    videoFilePath = result.videoFilePath;
     caption = result.caption;
   } catch (error: unknown) {
     await deleteStatusMessage();
@@ -229,13 +253,18 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     return context.reply(context.t('err-generic'));
   }
 
-  if (!videoUrl && !imagesUrls?.length) {
+  if (!videoUrl && !videoFilePath && !imagesUrls?.length) {
     await deleteStatusMessage();
     return context.reply(context.t('err-invalid-download-urls'));
   }
 
   contentMessageId = await sendImages(context, imagesUrls ?? [], contentMessageId);
-  contentMessageId = await sendVideoAndCache(context, videoUrl, url, contentMessageId);
+  contentMessageId = await sendVideoAndCache(context, {
+    existingContentMessageId: contentMessageId,
+    url,
+    videoFilePath,
+    videoUrl,
+  });
 
   // Delete status message after video is sent
   if (contentMessageId && contentMessageId !== statusMessageId) {

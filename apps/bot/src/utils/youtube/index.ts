@@ -1,5 +1,4 @@
-import { getInfo, ytDlpGetUrl } from '../yt-dlp';
-import { getYoutubeDownload } from './api';
+import { downloadToFile, getInfo } from '../yt-dlp';
 import { MAX_VIDEO_DURATION_SECONDS } from '@/constants/limits';
 
 export async function getYoutubeDownloadUrl(url: string) {
@@ -10,12 +9,7 @@ export async function getYoutubeDownloadUrl(url: string) {
   if (infoData.duration > MAX_VIDEO_DURATION_SECONDS)
     throw new Error('err-youtube-duration-exceeded');
 
-  let play: string | undefined;
-  try {
-    play = await getYoutubeDownload(url);
-  } catch {
-    play = await ytDlpGetUrl(url);
-  }
+  const filePath = await downloadToFile(url);
 
-  return { play, title: infoData.title };
+  return { filePath, title: infoData.title };
 }

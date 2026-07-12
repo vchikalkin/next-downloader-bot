@@ -6,10 +6,11 @@ FROM node:${NODE_VERSION}-alpine AS alpine
 RUN apk update
 RUN apk add --no-cache libc6-compat
 
-FROM alpine as base
+FROM alpine AS base
 ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN apk add --no-cache libc6-compat && \
+ENV PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"
+RUN mkdir -p /pnpm/bin && \
+    apk add --no-cache libc6-compat && \
     corepack enable && \
     pnpm install turbo dotenv-cli --global
 
@@ -55,7 +56,7 @@ RUN rm -rf ./**/*/src
 FROM alpine AS runner
 ARG PROJECT
 
-# Install runtime dependencies for canvas
+# Install runtime deps; yt-dlp from GitHub (Alpine package is often too old for YouTube)
 RUN apk add --no-cache \
     cairo \
     jpeg \
@@ -65,7 +66,13 @@ RUN apk add --no-cache \
     pangomm \
     libjpeg-turbo \
     freetype \
-    yt-dlp
+    ca-certificates \
+    ffmpeg \
+    python3 \
+    curl \
+  && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
+  && chmod a+rx /usr/local/bin/yt-dlp \
+  && apk del curl
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 botuser
