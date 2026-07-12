@@ -1,16 +1,16 @@
 description = 
-            🎬 **Universal Video Downloader**
-            This bot allows you to quickly download videos and images from popular platforms directly to Telegram.
+            🎬 **Video Downloader**
+            Send a TikTok, Instagram, or YouTube link. Get the video or image in Telegram.
             
-            🟢 **Currently supported:**
+            🟢 **Supported:**
             - TikTok
             - Instagram
             - YouTube
 
-            ⚡ Simply send the video link, and the bot will download it for you.
+            ⚡ Send a link to download.
 
 short-description = 
-                Bot downloads videos and pictures
+                Downloads videos and pictures
                 Support: @v_dev_support
                 Donate: { $donateLink }
 
@@ -19,18 +19,18 @@ start =
     .description = Start the bot
 
 
-err-invalid-url = ❌ Invalid URL! Please send a valid TikTok, Instagram or YouTube link (e.g., https://vt.tiktok.com/ or https://www.instagram.com/p/ or https://www.youtube.com/)
-err-invalid-download-urls = 🔍 Download links not found. The video might be deleted or unavailable
-err-generic = ⚠️ Something went wrong. Please try again in a few seconds
-err-limit-exceeded = 🚫 Too many requests! Please wait
+err-invalid-url = ❌ Invalid URL. Send a TikTok, Instagram, or YouTube link (e.g. https://vt.tiktok.com/, https://www.instagram.com/p/, https://www.youtube.com/)
+err-invalid-download-urls = 🔍 No download links found. The video may be deleted or unavailable
+err-generic = ⚠️ Something went wrong. Try again in a few seconds
+err-limit-exceeded = 🚫 Too many requests. Wait a moment
 
-downloading-started = ⏳ Link accepted! Downloading video, please wait...
+downloading-started = ⏳ Downloading…
 
-err-invalid-tiktok-response = 🔍 Invalid TikTok response. The video might be deleted or unavailable
-err-invalid-instagram-response = 🔍 Invalid Instagram response. The post might be deleted or unavailable
-err-invalid-youtube-response = 🔍 Invalid YouTube response. The video might be deleted or unavailable
-err-youtube-duration-exceeded = 🚫 Video duration exceeds limit
-err-youtube-no-quality = 🔍 No suitable quality found for this video
+err-invalid-tiktok-response = 🔍 Bad TikTok response. The video may be deleted or unavailable
+err-invalid-instagram-response = 🔍 Bad Instagram response. The post may be deleted or unavailable
+err-invalid-youtube-response = 🔍 Bad YouTube response. The video may be deleted or unavailable
+err-youtube-duration-exceeded = 🚫 Video is too long
+err-youtube-no-quality = 🔍 No matching quality for this video
 
 
-msg-welcome = Welcome! I can download TikTok, Instagram or YouTube videos and images for you without watermark. Just send me the link (for example: https://vt.tiktok.com/ or https://www.instagram.com/p/ or https://www.youtube.com/)
+msg-welcome = Send a TikTok, Instagram, or YouTube link. I'll download the video or image without a watermark (e.g. https://vt.tiktok.com/, https://www.instagram.com/p/, https://www.youtube.com/)
