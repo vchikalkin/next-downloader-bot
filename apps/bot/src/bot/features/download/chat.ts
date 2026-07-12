@@ -22,11 +22,11 @@ export async function replyDownloadError(context: Context, error: unknown) {
   return context.reply(context.t('err-generic'));
 }
 
-export async function withTypingIndicator<T>(context: Context, fn: () => Promise<T>): Promise<T> {
+export async function withActionIndicator<T>(context: Context, fn: () => Promise<T>): Promise<T> {
   const typingInterval = setInterval(async () => {
     try {
       if (context.chatId) {
-        await context.api.sendChatAction(context.chatId, 'typing');
+        await context.api.sendChatAction(context.chatId, 'upload_document');
       }
     } catch {
       // Ignore errors when sending typing action

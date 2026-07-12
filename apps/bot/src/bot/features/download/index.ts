@@ -1,6 +1,6 @@
 import { type Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
-import { createMessageDeleter, replyDownloadError, withTypingIndicator } from './chat';
+import { createMessageDeleter, replyDownloadError, withActionIndicator } from './chat';
 import { replyCaptionAndCache, replyFromCache, sendMedia } from './media';
 import {
   detectPlatform,
@@ -32,7 +32,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   let result: DownloadResult;
 
   try {
-    result = await withTypingIndicator(context, () => fetchDownload(url, platform));
+    result = await withActionIndicator(context, () => fetchDownload(url, platform));
   } catch (error: unknown) {
     await dismissStatus();
     await replyDownloadError(context, error);
