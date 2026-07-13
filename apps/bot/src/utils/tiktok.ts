@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export type Data = {
+export interface Data {
   ai_dynamic_cover: string;
   anchors_extras: string;
   collect_count: number;
@@ -26,20 +26,22 @@ export type Data = {
   title: string;
   wm_size: number;
   wmplay: string;
-};
+}
 
-export type Root = {
+export interface Root {
   code: number;
-  data: Data;
+  data?: Data | null;
   msg: string;
   processed_time: number;
-};
+}
 
 export async function getTiktokDownloadUrl(url: string) {
   const res = await axios.get(`https://tikwm.com/api/?url=${encodeURIComponent(url)}`);
   const { data } = res.data as Root;
 
-  if (!data) throw new Error('err-invalid-tiktok-response');
+  if (!data) {
+    throw new Error('err-invalid-tiktok-response');
+  }
 
   return data;
 }

@@ -18,5 +18,11 @@ export default defineConfig(sheriff(sheriffOptions), {
   rules: {
     'func-style': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-use-before-define': [
+      'error',
+      { classes: true, enums: true, functions: false, typedefs: true, variables: true },
+    ],
+    'fsecond/prefer-destructured-optionals': 'off',
+    'unicorn/prefer-top-level-await': 'off',
   },
 });

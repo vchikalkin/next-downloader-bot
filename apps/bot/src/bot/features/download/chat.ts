@@ -1,4 +1,4 @@
-import { type Context } from '../../context';
+import type { Context } from '../../context';
 
 export function createMessageDeleter(context: Context, messageId: number) {
   return async () => {
@@ -23,14 +23,12 @@ export async function replyDownloadError(context: Context, error: unknown) {
 }
 
 export async function withActionIndicator<T>(context: Context, fn: () => Promise<T>): Promise<T> {
-  const typingInterval = setInterval(async () => {
-    try {
-      if (context.chatId) {
-        await context.api.sendChatAction(context.chatId, 'upload_document');
-      }
-    } catch {
-      // Ignore errors when sending typing action
+  const typingInterval = setInterval(() => {
+    if (!context.chatId) {
+      return;
     }
+
+    context.api.sendChatAction(context.chatId, 'upload_document').catch(() => undefined);
   }, 3_000);
 
   try {

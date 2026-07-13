@@ -1,6 +1,6 @@
-import { type Context } from './context';
-import { I18n } from '@grammyjs/i18n';
 import path from 'node:path';
+import { I18n } from '@grammyjs/i18n';
+import type { Context } from './context';
 
 export const i18n = new I18n<Context>({
   defaultLocale: 'en',

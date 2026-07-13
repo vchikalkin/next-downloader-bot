@@ -1,27 +1,26 @@
-/* eslint-disable n/callback-return */
-import { type Context } from './context';
+import { Bot } from 'grammy';
+import { autoChatAction } from '@grammyjs/auto-chat-action';
+import { hydrate } from '@grammyjs/hydrate';
+import { limit } from '@grammyjs/ratelimiter';
+import { env } from '@/config/env';
+import { logger } from '@/utils/logger';
+import { getRedisInstance } from '@/utils/redis';
+import type { Context } from './context';
 import * as features from './features';
 import { errorHandler } from './handlers/errors';
 import { i18n } from './i18n';
 import * as middlewares from './middlewares';
 import { setCommands } from './settings/commands';
 import { setInfo } from './settings/info';
-import { env } from '@/config/env';
-import { logger } from '@/utils/logger';
-import { getRedisInstance } from '@/utils/redis';
-import { autoChatAction } from '@grammyjs/auto-chat-action';
-import { hydrate } from '@grammyjs/hydrate';
-import { limit } from '@grammyjs/ratelimiter';
-import { Bot } from 'grammy';
 
-type Parameters_ = {
+interface CreateBotOptions {
   apiRoot: string;
   token: string;
-};
+}
 
 const redis = getRedisInstance();
 
-export function createBot({ apiRoot, token }: Parameters_) {
+export function createBot({ apiRoot, token }: CreateBotOptions) {
   const bot = new Bot<Context>(token, {
     client: {
       apiRoot,
@@ -34,8 +33,8 @@ export function createBot({ apiRoot, token }: Parameters_) {
     limit({
       keyGenerator: (ctx) => ctx.from?.id.toString(),
       limit: env.RATE_LIMIT,
-      onLimitExceeded: async (ctx) => {
-        await ctx.reply(ctx.t('err-limit-exceeded'));
+      onLimitExceeded: (ctx) => {
+        ctx.reply(ctx.t('err-limit-exceeded')).catch(() => undefined);
       },
       storageClient: redis,
       timeFrame: env.RATE_LIMIT_TIME,
@@ -49,8 +48,12 @@ export function createBot({ apiRoot, token }: Parameters_) {
     await next();
   });
 
-  setInfo(bot);
-  setCommands(bot);
+  setInfo(bot).catch((error: unknown) => {
+    logger.error(error);
+  });
+  setCommands(bot).catch((error: unknown) => {
+    logger.error(error);
+  });
 
   const protectedBot = bot.errorBoundary(errorHandler);
 

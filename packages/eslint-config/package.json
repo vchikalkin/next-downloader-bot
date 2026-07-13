@@ -4,9 +4,7 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./base": "./base.js",
-    "./node": "./node.js",
-    "./typescript": "./typescript.js"
+    "./base": "./base.js"
   },
   "devDependencies": {
     "eslint": "catalog:",

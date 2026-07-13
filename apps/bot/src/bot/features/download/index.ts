@@ -1,4 +1,5 @@
-import { type Context } from '../../context';
+import { Composer } from 'grammy';
+import type { Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
 import { createMessageDeleter, replyDownloadError, withActionIndicator } from './chat';
 import { replyCaptionAndCache, replyFromCache, sendMedia } from './media';
@@ -8,7 +9,6 @@ import {
   fetchDownload,
   hasDownloadableMedia,
 } from './platform';
-import { Composer } from 'grammy';
 
 const composer = new Composer<Context>();
 const feature = composer.chatType('private');
@@ -19,6 +19,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
 
   if (!platform) {
     await context.reply(context.t('err-invalid-url'));
+
     return;
   }
 
@@ -36,12 +37,14 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   } catch (error: unknown) {
     await dismissStatus();
     await replyDownloadError(context, error);
+
     return;
   }
 
   if (!hasDownloadableMedia(result)) {
     await dismissStatus();
     await context.reply(context.t('err-invalid-download-urls'));
+
     return;
   }
 

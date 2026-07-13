@@ -1,8 +1,8 @@
+import { run } from '@grammyjs/runner';
 import { createBot } from './bot';
 import { env as environment } from './config/env';
 import { logger } from './utils/logger';
 import { getRedisInstance } from './utils/redis';
-import { run } from '@grammyjs/runner';
 
 const bot = createBot({
   apiRoot: environment.TELEGRAM_API_ROOT,
@@ -11,7 +11,7 @@ const bot = createBot({
 
 bot.catch((error) => {
   logger.error('Grammy bot error:');
-  logger.error(`Message: ${error?.message}`);
+  logger.error(`Message: ${error.message}`);
   logger.error(error.error);
 });
 
@@ -28,20 +28,29 @@ async function gracefulShutdown(signal: string) {
     redis.disconnect();
     logger.info('Redis disconnected');
   } catch (error) {
-    const err_ = error as Error;
-    logger.error('Error during graceful shutdown:' + err_.message || '');
+    const message = error instanceof Error ? error.message : String(error);
+
+    logger.error(`Error during graceful shutdown: ${message}`);
   }
 }
 
-process.once('SIGINT', () => gracefulShutdown('SIGINT'));
-process.once('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.once('SIGINT', () => {
+  gracefulShutdown('SIGINT').catch((error: unknown) => {
+    logger.error(error);
+  });
+});
+process.once('SIGTERM', () => {
+  gracefulShutdown('SIGTERM').catch((error: unknown) => {
+    logger.error(error);
+  });
+});
 
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled Rejection: ' + reason);
+  logger.error(`Unhandled Rejection: ${String(reason)}`);
 });
 
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught Exception: ' + error);
+  logger.error(`Uncaught Exception: ${String(error)}`);
 });
 
 logger.info('Bot started');
