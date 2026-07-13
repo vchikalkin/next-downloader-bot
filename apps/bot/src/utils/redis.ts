@@ -1,14 +1,6 @@
+import { Redis } from 'ioredis';
 import { env } from '@/config/env';
 import { logger } from '@/utils/logger';
-import Redis from 'ioredis';
-
-const instance: Redis = createRedisInstance();
-
-export function getRedisInstance() {
-  if (!instance) return createRedisInstance();
-
-  return instance;
-}
 
 function createRedisInstance() {
   const redis = new Redis({
@@ -20,4 +12,10 @@ function createRedisInstance() {
   redis.on('error', logger.error);
 
   return redis;
+}
+
+const instance = createRedisInstance();
+
+export function getRedisInstance() {
+  return instance;
 }

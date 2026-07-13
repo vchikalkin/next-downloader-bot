@@ -1,9 +1,10 @@
-import { type logger } from '@/utils/logger';
-import { type AutoChatActionFlavor } from '@grammyjs/auto-chat-action';
-import { type CommandsFlavor } from '@grammyjs/commands';
-import { type HydrateFlavor } from '@grammyjs/hydrate';
-import { type I18nFlavor } from '@grammyjs/i18n';
-import { type Context as DefaultContext, type SessionFlavor } from 'grammy';
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+import type { Context as DefaultContext, SessionFlavor } from 'grammy';
+import type { AutoChatActionFlavor } from '@grammyjs/auto-chat-action';
+import type { CommandsFlavor } from '@grammyjs/commands';
+import type { HydrateFlavor } from '@grammyjs/hydrate';
+import type { I18nFlavor } from '@grammyjs/i18n';
+import type { logger } from '@/utils/logger';
 
 export type Context = HydrateFlavor<
   AutoChatActionFlavor &
@@ -15,4 +16,4 @@ export type Context = HydrateFlavor<
     }
 >;
 
-export type SessionData = {};
+export interface SessionData {}

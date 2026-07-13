@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { type Context } from '../context';
-import { type Update } from '@grammyjs/types';
-import { type Middleware } from 'grammy';
+import type { Middleware } from 'grammy';
+import { omit } from 'radashi';
+import type { Update } from '@grammyjs/types';
+import type { Context } from '../context';
 
 export function getUpdateInfo(context: Context): Omit<Update, 'update_id'> {
-  const { update_id, ...update } = context.update;
-
-  return update;
+  return omit(context.update, ['update_id']);
 }
 
 export function logHandle(id: string): Middleware<Context> {

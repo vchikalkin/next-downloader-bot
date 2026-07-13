@@ -1,8 +1,6 @@
-/* eslint-disable n/no-process-env */
-/* eslint-disable turbo/no-undeclared-env-vars */
-import pino from 'pino';
+import createLogger from 'pino';
 
-export const logger = pino({
+export const logger = createLogger({
   transport: {
     level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
     options: {

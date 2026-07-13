@@ -1,62 +1,62 @@
 import { runYtDlp } from './yt-dlp';
 
-export type A = {
+export interface A {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Aa = {
+export interface Aa {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ab = {
+export interface Ab {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Af = {
+export interface Af {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ak = {
+export interface Ak {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Am = {
+export interface Am {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ar = {
+export interface Ar {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type AutomaticCaptions = {
+export interface AutomaticCaptions {
   aa: Aa[];
   ab: Ab[];
   af: Af[];
@@ -214,277 +214,277 @@ export type AutomaticCaptions = {
   'zh-Hans': Han[];
   'zh-Hant': ZhHant[];
   zu: Zu[];
-};
+}
 
-export type Ay = {
+export interface Ay {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Az = {
+export interface Az {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type B = {
+export interface B {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ba = {
+export interface Ba {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Be = {
+export interface Be {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Bg = {
+export interface Bg {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Bho = {
+export interface Bho {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Bn = {
+export interface Bn {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Bo = {
+export interface Bo {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Br = {
+export interface Br {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type C = {
+export interface C {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ca = {
+export interface Ca {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ceb = {
+export interface Ceb {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Co = {
+export interface Co {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Cr = {
+export interface Cr {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Cy = {
+export interface Cy {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Da = {
+export interface Da {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type De = {
+export interface De {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type DownloaderOptions = {
+export interface DownloaderOptions {
   http_chunk_size: number;
-};
+}
 
-export type DownloaderOptions2 = {
+export interface DownloaderOptions2 {
   http_chunk_size: number;
-};
+}
 
-export type DownloaderOptions3 = {
+export interface DownloaderOptions3 {
   http_chunk_size: number;
-};
+}
 
-export type Dv = {
+export interface Dv {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Dz = {
+export interface Dz {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type E = {
+export interface E {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ee = {
+export interface Ee {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type El = {
+export interface El {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type En = {
+export interface En {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Eo = {
+export interface Eo {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Et = {
+export interface Et {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Eu = {
+export interface Eu {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Fa = {
+export interface Fa {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Fi = {
+export interface Fi {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Fil = {
+export interface Fil {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Fj = {
+export interface Fj {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Fo = {
+export interface Fo {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Format = {
+export interface Format {
   __needs_testing?: boolean;
   abr?: number;
   acodec?: string;
@@ -524,209 +524,209 @@ export type Format = {
   vcodec: string;
   video_ext: string;
   width?: number;
-};
+}
 
-export type Fr = {
+export interface Fr {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Fragment = {
+export interface Fragment {
   duration: number;
   url: string;
-};
+}
 
-export type Fy = {
+export interface Fy {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ga = {
+export interface Ga {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Gaa = {
+export interface Gaa {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Gd = {
+export interface Gd {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Gl = {
+export interface Gl {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Gn = {
+export interface Gn {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Gu = {
+export interface Gu {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Gv = {
+export interface Gv {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ha = {
+export interface Ha {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Han = {
+export interface Han {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Haw = {
+export interface Haw {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Heatmap = {
+export interface Heatmap {
   end_time: number;
   start_time: number;
   value: number;
-};
+}
 
-export type Hi = {
+export interface Hi {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Hmn = {
+export interface Hmn {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Hr = {
+export interface Hr {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ht = {
+export interface Ht {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type HttpHeaders = {
+export interface HttpHeaders {
   Accept: string;
   'Accept-Language': string;
   'Sec-Fetch-Mode': string;
   'User-Agent': string;
-};
+}
 
-export type HttpHeaders2 = {
+export interface HttpHeaders2 {
   Accept: string;
   'Accept-Language': string;
   'Sec-Fetch-Mode': string;
   'User-Agent': string;
-};
+}
 
-export type HttpHeaders3 = {
+export interface HttpHeaders3 {
   Accept: string;
   'Accept-Language': string;
   'Sec-Fetch-Mode': string;
   'User-Agent': string;
-};
+}
 
-export type Hu = {
+export interface Hu {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Hy = {
+export interface Hy {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type I = {
+export interface I {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Id = {
+export interface Id {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ig = {
+export interface Ig {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type InfoRoot = {
+export interface InfoRoot {
   _format_sort_fields: string[];
   _has_drm: unknown;
   _type: string;
@@ -804,417 +804,417 @@ export type InfoRoot = {
   webpage_url_basename: string;
   webpage_url_domain: string;
   width: number;
-};
+}
 
-export type It = {
+export interface It {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Iu = {
+export interface Iu {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Iw = {
+export interface Iw {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ja = {
+export interface Ja {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Jv = {
+export interface Jv {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ka = {
+export interface Ka {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Kha = {
+export interface Kha {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Kk = {
+export interface Kk {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Kl = {
+export interface Kl {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Km = {
+export interface Km {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Kn = {
+export interface Kn {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ko = {
+export interface Ko {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Kri = {
+export interface Kri {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ku = {
+export interface Ku {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ky = {
+export interface Ky {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type La = {
+export interface La {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Lb = {
+export interface Lb {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Lg = {
+export interface Lg {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ln = {
+export interface Ln {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Lo = {
+export interface Lo {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Lt = {
+export interface Lt {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Lua = {
+export interface Lua {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Luo = {
+export interface Luo {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Lv = {
+export interface Lv {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type M = {
+export interface M {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Mfe = {
+export interface Mfe {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Mg = {
+export interface Mg {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Mi = {
+export interface Mi {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Mk = {
+export interface Mk {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ml = {
+export interface Ml {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Mn = {
+export interface Mn {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Mr = {
+export interface Mr {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Mt = {
+export interface Mt {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type My = {
+export interface My {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ne = {
+export interface Ne {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type New = {
+export interface New {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Nl = {
+export interface Nl {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type No = {
+export interface No {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Nso = {
+export interface Nso {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ny = {
+export interface Ny {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type O = {
+export interface O {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Oc = {
+export interface Oc {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Om = {
+export interface Om {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Or = {
+export interface Or {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type P = {
+export interface P {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Pa = {
+export interface Pa {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Pam = {
+export interface Pam {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Pl = {
+export interface Pl {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Pt = {
+export interface Pt {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type PtPt = {
+export interface PtPt {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Qu = {
+export interface Qu {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type RequestedDownload = {
+export interface RequestedDownload {
   __write_download_archive: boolean;
   _filename: string;
   abr: number;
@@ -1239,9 +1239,9 @@ export type RequestedDownload = {
   vbr: number;
   vcodec: string;
   width: number;
-};
+}
 
-export type RequestedFormat = {
+export interface RequestedFormat {
   abr: number;
   acodec: string;
   aspect_ratio?: number;
@@ -1275,9 +1275,9 @@ export type RequestedFormat = {
   vcodec: string;
   video_ext: string;
   width?: number;
-};
+}
 
-export type RequestedFormat2 = {
+export interface RequestedFormat2 {
   abr: number;
   acodec: string;
   aspect_ratio?: number;
@@ -1311,393 +1311,393 @@ export type RequestedFormat2 = {
   vcodec: string;
   video_ext: string;
   width?: number;
-};
+}
 
-export type Rn = {
+export interface Rn {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ro = {
+export interface Ro {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ru = {
+export interface Ru {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type RuOrig = {
+export interface RuOrig {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Rw = {
+export interface Rw {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Sa = {
+export interface Sa {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Sd = {
+export interface Sd {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Sg = {
+export interface Sg {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Si = {
+export interface Si {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Sk = {
+export interface Sk {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Sl = {
+export interface Sl {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Sm = {
+export interface Sm {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Sn = {
+export interface Sn {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type So = {
+export interface So {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Sq = {
+export interface Sq {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Sr = {
+export interface Sr {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ss = {
+export interface Ss {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type St = {
+export interface St {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Su = {
+export interface Su {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Subtitles = {};
+export type Subtitles = Record<string, never>;
 
-export type Sv = {
+export interface Sv {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Sw = {
+export interface Sw {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type T = {
+export interface T {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Te = {
+export interface Te {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Tg = {
+export interface Tg {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Th = {
+export interface Th {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Thumbnail = {
+export interface Thumbnail {
   height?: number;
   id: string;
   preference: number;
   resolution?: string;
   url: string;
   width?: number;
-};
+}
 
-export type Ti = {
+export interface Ti {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Tk = {
+export interface Tk {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Tn = {
+export interface Tn {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type To = {
+export interface To {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Tr = {
+export interface Tr {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Tt = {
+export interface Tt {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Tum = {
+export interface Tum {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ug = {
+export interface Ug {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Uk = {
+export interface Uk {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Um = {
+export interface Um {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ur = {
+export interface Ur {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Uz = {
+export interface Uz {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Ve = {
+export interface Ve {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Version = {
+export interface Version {
   current_git_head: unknown;
   release_git_head: string;
   repository: string;
   version: string;
-};
+}
 
-export type Vi = {
+export interface Vi {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type War = {
+export interface War {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Wo = {
+export interface Wo {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Xh = {
+export interface Xh {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Yi = {
+export interface Yi {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Yo = {
+export interface Yo {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type ZhHant = {
+export interface ZhHant {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
-export type Zu = {
+export interface Zu {
   __yt_dlp_client: string;
   ext: string;
   impersonate: boolean;
   name: string;
   url: string;
-};
+}
 
 export async function getInfo(url: string) {
   const output = await runYtDlp([

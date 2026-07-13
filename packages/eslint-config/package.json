@@ -4,14 +4,11 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./base": "./base.js",
-    "./node": "./node.js",
-    "./typescript": "./typescript.js"
+    "./base": "./base.js"
   },
   "devDependencies": {
-    "@vchikalkin/eslint-config-awesome": "catalog:",
     "eslint": "catalog:",
-    "eslint-plugin-tailwindcss": "^3.17.5",
+    "eslint-config-sheriff": "^31.4.0",
     "eslint-plugin-turbo": "^2.3.0"
   }
 }

@@ -1,13 +1,13 @@
-import { type Context } from '../../context';
-import { type DownloadResult } from './platform';
+import { rm } from 'node:fs/promises';
+import { dirname } from 'node:path';
+import { InputFile } from 'grammy';
+import { cluster } from 'radashi';
+import { code, expandableBlockquote, fmt } from '@grammyjs/parse-mode';
 import { TTL_URLS } from '@/config/redis';
 import { getRedisInstance } from '@/utils/redis';
 import { removeHashtags } from '@/utils/text';
-import { code, expandableBlockquote, fmt } from '@grammyjs/parse-mode';
-import { InputFile } from 'grammy';
-import { rm } from 'node:fs/promises';
-import { dirname } from 'node:path';
-import { cluster } from 'radashi';
+import type { Context } from '../../context';
+import type { DownloadResult } from './platform';
 
 const redis = getRedisInstance();
 
@@ -17,7 +17,9 @@ export async function replyCaptionAndCache(
   url: string,
   contentMessageId?: number,
 ) {
-  if (!caption) return;
+  if (!caption) {
+    return;
+  }
 
   await redis.set(`caption:${url}`, caption, 'EX', TTL_URLS);
   await replyFormattedCaption(context, caption, contentMessageId);
@@ -25,7 +27,10 @@ export async function replyCaptionAndCache(
 
 export async function replyFromCache(context: Context, url: string): Promise<boolean> {
   const cachedVideoId = await redis.get(url);
-  if (!cachedVideoId) return false;
+
+  if (!cachedVideoId) {
+    return false;
+  }
 
   const cachedMessage = await context.replyWithVideo(cachedVideoId);
   const cachedCaption = await redis.get(`caption:${url}`);
@@ -62,12 +67,16 @@ async function cleanupTempFile(filePath: string) {
 
 function formatCaption(caption: string) {
   const cleanCaption = removeHashtags(caption);
+
   return fmt`${expandableBlockquote} ${code} ${cleanCaption} ${code} ${expandableBlockquote}`;
 }
 
 async function replyFormattedCaption(context: Context, caption: string, replyToMessageId?: number) {
   const { entities, text } = formatCaption(caption);
-  if (!text.trim().length) return;
+
+  if (!text.trim()) {
+    return;
+  }
 
   await context.reply(text, {
     entities,
@@ -80,7 +89,9 @@ async function sendImages(
   imagesUrls: string[],
   existingContentMessageId?: number,
 ) {
-  if (!imagesUrls.length) return existingContentMessageId;
+  if (imagesUrls.length === 0) {
+    return existingContentMessageId;
+  }
 
   let contentMessageId = existingContentMessageId;
 
@@ -88,23 +99,26 @@ async function sendImages(
     const imageMessages = await context.replyWithMediaGroup(
       chunk.map((imageUrl) => ({ media: imageUrl, type: 'photo' as const })),
     );
-    contentMessageId ??= imageMessages.at(0)?.message_id;
+
+    contentMessageId = contentMessageId ?? imageMessages.at(0)?.message_id;
   }
 
   return contentMessageId;
 }
 
-async function sendVideoAndCache(
-  context: Context,
-  opts: {
-    existingContentMessageId?: number;
-    url: string;
-    videoFilePath?: string;
-    videoUrl?: string;
-  },
-) {
+interface SendVideoOptions {
+  existingContentMessageId?: number;
+  url: string;
+  videoFilePath?: string;
+  videoUrl?: string;
+}
+
+async function sendVideoAndCache(context: Context, opts: SendVideoOptions) {
   const { existingContentMessageId, url, videoFilePath, videoUrl } = opts;
-  if (!videoUrl && !videoFilePath) return existingContentMessageId;
+
+  if (!videoUrl && !videoFilePath) {
+    return existingContentMessageId;
+  }
 
   try {
     const source = videoFilePath
@@ -113,6 +127,7 @@ async function sendVideoAndCache(
     const { video, ...videoMessage } = await context.replyWithVideo(source);
 
     await redis.set(url, video.file_id, 'EX', TTL_URLS);
+
     return videoMessage.message_id;
   } finally {
     if (videoFilePath) {

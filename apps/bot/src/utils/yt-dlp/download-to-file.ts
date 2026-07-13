@@ -1,7 +1,7 @@
-import { runYtDlp } from './yt-dlp';
 import { mkdtemp, readdir, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { runYtDlp } from './yt-dlp';
 
 // Prefer exact 720p (height for landscape, width for Shorts), then best ≤720
 const FORMAT = [
@@ -35,6 +35,7 @@ export async function downloadToFile(url: string, outDir?: string): Promise<stri
         .map(async (file) => {
           const path = join(dir, file);
           const { size } = await stat(path);
+
           return { path, size };
         }),
     );

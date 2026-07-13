@@ -5,7 +5,7 @@ import { retry } from './retry';
 const INSTAGRAM_DOWNLOAD_RETRY_COUNT = 5;
 const INSTAGRAM_DOWNLOAD_RETRY_DELAY_MS = 500;
 
-export type InfoRoot = {
+export interface InfoRoot {
   author: string;
   error: boolean;
   like_count: number;
@@ -20,9 +20,9 @@ export type InfoRoot = {
   type: string;
   url: string;
   view_count: unknown;
-};
+}
 
-export type Media = {
+export interface Media {
   bandwidth?: number;
   codec?: string;
   extension: string;
@@ -35,9 +35,9 @@ export type Media = {
   thumbnail?: string;
   type: string;
   url: string;
-};
+}
 
-export type Owner = {
+export interface Owner {
   __typename: string;
   ai_agent_owner_username: unknown;
   friendship_status: unknown;
@@ -52,30 +52,34 @@ export type Owner = {
   transparency_product: unknown;
   transparency_product_enabled: boolean;
   username: string;
-};
+}
 
 export async function getInstagramDownloadUrl(url: string) {
   const client = await getClient();
 
   const { data } = await retry(
     () =>
-      client.post<InfoRoot>('https://downr.org/.netlify/functions/nyt', {
+      { return client.post<InfoRoot>('https://downr.org/.netlify/functions/nyt', {
         url,
-      }),
+      }) },
     {
       delayMs: INSTAGRAM_DOWNLOAD_RETRY_DELAY_MS,
       factor: 2,
       onRetry: (error, attempt) => {
+        const message = error instanceof Error ? error.message : String(error);
+
         logger.warn(
-          { attempt, error: (error as Error)?.message, url },
-          `Instagram download attempt ${attempt}/${INSTAGRAM_DOWNLOAD_RETRY_COUNT} failed, retrying...`,
+          { attempt, error: message, url },
+          `Instagram download attempt ${String(attempt)}/${String(INSTAGRAM_DOWNLOAD_RETRY_COUNT)} failed, retrying...`,
         );
       },
       retries: INSTAGRAM_DOWNLOAD_RETRY_COUNT,
     },
   );
 
-  if (!data) throw new Error('err-invalid-instagram-response');
+  if (!Array.isArray(data.medias)) {
+    throw new TypeError('err-invalid-instagram-response');
+  }
 
   const video = data.medias.find((media) => media.type === 'video');
 

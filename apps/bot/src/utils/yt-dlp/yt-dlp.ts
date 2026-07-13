@@ -1,5 +1,9 @@
-import { env } from '@/config/env';
 import { spawn } from 'node:child_process';
+import { env } from '@/config/env';
+
+function getYtDlpPath(): string {
+  return env.YTDLP_PATH || 'yt-dlp';
+}
 
 export function runYtDlp(args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -9,12 +13,12 @@ export function runYtDlp(args: string[]): Promise<string> {
     let output = '';
     let error = '';
 
-    process.stdout.on('data', (data) => {
-      output += data.toString();
+    process.stdout.on('data', (data: Buffer) => {
+      output = output + data.toString();
     });
 
-    process.stderr.on('data', (data) => {
-      error += data.toString();
+    process.stderr.on('data', (data: Buffer) => {
+      error = error + data.toString();
     });
 
     process.on('close', (code) => {
@@ -25,8 +29,4 @@ export function runYtDlp(args: string[]): Promise<string> {
       }
     });
   });
-}
-
-function getYtDlpPath(): string {
-  return env.YTDLP_PATH || 'yt-dlp';
 }

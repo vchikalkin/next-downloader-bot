@@ -1,9 +1,9 @@
-import { type Context } from '@/bot/context';
+import { type Middleware,session as createSession } from 'grammy';
+import { RedisAdapter } from '@grammyjs/storage-redis';
+import type { Context } from '@/bot/context';
 import { TTL_SESSION } from '@/config/redis';
 import { getRedisInstance } from '@/utils/redis';
 import { getSessionKey } from '@/utils/session';
-import { RedisAdapter } from '@grammyjs/storage-redis';
-import { session as createSession, type Middleware } from 'grammy';
 
 const storage = new RedisAdapter({
   autoParseDates: true,
