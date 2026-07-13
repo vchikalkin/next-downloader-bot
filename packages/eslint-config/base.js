@@ -1,20 +1,22 @@
-import turboPlugin from 'eslint-plugin-turbo';
+import { sheriff } from 'eslint-config-sheriff';
+import { defineConfig } from 'eslint/config';
 
-/**
- * A shared ESLint configuration for the repository.
- *
- * @type {import("eslint").Linter.Config}
- * */
-export const config = [
-  {
-    plugins: {
-      turbo: turboPlugin,
-    },
-    rules: {
-      'turbo/no-undeclared-env-vars': 'warn',
-    },
+const sheriffOptions = {
+  react: false,
+  next: false,
+  astro: false,
+  lodash: false,
+  remeda: false,
+  playwright: false,
+  storybook: true,
+  jest: false,
+  vitest: false,
+  tsconfigRootDir: import.meta.dirname,
+};
+
+export default defineConfig(sheriff(sheriffOptions), {
+  rules: {
+    'func-style': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
   },
-  {
-    ignores: ['**/dist/**', '**/turbo/**', '**/.turbo/**'],
-  },
-];
+});

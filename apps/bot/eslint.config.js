@@ -1,17 +1,9 @@
-import { node } from '@repo/eslint-config/node';
+import base from '@repo/eslint-config/base';
 
 /** @type {import("eslint").Linter.Config} */
 export default [
-  ...node,
+  ...base,
   {
     ignores: ['**/types/**', '*.config.*'],
-  },
-  {
-    rules: {
-      '@typescript-eslint/naming-convention': 'off',
-      'unicorn/prevent-abbreviations': 'off',
-      'canonical/id-match': 'off',
-      'id-length': 'off',
-    },
   },
 ];
