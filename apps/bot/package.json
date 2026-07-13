@@ -8,6 +8,7 @@
     "dev": "dotenv -e ../../.env.local tsx watch src/index.ts",
     "start": "node dist/index.cjs",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "lint-staged": "lint-staged"
   },
   "keywords": [
