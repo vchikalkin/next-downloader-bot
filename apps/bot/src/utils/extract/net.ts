@@ -1,4 +1,8 @@
+import { mediaFetch } from './http';
+
 export type Net = (url: string, init?: RequestInit, attempts?: number) => Promise<Response>;
+
+type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -30,7 +34,7 @@ function retryDelay(response: Response, attempt: number): number {
   return Math.min(500 * 2 ** (attempt - 1), 10_000);
 }
 
-export function createNet(baseFetch: typeof fetch = globalThis.fetch): Net {
+export function createNet(baseFetch: FetchLike = mediaFetch as FetchLike, timeoutMs = 30_000): Net {
   return async function net(url, init = {}, attempts = 3): Promise<Response> {
     let lastError: unknown;
 
@@ -38,7 +42,7 @@ export function createNet(baseFetch: typeof fetch = globalThis.fetch): Net {
       const controller = new AbortController();
       const timeout = setTimeout(() => {
         controller.abort();
-      }, 30_000);
+      }, timeoutMs);
 
       try {
         const response = await baseFetch(url, { ...init, signal: controller.signal });
@@ -61,7 +65,23 @@ export function createNet(baseFetch: typeof fetch = globalThis.fetch): Net {
       }
     }
 
-    throw lastError instanceof Error ? lastError : new Error('request failed');
+    if (lastError instanceof Error) {
+      if (lastError.name === 'AbortError') {
+        throw new Error('request timed out');
+      }
+
+      if (lastError.cause instanceof Error) {
+        throw new Error(`${lastError.message} (${lastError.cause.message})`);
+      }
+
+      if (typeof lastError.cause === 'string') {
+        throw new TypeError(`${lastError.message} (${lastError.cause})`);
+      }
+
+      throw new Error(lastError.message);
+    }
+
+    throw new Error('request failed');
   };
 }
 

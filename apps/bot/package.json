@@ -38,6 +38,7 @@
     "radashi": "^12.6.2",
     "tsup": "^8.5.0",
     "typescript": "catalog:",
+    "undici": "^8.10.2",
     "zod": "catalog:"
   },
   "devDependencies": {

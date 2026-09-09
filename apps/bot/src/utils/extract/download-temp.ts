@@ -1,90 +1,68 @@
-import { spawn } from 'node:child_process';
-import { mkdtemp, rm,writeFile } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createNet } from './net';
+import { downloadUrlToFile } from './http';
 import type { StreamRef } from './types';
 
-async function fetchBytes(url: string, headers: Record<string, string>): Promise<Uint8Array> {
-  const net = createNet();
-  const response = await net(url, { headers });
+const DOWNLOAD_TIMEOUT_MS = 120_000;
+const DOWNLOAD_ATTEMPTS = 3;
 
-  if (!response.ok) {
-    throw new Error(`download failed: ${String(response.status)}`);
-  }
-
-  return new Uint8Array(await response.arrayBuffer());
-}
-
-function runFfmpeg(args: string[]): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const process = spawn('ffmpeg', args);
-    let stderr = '';
-
-    process.stderr.on('data', (chunk: Buffer) => {
-      stderr = stderr + chunk.toString();
-    });
-
-    process.on('close', (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`ffmpeg error: ${stderr}`));
-      }
-    });
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
   });
 }
 
-export async function downloadToTempFile(
-  stream: StreamRef,
-  extension = 'mp4',
-): Promise<string> {
+function describeFetchError(error: unknown): string {
+  if (!(error instanceof Error)) {
+    return String(error);
+  }
+
+  if (error.name === 'AbortError') {
+    return 'download timed out';
+  }
+
+  if (error.cause instanceof Error) {
+    return `${error.message} (${error.cause.message})`;
+  }
+
+  if (typeof error.cause === 'string') {
+    return `${error.message} (${error.cause})`;
+  }
+
+  return error.message;
+}
+
+async function fetchToFile(url: string, filePath: string, headers: Record<string, string>): Promise<void> {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= DOWNLOAD_ATTEMPTS; attempt = attempt + 1) {
+    try {
+      await downloadUrlToFile(url, filePath, headers, DOWNLOAD_TIMEOUT_MS);
+
+      return;
+    } catch (error) {
+      lastError = error;
+
+      if (attempt === DOWNLOAD_ATTEMPTS) {
+        break;
+      }
+
+      await sleep(500 * 2 ** (attempt - 1));
+    }
+  }
+
+  throw new Error(describeFetchError(lastError));
+}
+
+export async function downloadToTempFile(stream: StreamRef, extension = 'mp4'): Promise<string> {
   const dir = await mkdtemp(join(tmpdir(), 'extract-'));
   const filePath = join(dir, `media.${extension}`);
 
   try {
-    const bytes = await fetchBytes(stream.url, stream.headers);
-
-    await writeFile(filePath, bytes);
+    await fetchToFile(stream.url, filePath, stream.headers);
 
     return filePath;
-  } catch (error) {
-    await rm(dir, { force: true, recursive: true }).catch(() => undefined);
-    throw error;
-  }
-}
-
-export async function downloadAndMergeToTempFile(
-  video: StreamRef,
-  audio: StreamRef,
-): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'extract-'));
-  const videoPath = join(dir, 'video.mp4');
-  const audioPath = join(dir, 'audio.m4a');
-  const outputPath = join(dir, 'merged.mp4');
-
-  try {
-    const [videoBytes, audioBytes] = await Promise.all([
-      fetchBytes(video.url, video.headers),
-      fetchBytes(audio.url, audio.headers),
-    ]);
-
-    await Promise.all([writeFile(videoPath, videoBytes), writeFile(audioPath, audioBytes)]);
-
-    await runFfmpeg([
-      '-y',
-      '-i',
-      videoPath,
-      '-i',
-      audioPath,
-      '-c',
-      'copy',
-      '-movflags',
-      '+faststart',
-      outputPath,
-    ]);
-
-    return outputPath;
   } catch (error) {
     await rm(dir, { force: true, recursive: true }).catch(() => undefined);
     throw error;

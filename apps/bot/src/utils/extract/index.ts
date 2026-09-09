@@ -1,9 +1,8 @@
-export { downloadAndMergeToTempFile, downloadToTempFile } from './download-temp';
+export { downloadToTempFile } from './download-temp';
 export {
   browserFingerprint,
   browserUserAgent,
   firefoxNavigationHeaders,
-  firefoxUserAgent,
   instagramAppUserAgent,
   navigationHeaders,
 } from './fingerprint';
@@ -16,4 +15,4 @@ export {
   createNet,
   isRecord,
 } from './net';
-export type { ResolvedMedia, StreamRef } from './types';
+export type { StreamRef } from './types';
