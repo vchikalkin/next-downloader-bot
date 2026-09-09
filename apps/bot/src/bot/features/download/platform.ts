@@ -16,9 +16,11 @@ export function detectPlatform(url: string): null | Platform {
   if (validateTikTokUrl(url)) {
     return 'tiktok';
   }
+
   if (validateInstagramUrl(url)) {
     return 'instagram';
   }
+
   if (validateYoutubeUrl(url)) {
     return 'youtube';
   }
@@ -29,12 +31,12 @@ export function detectPlatform(url: string): null | Platform {
 export async function fetchDownload(url: string, platform: Platform): Promise<DownloadResult> {
   switch (platform) {
     case 'instagram': {
-      const result = await getInstagramDownloadUrl(url.replaceAll(/\/reels?\//gu, '/p/'));
+      const result = await getInstagramDownloadUrl(url);
 
       return {
         caption: result.caption,
         imagesUrls: result.images,
-        videoUrl: result.play,
+        videoFilePath: result.filePath,
       };
     }
 
@@ -42,9 +44,9 @@ export async function fetchDownload(url: string, platform: Platform): Promise<Do
       const result = await getTiktokDownloadUrl(url);
 
       return {
-        caption: result.title,
+        caption: result.caption,
         imagesUrls: result.images,
-        videoUrl: result.play,
+        videoFilePath: result.filePath,
       };
     }
 

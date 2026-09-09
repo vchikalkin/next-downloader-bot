@@ -1,0 +1,86 @@
+function pick<Value>(values: readonly Value[]): Value {
+  return values[Math.floor(Math.random() * values.length)] as Value;
+}
+
+const chromeVersions = ['128', '129', '130', '131', '132', '133'] as const;
+const firefoxVersions = ['140', '143', '146', '148'] as const;
+
+const desktopPlatforms = [
+  { chPlatform: 'Windows', uaToken: 'Windows NT 10.0; Win64; x64' },
+  { chPlatform: 'macOS', uaToken: 'Macintosh; Intel Mac OS X 10_15_7' },
+  { chPlatform: 'Linux', uaToken: 'X11; Linux x86_64' },
+] as const;
+
+const acceptLanguages = ['en-US,en;q=0.9', 'en-GB,en;q=0.9', 'en;q=0.9', 'en-US,en;q=0.8'] as const;
+
+const instagramAppUserAgents = [
+  'Instagram 275.0.0.27.98 Android (33/13; 280dpi; 720x1423; Xiaomi; Redmi 7; onclite; qcom; en_US; 458229237)',
+  'Instagram 301.1.0.33.110 Android (34/14; 420dpi; 1080x2340; samsung; SM-G991B; o1s; exynos2100; en_US; 521879118)',
+  'Instagram 309.0.0.40.113 Android (33/13; 440dpi; 1080x2280; OnePlus; HD1913; OnePlus7TPro; qcom; en_US; 537291984)',
+] as const;
+
+export interface BrowserFingerprint {
+  acceptLanguage: string;
+  secChUa: string;
+  secChUaPlatform: string;
+  userAgent: string;
+}
+
+export type NavigationHeaders = Record<string, string> & {
+  'user-agent': string;
+};
+
+export function browserFingerprint(): BrowserFingerprint {
+  const version = pick(chromeVersions);
+  const platform = pick(desktopPlatforms);
+
+  return {
+    acceptLanguage: pick(acceptLanguages),
+    secChUa: `"Chromium";v="${version}", "Google Chrome";v="${version}", "Not_A Brand";v="24"`,
+    secChUaPlatform: `"${platform.chPlatform}"`,
+    userAgent: `Mozilla/5.0 (${platform.uaToken}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version}.0.0.0 Safari/537.36`,
+  };
+}
+
+function baseNavigationHeaders(userAgent: string, acceptLanguage: string): NavigationHeaders {
+  return {
+    accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'accept-language': acceptLanguage,
+    'sec-fetch-dest': 'document',
+    'sec-fetch-mode': 'navigate',
+    'sec-fetch-site': 'none',
+    'sec-fetch-user': '?1',
+    'upgrade-insecure-requests': '1',
+    'user-agent': userAgent,
+  };
+}
+
+export function navigationHeaders(): NavigationHeaders {
+  const fingerprint = browserFingerprint();
+
+  return {
+    ...baseNavigationHeaders(fingerprint.userAgent, fingerprint.acceptLanguage),
+    'sec-ch-ua': fingerprint.secChUa,
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': fingerprint.secChUaPlatform,
+  };
+}
+
+export function browserUserAgent(): string {
+  return browserFingerprint().userAgent;
+}
+
+export function firefoxUserAgent(): string {
+  const platform = pick(desktopPlatforms);
+  const version = pick(firefoxVersions);
+
+  return `Mozilla/5.0 (${platform.uaToken}; rv:${version}.0) Gecko/20100101 Firefox/${version}.0`;
+}
+
+export function firefoxNavigationHeaders(userAgent = firefoxUserAgent()): NavigationHeaders {
+  return baseNavigationHeaders(userAgent, pick(acceptLanguages));
+}
+
+export function instagramAppUserAgent(): string {
+  return pick(instagramAppUserAgents);
+}
