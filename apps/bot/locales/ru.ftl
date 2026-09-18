@@ -11,7 +11,7 @@ description =
 
 short-description = 
                 Скачивает видео и изображения
-                Поддержка: @v_dev_support
+                Поддержка: @vchikalkin
                 Поблагодарить: { $donateLink }
 
 

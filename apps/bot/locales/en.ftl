@@ -11,7 +11,7 @@ description =
 
 short-description = 
                 Downloads videos and pictures
-                Support: @v_dev_support
+                Support: @vchikalkin
                 Donate: { $donateLink }
 
 
