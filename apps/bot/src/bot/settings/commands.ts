@@ -3,9 +3,10 @@ import { Command, CommandGroup } from '@grammyjs/commands';
 import type { LanguageCode } from '@grammyjs/types';
 import type { Context } from '@/bot/context';
 import { i18n } from '@/bot/i18n';
+import { commandDescriptionKey, START } from '@/constants/i18n';
 
 function createCommand(name: string) {
-  return new Command(name, i18n.t('en', `${name}.description`)).addToScope({
+  return new Command(name, i18n.t('en', commandDescriptionKey(name))).addToScope({
     type: 'all_private_chats',
   });
 }
@@ -15,7 +16,7 @@ function addLocalizations(command: Command) {
     command.localize(
       locale as LanguageCode,
       command.name,
-      i18n.t(locale, `${String(command.name)}.description`),
+      i18n.t(locale, commandDescriptionKey(String(command.name))),
     );
   }
 
@@ -23,7 +24,7 @@ function addLocalizations(command: Command) {
 }
 
 export async function setCommands({ api }: Bot<Context>) {
-  const start = createCommand('start');
+  const start = createCommand(START);
 
   const commands = [start];
 

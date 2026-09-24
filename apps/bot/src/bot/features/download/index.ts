@@ -1,4 +1,9 @@
 import { Composer } from 'grammy';
+import {
+  DOWNLOADING_STARTED,
+  ERR_INVALID_DOWNLOAD_URLS,
+  ERR_INVALID_URL,
+} from '@/constants/i18n';
 import type { Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
 import { createMessageDeleter, replyDownloadError, withActionIndicator } from './chat';
@@ -18,7 +23,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
   const platform = detectPlatform(url);
 
   if (!platform) {
-    await context.reply(context.t('err-invalid-url'));
+    await context.reply(context.t(ERR_INVALID_URL));
 
     return;
   }
@@ -27,7 +32,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
     return;
   }
 
-  const statusMessage = await context.reply(context.t('downloading-started'));
+  const statusMessage = await context.reply(context.t(DOWNLOADING_STARTED));
   const dismissStatus = createMessageDeleter(context, statusMessage.message_id);
 
   let result: DownloadResult;
@@ -43,7 +48,7 @@ feature.on('message:text', logHandle('download-message'), async (context) => {
 
   if (!hasDownloadableMedia(result)) {
     await dismissStatus();
-    await context.reply(context.t('err-invalid-download-urls'));
+    await context.reply(context.t(ERR_INVALID_DOWNLOAD_URLS));
 
     return;
   }

@@ -28,9 +28,8 @@ downloading-started = ⏳ Downloading…
 
 err-invalid-tiktok-response = 🔍 Bad TikTok response. The video may be deleted or unavailable
 err-invalid-instagram-response = 🔍 Bad Instagram response. The post may be deleted or unavailable
-err-invalid-youtube-response = 🔍 Bad YouTube response. The video may be deleted or unavailable
 err-video-duration-exceeded = 🚫 Video is too long
-err-youtube-no-quality = 🔍 No matching quality for this video
 
 
 msg-welcome = Send a TikTok, Instagram, or YouTube link. I'll download the video or image without a watermark (e.g. https://vt.tiktok.com/, https://www.instagram.com/p/, https://www.youtube.com/)
+msg-unhandled = Send a TikTok, Instagram, or YouTube link.

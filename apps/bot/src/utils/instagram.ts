@@ -1,3 +1,4 @@
+import { ERR_INVALID_INSTAGRAM_RESPONSE } from '@/constants/i18n';
 import {
   asNumber,
   asString,
@@ -70,7 +71,7 @@ function shortcode(input: string): string {
   const code = index >= 0 ? path[index + 1] : path.at(-1);
 
   if (!code) {
-    throw new Error('err-invalid-instagram-response');
+    throw new Error(ERR_INVALID_INSTAGRAM_RESPONSE);
   }
 
   return code;
@@ -579,7 +580,7 @@ async function resolveInstagramMedia(url: string): Promise<Json> {
     }
   }
 
-  throw new Error('err-invalid-instagram-response');
+  throw new Error(ERR_INVALID_INSTAGRAM_RESPONSE);
 }
 
 export async function getInstagramDownloadUrl(url: string): Promise<InstagramDownloadResult> {
@@ -612,7 +613,7 @@ export async function getInstagramDownloadUrl(url: string): Promise<InstagramDow
   }
 
   if (images.length === 0) {
-    throw new Error('err-invalid-instagram-response');
+    throw new Error(ERR_INVALID_INSTAGRAM_RESPONSE);
   }
 
   return { caption, images };

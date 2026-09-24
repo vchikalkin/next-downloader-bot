@@ -3,6 +3,7 @@ import { autoChatAction } from '@grammyjs/auto-chat-action';
 import { hydrate } from '@grammyjs/hydrate';
 import { limit } from '@grammyjs/ratelimiter';
 import { env } from '@/config/env';
+import { ERR_LIMIT_EXCEEDED } from '@/constants/i18n';
 import { logger } from '@/utils/logger';
 import { getRedisInstance } from '@/utils/redis';
 import type { Context } from './context';
@@ -34,7 +35,7 @@ export function createBot({ apiRoot, token }: CreateBotOptions) {
       keyGenerator: (ctx) => ctx.from?.id.toString(),
       limit: env.RATE_LIMIT,
       onLimitExceeded: (ctx) => {
-        ctx.reply(ctx.t('err-limit-exceeded')).catch(() => undefined);
+        ctx.reply(ctx.t(ERR_LIMIT_EXCEEDED)).catch(() => undefined);
       },
       storageClient: redis,
       timeFrame: env.RATE_LIMIT_TIME,

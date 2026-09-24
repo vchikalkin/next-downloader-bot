@@ -1,3 +1,4 @@
+import { ERR_GENERIC } from '@/constants/i18n';
 import type { Context } from '../../context';
 
 export function createMessageDeleter(context: Context, messageId: number) {
@@ -19,7 +20,7 @@ export async function replyDownloadError(context: Context, error: unknown) {
     return context.reply(context.t(message));
   }
 
-  return context.reply(context.t('err-generic'));
+  return context.reply(context.t(ERR_GENERIC));
 }
 
 export async function withActionIndicator<T>(context: Context, fn: () => Promise<T>): Promise<T> {

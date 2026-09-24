@@ -1,3 +1,4 @@
+import { ERR_INVALID_TIKTOK_RESPONSE } from '@/constants/i18n';
 import {
   asNumber,
   asString,
@@ -70,7 +71,7 @@ async function followShortlink(net: Net, userAgent: string, input: string): Prom
     return new URL(href, input).href;
   }
 
-  throw new Error('err-invalid-tiktok-response');
+  throw new Error(ERR_INVALID_TIKTOK_RESPONSE);
 }
 
 function itemStruct(html: string): Json {
@@ -94,7 +95,7 @@ function itemStruct(html: string): Json {
   }
 
   if (asString(detail.statusMsg)) {
-    throw new Error('err-invalid-tiktok-response');
+    throw new Error(ERR_INVALID_TIKTOK_RESPONSE);
   }
 
   const info = isRecord(detail.itemInfo) ? detail.itemInfo : null;
@@ -105,7 +106,7 @@ function itemStruct(html: string): Json {
   }
 
   if (item.isContentClassified === true) {
-    throw new Error('err-invalid-tiktok-response');
+    throw new Error(ERR_INVALID_TIKTOK_RESPONSE);
   }
 
   return item;
@@ -268,7 +269,7 @@ async function videoPage(
   }
 
   if (!isPhoto) {
-    throw new Error('err-invalid-tiktok-response');
+    throw new Error(ERR_INVALID_TIKTOK_RESPONSE);
   }
 
   const fallbackHeaders = navigationHeaders();
@@ -288,7 +289,7 @@ export async function getTiktokDownloadUrl(url: string): Promise<TiktokDownloadR
   const id = videoId(pageUrl);
 
   if (!id) {
-    throw new Error('err-invalid-tiktok-response');
+    throw new Error(ERR_INVALID_TIKTOK_RESPONSE);
   }
 
   const page = await videoPage(net, id, asUrl(pageUrl).pathname.includes('/photo/'));
@@ -315,7 +316,7 @@ export async function getTiktokDownloadUrl(url: string): Promise<TiktokDownloadR
   }
 
   if (images.length === 0) {
-    throw new Error('err-invalid-tiktok-response');
+    throw new Error(ERR_INVALID_TIKTOK_RESPONSE);
   }
 
   return { caption, images };

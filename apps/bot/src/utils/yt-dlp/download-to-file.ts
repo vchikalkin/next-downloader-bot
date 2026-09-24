@@ -1,8 +1,8 @@
 import { mkdtemp, readdir, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { ERR_VIDEO_DURATION_EXCEEDED } from '@/constants/i18n';
 import { MAX_VIDEO_DURATION_SECONDS } from '@/constants/limits';
-import { ERR_VIDEO_DURATION_EXCEEDED } from '@/utils/video-duration';
 import { runYtDlp } from './yt-dlp';
 
 // Progressive ~360p via android client. Adaptive needs PO tokens and hangs/403s.

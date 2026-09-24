@@ -28,9 +28,8 @@ downloading-started = ⏳ Скачиваю…
 
 err-invalid-tiktok-response = 🔍 Некорректный ответ TikTok. Видео удалено или недоступно
 err-invalid-instagram-response = 🔍 Некорректный ответ Instagram. Запись удалена или недоступна
-err-invalid-youtube-response = 🔍 Некорректный ответ YouTube. Видео удалено или недоступно
 err-video-duration-exceeded = 🚫 Видео слишком длинное
-err-youtube-no-quality = 🔍 Нет подходящего качества для этого видео
 
 
 msg-welcome = Отправьте ссылку TikTok, Instagram или YouTube. Скачаю видео или изображение без водяного знака (например: https://vt.tiktok.com/, https://www.instagram.com/p/, https://www.youtube.com/watch?v=)
+msg-unhandled = Отправьте ссылку TikTok, Instagram или YouTube.
