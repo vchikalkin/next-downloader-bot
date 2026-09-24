@@ -2,6 +2,7 @@ import { mkdtemp, readdir, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { MAX_VIDEO_DURATION_SECONDS } from '@/constants/limits';
+import { ERR_VIDEO_DURATION_EXCEEDED } from '@/utils/video-duration';
 import { runYtDlp } from './yt-dlp';
 
 // Progressive ~360p via android client. Adaptive needs PO tokens and hangs/403s.
@@ -55,7 +56,7 @@ export async function downloadToFile(url: string, outDir?: string): Promise<stri
     await rm(dir, { force: true, recursive: true }).catch(() => undefined);
 
     if (error instanceof Error && /match.?filter/iu.test(error.message)) {
-      throw new Error('err-youtube-duration-exceeded');
+      throw new Error(ERR_VIDEO_DURATION_EXCEEDED);
     }
 
     throw error;

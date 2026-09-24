@@ -1,4 +1,5 @@
 import {
+  asNumber,
   asString,
   asUrl,
   browserUserAgent,
@@ -10,6 +11,7 @@ import {
   navigationHeaders,
   type Net,
 } from './extract';
+import { assertMaxVideoDuration } from './video-duration';
 
 const MARKER = '<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__" type="application/json">';
 const PAGE_ATTEMPT_COUNT = 12;
@@ -121,6 +123,23 @@ function downloadUrl(item: Json): string | null {
   return video ? (asString(video.playAddr) ?? asString(video.downloadAddr)) : null;
 }
 
+function videoDurationSeconds(item: Json): number | null {
+  const video = isRecord(item.video) ? item.video : null;
+
+  return video ? asNumber(video.duration) : null;
+}
+
+function embedDurationSeconds(value: unknown): number | undefined {
+  const duration = asNumber(value);
+
+  if (duration === null) {
+    return undefined;
+  }
+
+  // Embed videoMeta.duration is milliseconds when the value is large.
+  return duration >= 1000 ? duration / 1000 : duration;
+}
+
 function imageUrls(item: Json): string[] {
   const imagePost = isRecord(item.imagePost) ? item.imagePost : null;
   const images = imagePost && Array.isArray(imagePost.images) ? imagePost.images.filter(isRecord) : [];
@@ -217,7 +236,7 @@ async function fetchEmbedPage(
         title: asString(musicInfo.musicName),
       },
       video: {
-        duration: videoMeta.duration,
+        duration: embedDurationSeconds(videoMeta.duration),
         downloadAddr: asString(video.downloadAddr),
         playAddr: asString(video.playAddr),
       },
@@ -288,6 +307,8 @@ export async function getTiktokDownloadUrl(url: string): Promise<TiktokDownloadR
   const mediaUrl = downloadUrl(page.item);
 
   if (mediaUrl) {
+    assertMaxVideoDuration(videoDurationSeconds(page.item));
+
     const filePath = await downloadToTempFile({ headers, url: mediaUrl });
 
     return { caption, filePath, images: [] };

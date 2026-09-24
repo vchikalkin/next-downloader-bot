@@ -29,7 +29,7 @@ downloading-started = ⏳ Скачиваю…
 err-invalid-tiktok-response = 🔍 Некорректный ответ TikTok. Видео удалено или недоступно
 err-invalid-instagram-response = 🔍 Некорректный ответ Instagram. Запись удалена или недоступна
 err-invalid-youtube-response = 🔍 Некорректный ответ YouTube. Видео удалено или недоступно
-err-youtube-duration-exceeded = 🚫 Видео слишком длинное
+err-video-duration-exceeded = 🚫 Видео слишком длинное
 err-youtube-no-quality = 🔍 Нет подходящего качества для этого видео
 
 

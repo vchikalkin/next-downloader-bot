@@ -13,6 +13,7 @@ import {
 } from './extract';
 import { logger } from './logger';
 import { retry } from './retry';
+import { assertMaxVideoDuration } from './video-duration';
 
 const PREFERRED_WIDTH = 720;
 const APP_ID = '936619743392459';
@@ -128,7 +129,19 @@ function mediaCaption(media: Json): string | undefined {
   return node ? (asString(node.text) ?? undefined) : undefined;
 }
 
-function collectMediaUrls(media: Json): { images: string[]; videoUrl: string | null } {
+function mediaVideoDuration(media: Json): number | null {
+  const duration = asNumber(media.video_duration);
+
+  if (duration !== null) {
+    return duration;
+  }
+
+  const video = isRecord(media.video) ? media.video : null;
+
+  return video ? asNumber(video.duration) : null;
+}
+
+function collectMediaUrls(media: Json): { images: string[]; videoDuration: number | null; videoUrl: string | null } {
   const sidecar =
     isRecord(media.edge_sidecar_to_children) && Array.isArray(media.edge_sidecar_to_children.edges)
       ? media.edge_sidecar_to_children.edges
@@ -136,6 +149,7 @@ function collectMediaUrls(media: Json): { images: string[]; videoUrl: string | n
 
   if (sidecar.length > 0) {
     const images: string[] = [];
+    let videoDuration: number | null = null;
     let videoUrl: string | null = null;
 
     for (const edge of sidecar) {
@@ -148,6 +162,7 @@ function collectMediaUrls(media: Json): { images: string[]; videoUrl: string | n
       const itemVideo = selectVersion(node.video_versions, PREFERRED_WIDTH) ?? asString(node.video_url);
 
       if (itemVideo && !videoUrl) {
+        videoDuration = mediaVideoDuration(node);
         videoUrl = itemVideo;
       } else {
         const itemImage = selectImage(node);
@@ -158,19 +173,21 @@ function collectMediaUrls(media: Json): { images: string[]; videoUrl: string | n
       }
     }
 
-    return { images, videoUrl };
+    return { images, videoDuration, videoUrl };
   }
 
   const carousel = Array.isArray(media.carousel_media) ? media.carousel_media.filter(isRecord) : [];
 
   if (carousel.length > 0) {
     const images: string[] = [];
+    let videoDuration: number | null = null;
     let videoUrl: string | null = null;
 
     for (const item of carousel) {
       const itemVideo = selectVersion(item.video_versions, PREFERRED_WIDTH) ?? asString(item.video_url);
 
       if (itemVideo && !videoUrl) {
+        videoDuration = mediaVideoDuration(item);
         videoUrl = itemVideo;
       } else {
         const itemImage = selectImage(item);
@@ -181,18 +198,18 @@ function collectMediaUrls(media: Json): { images: string[]; videoUrl: string | n
       }
     }
 
-    return { images, videoUrl };
+    return { images, videoDuration, videoUrl };
   }
 
   const video = selectVersion(media.video_versions, PREFERRED_WIDTH) ?? asString(media.video_url);
 
   if (video) {
-    return { images: [], videoUrl: video };
+    return { images: [], videoDuration: mediaVideoDuration(media), videoUrl: video };
   }
 
   const image = selectImage(media);
 
-  return { images: image ? [image] : [], videoUrl: null };
+  return { images: image ? [image] : [], videoDuration: null, videoUrl: null };
 }
 
 function hasUsableMedia(media: Json, isVideoRequired: boolean): boolean {
@@ -580,10 +597,12 @@ export async function getInstagramDownloadUrl(url: string): Promise<InstagramDow
     retries: INSTAGRAM_DOWNLOAD_RETRY_COUNT,
   });
 
-  const { images, videoUrl } = collectMediaUrls(media);
+  const { images, videoDuration, videoUrl } = collectMediaUrls(media);
   const caption = mediaCaption(media);
 
   if (videoUrl) {
+    assertMaxVideoDuration(videoDuration);
+
     const filePath = await downloadToTempFile({
       headers: { 'user-agent': browserUserAgent() },
       url: videoUrl,
