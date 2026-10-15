@@ -2,6 +2,7 @@ import { Bot } from 'grammy';
 import { autoChatAction } from '@grammyjs/auto-chat-action';
 import { hydrate } from '@grammyjs/hydrate';
 import { limit } from '@grammyjs/ratelimiter';
+import * as sentry from '@sentry/node';
 import { env } from '@/config/env';
 import { ERR_LIMIT_EXCEEDED } from '@/constants/i18n';
 import { logger } from '@/utils/logger';
@@ -28,6 +29,7 @@ export function createBot({ apiRoot, token }: CreateBotOptions) {
     },
   });
 
+  bot.use(middlewares.sentry());
   bot.use(i18n);
 
   bot.use(
@@ -50,9 +52,11 @@ export function createBot({ apiRoot, token }: CreateBotOptions) {
   });
 
   setInfo(bot).catch((error: unknown) => {
+    sentry.captureException(error);
     logger.error(error);
   });
   setCommands(bot).catch((error: unknown) => {
+    sentry.captureException(error);
     logger.error(error);
   });
 

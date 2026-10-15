@@ -30,6 +30,7 @@
     "@grammyjs/storage-redis": "^2.5.1",
     "@grammyjs/types": "^3.21.0",
     "@repo/typescript-config": "workspace:*",
+    "@sentry/node": "^11.8.0",
     "@types/node": "catalog:",
     "grammy": "^1.37.0",
     "ioredis": "^5.7.0",
