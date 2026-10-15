@@ -1,3 +1,4 @@
+import * as sentry from '@sentry/node';
 import { ERR_GENERIC } from '@/constants/i18n';
 import type { Context } from '../../context';
 
@@ -19,6 +20,8 @@ export async function replyDownloadError(context: Context, error: unknown) {
   if (message.startsWith('err-')) {
     return context.reply(context.t(message));
   }
+
+  sentry.captureException(error);
 
   return context.reply(context.t(ERR_GENERIC));
 }
