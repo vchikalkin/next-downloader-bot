@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "ponytail": {
+      "source": "dietrichgebert/ponytail",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail/SKILL.md",
+      "computedHash": "dc44b17f49b1228761af8303a51bc028cd1cca866ba8d23d6072ef5fd4e0ba94"
+    },
+    "sentry-node-sdk": {
+      "source": "getsentry/sentry-for-ai",
+      "sourceType": "github",
+      "skillPath": "skills-legacy/sentry-node-sdk/SKILL.md",
+      "computedHash": "29156e9eaf13b458444236d6f455fb50aa4ae42e8494dc46e4c9f44913e03cf0"
+    }
+  }
+}

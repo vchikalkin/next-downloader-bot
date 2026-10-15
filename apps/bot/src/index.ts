@@ -1,4 +1,6 @@
+import './instrument';
 import { run } from '@grammyjs/runner';
+import * as sentry from '@sentry/node';
 import { createBot } from './bot';
 import { env as environment } from './config/env';
 import { logger } from './utils/logger';
@@ -10,6 +12,7 @@ const bot = createBot({
 });
 
 bot.catch((error) => {
+  sentry.captureException(error.error);
   logger.error('Grammy bot error:');
   logger.error(`Message: ${error.message}`);
   logger.error(error.error);
@@ -27,6 +30,8 @@ async function gracefulShutdown(signal: string) {
 
     redis.disconnect();
     logger.info('Redis disconnected');
+
+    await sentry.close(2000);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
 

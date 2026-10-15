@@ -17,6 +17,7 @@ export const envSchema = z.object({
     .string()
     .transform((value) => Number.parseInt(value, 10))
     .default('6379'),
+  SENTRY_DSN: z.string().optional(),
   TELEGRAM_API_ROOT: z.string(),
   YTDLP_PATH: z.string().optional(),
 });

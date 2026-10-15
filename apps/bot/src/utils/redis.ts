@@ -9,7 +9,9 @@ function createRedisInstance() {
     port: env.REDIS_PORT,
   });
 
-  redis.on('error', logger.error);
+  redis.on('error', (error) => {
+    logger.error(error);
+  });
 
   return redis;
 }
