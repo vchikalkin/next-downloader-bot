@@ -14,16 +14,23 @@ export function createMessageDeleter(context: Context, messageId: number) {
   };
 }
 
-export async function replyDownloadError(context: Context, error: unknown) {
+export async function replyDownloadError(
+  context: Context,
+  error: unknown,
+  replyToMessageId?: number,
+) {
   const message = error instanceof Error ? error.message : String(error);
+  const options = {
+    reply_parameters: replyToMessageId ? { message_id: replyToMessageId } : undefined,
+  };
 
   if (message.startsWith('err-')) {
-    return context.reply(context.t(message));
+    return context.reply(context.t(message), options);
   }
 
   sentry.captureException(error);
 
-  return context.reply(context.t(ERR_GENERIC));
+  return context.reply(context.t(ERR_GENERIC), options);
 }
 
 export async function withActionIndicator<T>(context: Context, fn: () => Promise<T>): Promise<T> {

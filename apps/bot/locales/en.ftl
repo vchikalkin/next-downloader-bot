@@ -1,7 +1,7 @@
 bot-name = Next Downloader Bot | TikTok, Instagram, YouTube
 
 description =
-    🎬 Send a TikTok, Instagram, or YouTube link. 📥 I'll download the video, photos, Reels, or Shorts without a watermark, with the description.
+    🎬 Send a TikTok, Instagram, or YouTube link. 📥 I'll download the video, photos, Reels, or Shorts without a watermark, with the description. You can add the bot to a group.
 
     Support: @vchikalkin
     Donate: { $donateLink }

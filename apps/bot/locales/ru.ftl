@@ -1,7 +1,7 @@
 bot-name = Next Downloader Bot | Скачать из TikTok, Instagram, YouTube
 
 description =
-    🎬 Отправьте ссылку TikTok, Instagram или YouTube. 📥 Скачаю видео, фото, Reels или Shorts без водяного знака, с описанием.
+    🎬 Отправьте ссылку TikTok, Instagram или YouTube. 📥 Скачаю видео, фото, Reels или Shorts без водяного знака, с описанием. Можно добавить бота в группу.
 
     Поддержка: @vchikalkin
     Поблагодарить: { $donateLink }
