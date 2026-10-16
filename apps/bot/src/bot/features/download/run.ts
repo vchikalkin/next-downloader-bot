@@ -66,9 +66,13 @@ export async function downloadOnce(context: Context, url: string, opts: Download
     await dismissStatus();
   }
 
-  if (opts.withCaption) {
-    await replyCaptionAndCache(context, result.caption, url, contentMessageId);
-  }
+  await replyCaptionAndCache(
+    context,
+    result.caption,
+    url,
+    contentMessageId,
+    opts.withCaption,
+  );
 }
 
 export async function downloadUrls(

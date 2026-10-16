@@ -28,13 +28,17 @@ export async function replyCaptionAndCache(
   caption: string | undefined,
   url: string,
   contentMessageId?: number,
+  sendCaption = true,
 ) {
   if (!caption) {
     return;
   }
 
   await redis.set(`caption:${url}`, caption, 'EX', TTL_URLS);
-  await replyFormattedCaption(context, caption, contentMessageId);
+
+  if (sendCaption) {
+    await replyFormattedCaption(context, caption, contentMessageId);
+  }
 }
 
 export async function replyFromCache(
