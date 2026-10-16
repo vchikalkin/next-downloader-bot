@@ -4,7 +4,14 @@ import {
   ERR_INVALID_URL,
 } from '@/constants/i18n';
 import type { Context } from '../../context';
-import { createMessageDeleter, replyDownloadError, withActionIndicator } from './chat';
+import {
+  createMessageDeleter,
+  replyDownloadError,
+  replyParams,
+  type ReplyTarget,
+  withActionIndicator,
+} from './chat';
+import type { DownloadableLink } from './extract';
 import { replyCaptionAndCache, replyFromCache, sendMedia } from './media';
 import { detectPlatform, type DownloadResult, fetchDownload, hasDownloadableMedia } from './platform';
 
@@ -13,22 +20,36 @@ export interface DownloadOnceOptions {
   withCaption: boolean;
 }
 
-function replyParams(replyToMessageId?: number) {
-  return replyToMessageId ? { message_id: replyToMessageId } : undefined;
+function replyTarget(link: DownloadableLink, replyToMessageId?: number): ReplyTarget | undefined {
+  if (!replyToMessageId) {
+    return undefined;
+  }
+
+  return {
+    messageId: replyToMessageId,
+    quote: link.quote,
+    quotePosition: link.quotePosition,
+  };
 }
 
-export async function downloadOnce(context: Context, url: string, opts: DownloadOnceOptions) {
+export async function downloadOnce(
+  context: Context,
+  link: DownloadableLink,
+  opts: DownloadOnceOptions,
+) {
+  const { url } = link;
+  const target = replyTarget(link, opts.replyToMessageId);
   const platform = detectPlatform(url);
 
   if (!platform) {
-    await replyDownloadError(context, new Error(ERR_INVALID_URL), opts.replyToMessageId);
+    await replyDownloadError(context, new Error(ERR_INVALID_URL), target);
 
     return;
   }
 
   if (
     await replyFromCache(context, url, {
-      replyToMessageId: opts.replyToMessageId,
+      replyTarget: target,
       withCaption: opts.withCaption,
     })
   ) {
@@ -36,7 +57,7 @@ export async function downloadOnce(context: Context, url: string, opts: Download
   }
 
   const statusMessage = await context.reply(context.t(DOWNLOADING_STARTED), {
-    reply_parameters: replyParams(opts.replyToMessageId),
+    reply_parameters: replyParams(target),
   });
   const dismissStatus = createMessageDeleter(context, statusMessage.message_id);
 
@@ -46,20 +67,20 @@ export async function downloadOnce(context: Context, url: string, opts: Download
     result = await withActionIndicator(context, () => fetchDownload(url, platform));
   } catch (error: unknown) {
     await dismissStatus();
-    await replyDownloadError(context, error, opts.replyToMessageId);
+    await replyDownloadError(context, error, target);
 
     return;
   }
 
   if (!hasDownloadableMedia(result)) {
     await dismissStatus();
-    await replyDownloadError(context, new Error(ERR_INVALID_DOWNLOAD_URLS), opts.replyToMessageId);
+    await replyDownloadError(context, new Error(ERR_INVALID_DOWNLOAD_URLS), target);
 
     return;
   }
 
   const contentMessageId = await sendMedia(context, url, result, {
-    replyToMessageId: opts.replyToMessageId,
+    replyTarget: target,
   });
 
   if (contentMessageId && contentMessageId !== statusMessage.message_id) {
@@ -77,10 +98,10 @@ export async function downloadOnce(context: Context, url: string, opts: Download
 
 export async function downloadUrls(
   context: Context,
-  urls: string[],
+  links: DownloadableLink[],
   opts: DownloadOnceOptions,
 ) {
-  for (const url of urls) {
-    await downloadOnce(context, url, opts);
+  for (const link of links) {
+    await downloadOnce(context, link, opts);
   }
 }

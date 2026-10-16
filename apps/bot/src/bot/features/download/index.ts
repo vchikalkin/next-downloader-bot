@@ -16,18 +16,21 @@ privateFeature.on(
   logHandle('download-message'),
   async (context) => {
     const { message } = context;
-    const urls = extractDownloadableUrls(
+    const links = extractDownloadableUrls(
       message.text ?? message.caption,
       message.entities ?? message.caption_entities,
     );
 
-    if (urls.length === 0) {
+    if (links.length === 0) {
       await replyDownloadError(context, new Error(ERR_INVALID_URL));
 
       return;
     }
 
-    await downloadUrls(context, urls, { withCaption: true });
+    await downloadUrls(context, links, {
+      replyToMessageId: message.message_id,
+      withCaption: true,
+    });
   },
 );
 

@@ -4,6 +4,12 @@ import { validateInstagramUrl, validateTikTokUrl, validateYoutubeUrl } from '@/u
 
 const urlPatterns = [tiktokUrlRegex, instagramUrlRegex, youtubeUrlRegex];
 
+export interface DownloadableLink {
+  quote?: string;
+  quotePosition?: number;
+  url: string;
+}
+
 function isDownloadableUrl(url: string) {
   return validateTikTokUrl(url) || validateInstagramUrl(url) || validateYoutubeUrl(url);
 }
@@ -24,33 +30,48 @@ function withGlobalFlag(regex: RegExp): RegExp {
 export function extractDownloadableUrls(
   text: string | undefined,
   entities?: MessageEntity[],
-): string[] {
-  const found: string[] = [];
+): DownloadableLink[] {
+  const found: DownloadableLink[] = [];
   const seen = new Set<string>();
 
-  const add = (raw: string) => {
-    const url = raw.trim();
+  const add = (urlRaw: string, quote?: string, quotePosition?: number) => {
+    const url = urlRaw.trim();
 
-    if (!url || seen.has(url) || found.some((existing) => sameLink(existing, url)) || !isDownloadableUrl(url)) {
+    if (
+      !url ||
+      seen.has(url) ||
+      found.some((existing) => sameLink(existing.url, url)) ||
+      !isDownloadableUrl(url)
+    ) {
       return;
     }
 
     seen.add(url);
-    found.push(url);
+    found.push({
+      url,
+      ...(quote
+        ? {
+            quote: quote.slice(0, 1024),
+            quotePosition,
+          }
+        : {}),
+    });
   };
 
   for (const entity of entities ?? []) {
     if (entity.type === 'url' && text) {
-      add(text.slice(entity.offset, entity.offset + entity.length));
-    } else if (entity.type === 'text_link') {
-      add(entity.url);
+      const quote = text.slice(entity.offset, entity.offset + entity.length);
+
+      add(quote, quote, entity.offset);
+    } else if (entity.type === 'text_link' && text) {
+      add(entity.url, text.slice(entity.offset, entity.offset + entity.length), entity.offset);
     }
   }
 
   if (text) {
     for (const pattern of urlPatterns) {
       for (const match of text.matchAll(withGlobalFlag(pattern))) {
-        add(match[0]);
+        add(match[0], match[0], match.index);
       }
     }
   }

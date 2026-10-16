@@ -40,7 +40,7 @@ function isBotMentionReply(context: Context): boolean {
   return Boolean(context.message?.reply_to_message) && mentionsBot(context);
 }
 
-function messageUrls(context: Context) {
+function messageLinks(context: Context) {
   const { message } = context;
 
   if (!message) {
@@ -53,7 +53,7 @@ function messageUrls(context: Context) {
   );
 }
 
-function replySourceUrls(context: Context) {
+function replySourceLinks(context: Context) {
   const source = context.message?.reply_to_message;
 
   if (!source) {
@@ -70,15 +70,17 @@ feature
   .filter(isBotMentionReply)
   .on('message', logHandle('group-download-mention'), async (context) => {
     const source = context.message.reply_to_message;
-    const urls = replySourceUrls(context);
+    const links = replySourceLinks(context);
 
-    if (!source || urls.length === 0) {
-      await replyDownloadError(context, new Error(ERR_INVALID_URL), source?.message_id);
+    if (!source || links.length === 0) {
+      await replyDownloadError(context, new Error(ERR_INVALID_URL), {
+        messageId: source?.message_id,
+      });
 
       return;
     }
 
-    await downloadUrls(context, urls, {
+    await downloadUrls(context, links, {
       replyToMessageId: source.message_id,
       withCaption: false,
     });
@@ -87,13 +89,13 @@ feature
 feature
   .filter((context) => !isBotMentionReply(context))
   .on(['message:text', 'message:caption'], logHandle('group-download-auto'), async (context) => {
-    const urls = messageUrls(context);
+    const links = messageLinks(context);
 
-    if (urls.length === 0) {
+    if (links.length === 0) {
       return;
     }
 
-    await downloadUrls(context, urls, {
+    await downloadUrls(context, links, {
       replyToMessageId: context.message.message_id,
       withCaption: false,
     });

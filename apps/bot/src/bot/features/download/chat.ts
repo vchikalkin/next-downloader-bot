@@ -2,6 +2,25 @@ import * as sentry from '@sentry/node';
 import { ERR_GENERIC } from '@/constants/i18n';
 import type { Context } from '../../context';
 
+export interface ReplyTarget {
+  messageId?: number;
+  quote?: string;
+  quotePosition?: number;
+}
+
+export function replyParams(target?: ReplyTarget) {
+  if (!target?.messageId) {
+    return undefined;
+  }
+
+  return {
+    message_id: target.messageId,
+    ...(target.quote !== undefined && target.quotePosition !== undefined
+      ? { quote: target.quote, quote_position: target.quotePosition }
+      : {}),
+  };
+}
+
 export function createMessageDeleter(context: Context, messageId: number) {
   return async () => {
     try {
@@ -17,12 +36,10 @@ export function createMessageDeleter(context: Context, messageId: number) {
 export async function replyDownloadError(
   context: Context,
   error: unknown,
-  replyToMessageId?: number,
+  target?: ReplyTarget,
 ) {
   const message = error instanceof Error ? error.message : String(error);
-  const options = {
-    reply_parameters: replyToMessageId ? { message_id: replyToMessageId } : undefined,
-  };
+  const options = { reply_parameters: replyParams(target) };
 
   if (message.startsWith('err-')) {
     return context.reply(context.t(message), options);
