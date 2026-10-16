@@ -1,3 +1,4 @@
+export const BOT_NAME = 'bot-name';
 export const DESCRIPTION = 'description';
 export const SHORT_DESCRIPTION = 'short-description';
 export const START = 'start';

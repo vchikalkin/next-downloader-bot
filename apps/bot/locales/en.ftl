@@ -1,3 +1,5 @@
+bot-name = Next Downloader Bot | Download TikTok, Instagram, YouTube
+
 description = 
             🎬 **Video Downloader**
             Send a TikTok, Instagram, or YouTube link. Get the video or image in Telegram.

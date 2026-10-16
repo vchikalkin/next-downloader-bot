@@ -1,3 +1,5 @@
+bot-name = Next Downloader Bot | Скачать из TikTok, Inst, YouTube
+
 description = 
             🎬 **Загрузчик видео**
             Отправьте ссылку TikTok, Instagram или YouTube. Получите видео или изображение в Telegram.
