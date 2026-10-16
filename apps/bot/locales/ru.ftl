@@ -1,7 +1,7 @@
 bot-name = Next Downloader Bot | Скачать из TikTok, Instagram, YouTube
 
 description =
-    🎬 Отправьте ссылку TikTok, Instagram или YouTube. 📥 Скачаю видео, фото, Reels или Shorts без водяного знака.
+    🎬 Отправьте ссылку TikTok, Instagram или YouTube. 📥 Скачаю видео, фото, Reels или Shorts без водяного знака, с описанием.
 
     Поддержка: @vchikalkin
     Поблагодарить: { $donateLink }
@@ -28,5 +28,5 @@ err-invalid-instagram-response = 🔍 Некорректный ответ Instag
 err-video-duration-exceeded = 🚫 Видео слишком длинное
 
 
-msg-welcome = Отправьте ссылку TikTok, Instagram или YouTube. Скачаю видео или изображение без водяного знака (например: https://vt.tiktok.com/, https://www.instagram.com/p/, https://www.youtube.com/watch?v=)
+msg-welcome = Отправьте ссылку TikTok, Instagram или YouTube. Скачаю видео или изображение без водяного знака, с описанием (например: https://vt.tiktok.com/, https://www.instagram.com/p/, https://www.youtube.com/watch?v=)
 msg-unhandled = Отправьте ссылку TikTok, Instagram или YouTube.

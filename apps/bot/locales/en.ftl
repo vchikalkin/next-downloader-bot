@@ -1,7 +1,7 @@
 bot-name = Next Downloader Bot | TikTok, Instagram, YouTube
 
 description =
-    🎬 Send a TikTok, Instagram, or YouTube link. 📥 I'll download the video, photos, Reels, or Shorts without a watermark.
+    🎬 Send a TikTok, Instagram, or YouTube link. 📥 I'll download the video, photos, Reels, or Shorts without a watermark, with the description.
 
     Support: @vchikalkin
     Donate: { $donateLink }
@@ -28,5 +28,5 @@ err-invalid-instagram-response = 🔍 Bad Instagram response. The post may be de
 err-video-duration-exceeded = 🚫 Video is too long
 
 
-msg-welcome = Send a TikTok, Instagram, or YouTube link. I'll download the video or image without a watermark (e.g. https://vt.tiktok.com/, https://www.instagram.com/p/, https://www.youtube.com/)
+msg-welcome = Send a TikTok, Instagram, or YouTube link. I'll download the video or image without a watermark, with the description (e.g. https://vt.tiktok.com/, https://www.instagram.com/p/, https://www.youtube.com/)
 msg-unhandled = Send a TikTok, Instagram, or YouTube link.
