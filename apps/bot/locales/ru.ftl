@@ -1,20 +1,15 @@
-bot-name = Next Downloader Bot | Скачать из TikTok, Inst, YouTube
+bot-name = Next Downloader Bot | Скачать из TikTok, Instagram, YouTube
 
-description = 
-            🎬 **Загрузчик видео**
-            Отправьте ссылку TikTok, Instagram или YouTube. Получите видео или изображение в Telegram.
-            
-            🟢 **Поддерживается:**
-            - TikTok
-            - Instagram
-            - YouTube
-            
-            ⚡ Отправьте ссылку, чтобы скачать.
+description =
+    🎬 Отправьте ссылку TikTok, Instagram или YouTube. 📥 Скачаю видео, фото, Reels или Shorts без водяного знака.
 
-short-description = 
-                Скачивает видео и изображения
-                Поддержка: @vchikalkin
-                Поблагодарить: { $donateLink }
+    Поддержка: @vchikalkin
+    Поблагодарить: { $donateLink }
+
+short-description =
+    🎬 Скачаю видео и фото без водяного знака.
+    Поддержка: @vchikalkin
+    Поблагодарить: { $donateLink }
 
 
 start =

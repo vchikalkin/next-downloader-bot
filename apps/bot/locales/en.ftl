@@ -1,20 +1,15 @@
-bot-name = Next Downloader Bot | Download TikTok, Instagram, YouTube
+bot-name = Next Downloader Bot | TikTok, Instagram, YouTube
 
-description = 
-            🎬 **Video Downloader**
-            Send a TikTok, Instagram, or YouTube link. Get the video or image in Telegram.
-            
-            🟢 **Supported:**
-            - TikTok
-            - Instagram
-            - YouTube
+description =
+    🎬 Send a TikTok, Instagram, or YouTube link. 📥 I'll download the video, photos, Reels, or Shorts without a watermark.
 
-            ⚡ Send a link to download.
+    Support: @vchikalkin
+    Donate: { $donateLink }
 
-short-description = 
-                Downloads videos and pictures
-                Support: @vchikalkin
-                Donate: { $donateLink }
+short-description =
+    🎬 Downloads video, photos without a watermark.
+    Support: @vchikalkin
+    Donate: { $donateLink }
 
 
 start =
