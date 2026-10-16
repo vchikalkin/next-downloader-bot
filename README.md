@@ -13,7 +13,7 @@
   <a href="https://github.com/vchikalkin/next-downloader-bot"><img src="https://img.shields.io/github/stars/vchikalkin/next-downloader-bot?style=flat-square" alt="GitHub stars" /></a>
 </p>
 
-Telegram bot that downloads **TikTok**, **Instagram**, and **YouTube** (including Shorts) media and sends it back in chat. TikTok and Instagram come without watermarks when the source allows it. Captions are kept where available.
+Telegram bot that downloads **TikTok**, **Instagram**, and **YouTube** (including Shorts) media and sends it back in chat. You can add it to a group. TikTok and Instagram come without watermarks when the source allows it. Captions are kept where available.
 
 **Live bot:** [t.me/next_downloader_bot](https://t.me/next_downloader_bot). Paste a link, get the file.
 
@@ -35,6 +35,10 @@ Also built in: Redis cache for repeat URLs, rate limiting, English / Russian i18
    - `https://www.instagram.com/reel/...` or `/p/...`
    - `https://www.youtube.com/watch?v=...` or `/shorts/...`
 3. Get the media (and caption when the extractor finds one)
+
+### Groups
+
+Add the bot to a group. It downloads supported links from messages it receives. To receive every group message (not only @mentions and replies to the bot), disable Group Privacy in [@BotFather](https://t.me/BotFather) or promote the bot to admin.
 
 Support: [@vchikalkin](https://t.me/vchikalkin)
 

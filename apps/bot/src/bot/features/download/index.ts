@@ -1,65 +1,37 @@
 import { Composer } from 'grammy';
-import {
-  DOWNLOADING_STARTED,
-  ERR_INVALID_DOWNLOAD_URLS,
-  ERR_INVALID_URL,
-} from '@/constants/i18n';
+import { ERR_INVALID_URL } from '@/constants/i18n';
 import type { Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
-import { createMessageDeleter, replyDownloadError, withActionIndicator } from './chat';
-import { replyCaptionAndCache, replyFromCache, sendMedia } from './media';
-import {
-  detectPlatform,
-  type DownloadResult,
-  fetchDownload,
-  hasDownloadableMedia,
-} from './platform';
+import { replyDownloadError } from './chat';
+import { linksFromMessage } from './extract';
+import { groupDownload } from './group';
+import { downloadUrls } from './run';
 
 const composer = new Composer<Context>();
-const feature = composer.chatType('private');
 
-feature.on('message:text', logHandle('download-message'), async (context) => {
-  const url = context.message.text.trim();
-  const platform = detectPlatform(url);
+const privateFeature = composer.chatType('private');
 
-  if (!platform) {
-    await context.reply(context.t(ERR_INVALID_URL));
+privateFeature.on(
+  ['message:text', 'message:caption'],
+  logHandle('download-message'),
+  async (context) => {
+    const { message } = context;
+    const links = linksFromMessage(message);
 
-    return;
-  }
+    if (links.length === 0) {
+      await replyDownloadError(context, new Error(ERR_INVALID_URL));
 
-  if (await replyFromCache(context, url)) {
-    return;
-  }
+      return;
+    }
 
-  const statusMessage = await context.reply(context.t(DOWNLOADING_STARTED));
-  const dismissStatus = createMessageDeleter(context, statusMessage.message_id);
+    await downloadUrls(context, links, {
+      replyToMessageId: message.message_id,
+      showStatus: true,
+      withCaption: true,
+    });
+  },
+);
 
-  let result: DownloadResult;
-
-  try {
-    result = await withActionIndicator(context, () => fetchDownload(url, platform));
-  } catch (error: unknown) {
-    await dismissStatus();
-    await replyDownloadError(context, error);
-
-    return;
-  }
-
-  if (!hasDownloadableMedia(result)) {
-    await dismissStatus();
-    await context.reply(context.t(ERR_INVALID_DOWNLOAD_URLS));
-
-    return;
-  }
-
-  const contentMessageId = await sendMedia(context, url, result);
-
-  if (contentMessageId && contentMessageId !== statusMessage.message_id) {
-    await dismissStatus();
-  }
-
-  await replyCaptionAndCache(context, result.caption, url, contentMessageId);
-});
+composer.use(groupDownload);
 
 export { composer as download };
