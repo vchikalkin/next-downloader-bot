@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "humanizer": {
+      "source": "blader/humanizer",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "f17e3360d6ad1a9f93774fbe89347376968c4060137ac04872baa49b3a4a4175"
+    },
     "ponytail": {
       "source": "dietrichgebert/ponytail",
       "sourceType": "github",
@@ -12,6 +18,12 @@
       "sourceType": "github",
       "skillPath": "skills-legacy/sentry-node-sdk/SKILL.md",
       "computedHash": "29156e9eaf13b458444236d6f455fb50aa4ae42e8494dc46e4c9f44913e03cf0"
+    },
+    "seo-audit": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/seo-audit/SKILL.md",
+      "computedHash": "7f4d5723029211fcc7507bd7f34d619e9319e6bc95a276b82a01f932e46f7ba5"
     }
   }
 }
