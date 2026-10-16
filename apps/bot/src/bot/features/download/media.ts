@@ -7,25 +7,17 @@ import { TTL_URLS } from '@/config/redis';
 import { getRedisInstance } from '@/utils/redis';
 import { removeHashtags } from '@/utils/text';
 import type { Context } from '../../context';
-import { replyParams,type ReplyTarget } from './chat';
+import { replyParams, type ReplyTarget } from './chat';
 import type { DownloadResult } from './platform';
 
 const redis = getRedisInstance();
 
-interface MediaReplyOptions {
-  replyTarget?: ReplyTarget;
-}
-
-interface CacheReplyOptions extends MediaReplyOptions {
-  withCaption: boolean;
-}
-
+interface InlineInterface { contentMessageId?: number; withCaption: boolean }
 export async function replyCaptionAndCache(
   context: Context,
   caption: string | undefined,
   url: string,
-  contentMessageId?: number,
-  sendCaption = true,
+  opts: InlineInterface,
 ) {
   if (!caption) {
     return;
@@ -33,15 +25,16 @@ export async function replyCaptionAndCache(
 
   await redis.set(`caption:${url}`, caption, 'EX', TTL_URLS);
 
-  if (sendCaption) {
-    await replyFormattedCaption(context, caption, contentMessageId);
+  if (opts.withCaption) {
+    await replyFormattedCaption(context, caption, opts.contentMessageId);
   }
 }
 
+interface InlineInterface2 { replyTarget?: ReplyTarget; withCaption: boolean }
 export async function replyFromCache(
   context: Context,
   url: string,
-  opts: CacheReplyOptions,
+  opts: InlineInterface2,
 ): Promise<boolean> {
   const cachedVideoId = await redis.get(url);
 
@@ -68,16 +61,13 @@ export async function sendMedia(
   context: Context,
   url: string,
   result: DownloadResult,
-  opts: MediaReplyOptions = {},
+  replyTarget?: ReplyTarget,
 ): Promise<number | undefined> {
-  const afterImages = await sendImages(context, result.imagesUrls ?? [], {
-    existingContentMessageId: undefined,
-    replyTarget: opts.replyTarget,
-  });
+  const afterImages = await sendImages(context, result.imagesUrls ?? [], replyTarget);
 
   return sendVideoAndCache(context, {
     existingContentMessageId: afterImages,
-    replyTarget: opts.replyTarget,
+    replyTarget,
     url,
     videoFilePath: result.videoFilePath,
     videoUrl: result.videoUrl,
@@ -107,23 +97,17 @@ async function replyFormattedCaption(context: Context, caption: string, replyToM
 
   await context.reply(text, {
     entities,
-    reply_parameters: replyParams(
-      replyToMessageId ? { messageId: replyToMessageId } : undefined,
-    ),
+    reply_parameters: replyParams(replyToMessageId ? { messageId: replyToMessageId } : undefined),
   });
 }
 
-interface SendImagesOptions extends MediaReplyOptions {
-  existingContentMessageId?: number;
-}
-
-async function sendImages(context: Context, imagesUrls: string[], opts: SendImagesOptions) {
+async function sendImages(context: Context, imagesUrls: string[], replyTarget?: ReplyTarget) {
   if (imagesUrls.length === 0) {
-    return opts.existingContentMessageId;
+    return undefined;
   }
 
-  let contentMessageId = opts.existingContentMessageId;
-  const options = { reply_parameters: replyParams(opts.replyTarget) };
+  let contentMessageId: number | undefined;
+  const options = { reply_parameters: replyParams(replyTarget) };
 
   for (const chunk of cluster(imagesUrls, 10)) {
     const imageMessages = await context.replyWithMediaGroup(
@@ -137,8 +121,9 @@ async function sendImages(context: Context, imagesUrls: string[], opts: SendImag
   return contentMessageId;
 }
 
-interface SendVideoOptions extends MediaReplyOptions {
+interface SendVideoOptions {
   existingContentMessageId?: number;
+  replyTarget?: ReplyTarget;
   url: string;
   videoFilePath?: string;
   videoUrl?: string;

@@ -1,6 +1,6 @@
 import type { MessageEntity } from '@grammyjs/types';
 import { instagramUrlRegex, tiktokUrlRegex, youtubeUrlRegex } from '@/constants/regex';
-import { validateInstagramUrl, validateTikTokUrl, validateYoutubeUrl } from '@/utils/urls';
+import { isSupportedMediaUrl } from '@/utils/urls';
 
 const urlPatterns = [tiktokUrlRegex, instagramUrlRegex, youtubeUrlRegex];
 
@@ -10,17 +10,25 @@ export interface DownloadableLink {
   url: string;
 }
 
-function isDownloadableUrl(url: string) {
-  return validateTikTokUrl(url) || validateInstagramUrl(url) || validateYoutubeUrl(url);
+interface InlineInterface {
+  caption?: string;
+  caption_entities?: MessageEntity[];
+  entities?: MessageEntity[];
+  text?: string;
+}
+export function linksFromMessage(message: InlineInterface) {
+  return extractDownloadableUrls(
+    message.text ?? message.caption,
+    message.entities ?? message.caption_entities,
+  );
+}
+
+function linkBase(url: string) {
+  return (url.split('?')[0] ?? url).replace(/\/+$/u, '');
 }
 
 function sameLink(left: string, right: string) {
-  const a = left.replace(/\/+$/u, '');
-  const b = right.replace(/\/+$/u, '');
-  const shorter = a.length <= b.length ? a : b;
-  const longer = a.length <= b.length ? b : a;
-
-  return shorter === longer || longer.startsWith(`${shorter}?`) || longer.startsWith(`${shorter}/`);
+  return linkBase(left) === linkBase(right);
 }
 
 function withGlobalFlag(regex: RegExp): RegExp {
@@ -41,7 +49,7 @@ export function extractDownloadableUrls(
       !url ||
       seen.has(url) ||
       found.some((existing) => sameLink(existing.url, url)) ||
-      !isDownloadableUrl(url)
+      !isSupportedMediaUrl(url)
     ) {
       return;
     }

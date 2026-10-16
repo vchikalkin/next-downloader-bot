@@ -3,7 +3,7 @@ import { ERR_INVALID_URL } from '@/constants/i18n';
 import type { Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
 import { replyDownloadError } from './chat';
-import { extractDownloadableUrls } from './extract';
+import { linksFromMessage } from './extract';
 import { downloadUrls } from './run';
 
 const composer = new Composer<Context>();
@@ -40,37 +40,11 @@ function isBotMentionReply(context: Context): boolean {
   return Boolean(context.message?.reply_to_message) && mentionsBot(context);
 }
 
-function messageLinks(context: Context) {
-  const { message } = context;
-
-  if (!message) {
-    return [];
-  }
-
-  return extractDownloadableUrls(
-    message.text ?? message.caption,
-    message.entities ?? message.caption_entities,
-  );
-}
-
-function replySourceLinks(context: Context) {
-  const source = context.message?.reply_to_message;
-
-  if (!source) {
-    return [];
-  }
-
-  return extractDownloadableUrls(
-    source.text ?? source.caption,
-    source.entities ?? source.caption_entities,
-  );
-}
-
 feature
   .filter(isBotMentionReply)
   .on('message', logHandle('group-download-mention'), async (context) => {
     const source = context.message.reply_to_message;
-    const links = replySourceLinks(context);
+    const links = source ? linksFromMessage(source) : [];
 
     if (!source || links.length === 0) {
       await replyDownloadError(context, new Error(ERR_INVALID_URL), {
@@ -82,6 +56,7 @@ feature
 
     await downloadUrls(context, links, {
       replyToMessageId: source.message_id,
+      showStatus: false,
       withCaption: false,
     });
   });
@@ -89,7 +64,7 @@ feature
 feature
   .filter((context) => !isBotMentionReply(context))
   .on(['message:text', 'message:caption'], logHandle('group-download-auto'), async (context) => {
-    const links = messageLinks(context);
+    const links = linksFromMessage(context.message);
 
     if (links.length === 0) {
       return;
@@ -97,6 +72,7 @@ feature
 
     await downloadUrls(context, links, {
       replyToMessageId: context.message.message_id,
+      showStatus: false,
       withCaption: false,
     });
   });

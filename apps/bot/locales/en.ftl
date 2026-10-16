@@ -22,6 +22,7 @@ err-generic = ⚠️ Something went wrong. Try again in a few seconds
 err-limit-exceeded = 🚫 Too many requests. Wait a moment
 
 downloading-started = ⏳ Downloading…
+msg-download-links-capped = ℹ️ Downloaded the first { $count } links
 
 err-invalid-tiktok-response = 🔍 Bad TikTok response. The video may be deleted or unavailable
 err-invalid-instagram-response = 🔍 Bad Instagram response. The post may be deleted or unavailable
@@ -29,4 +30,4 @@ err-video-duration-exceeded = 🚫 Video is too long
 
 
 msg-welcome = Send a TikTok, Instagram, or YouTube link. I'll download the video or image without a watermark, with the description (e.g. https://vt.tiktok.com/, https://www.instagram.com/p/, https://www.youtube.com/)
-msg-unhandled = Send a TikTok, Instagram, or YouTube link.
+msg-unhandled = Send a TikTok, Instagram, or YouTube link

@@ -36,6 +36,10 @@ Also built in: Redis cache for repeat URLs, rate limiting, English / Russian i18
    - `https://www.youtube.com/watch?v=...` or `/shorts/...`
 3. Get the media (and caption when the extractor finds one)
 
+### Groups
+
+Add the bot to a group. It downloads supported links from messages it receives. To receive every group message (not only @mentions and replies to the bot), disable Group Privacy in [@BotFather](https://t.me/BotFather) or promote the bot to admin.
+
 Support: [@vchikalkin](https://t.me/vchikalkin)
 
 ## Stack

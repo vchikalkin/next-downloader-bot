@@ -3,7 +3,7 @@ import { ERR_INVALID_URL } from '@/constants/i18n';
 import type { Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
 import { replyDownloadError } from './chat';
-import { extractDownloadableUrls } from './extract';
+import { linksFromMessage } from './extract';
 import { groupDownload } from './group';
 import { downloadUrls } from './run';
 
@@ -16,10 +16,7 @@ privateFeature.on(
   logHandle('download-message'),
   async (context) => {
     const { message } = context;
-    const links = extractDownloadableUrls(
-      message.text ?? message.caption,
-      message.entities ?? message.caption_entities,
-    );
+    const links = linksFromMessage(message);
 
     if (links.length === 0) {
       await replyDownloadError(context, new Error(ERR_INVALID_URL));
@@ -29,6 +26,7 @@ privateFeature.on(
 
     await downloadUrls(context, links, {
       replyToMessageId: message.message_id,
+      showStatus: true,
       withCaption: true,
     });
   },

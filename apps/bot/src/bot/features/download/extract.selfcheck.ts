@@ -18,3 +18,15 @@ const tiktok =
 assert.deepEqual(extractDownloadableUrls(tiktok, [{ length: tiktok.length, offset: 0, type: 'url' }]), [
   { quote: tiktok, quotePosition: 0, url: tiktok },
 ]);
+
+const withQuery = 'https://www.instagram.com/reel/ABC123/?igsh=xyz';
+const withoutSlash = 'https://www.instagram.com/reel/ABC123';
+
+assert.equal(extractDownloadableUrls(`${withoutSlash} ${withQuery}`).length, 1);
+
+assert.equal(
+  extractDownloadableUrls(
+    'https://www.instagram.com/reel/ABC123/ https://www.instagram.com/reel/ABC123XYZ/',
+  ).length,
+  2,
+);

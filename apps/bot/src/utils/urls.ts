@@ -11,3 +11,7 @@ export function validateTikTokUrl(url: string) {
 export function validateYoutubeUrl(url: string) {
   return youtubeUrlRegex.test(url);
 }
+
+export function isSupportedMediaUrl(url: string) {
+  return validateTikTokUrl(url) || validateInstagramUrl(url) || validateYoutubeUrl(url);
+}

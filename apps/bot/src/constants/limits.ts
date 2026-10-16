@@ -1,1 +1,2 @@
 export const MAX_VIDEO_DURATION_SECONDS = 180;
+export const MAX_DOWNLOAD_LINKS = 3;
