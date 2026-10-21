@@ -1,8 +1,6 @@
 import { Composer } from 'grammy';
-import { ERR_INVALID_URL } from '@/constants/i18n';
 import type { Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
-import { replyDownloadError } from './chat';
 import { linksFromMessage } from './extract';
 import { groupDownload } from './group';
 import { downloadUrls } from './run';
@@ -14,14 +12,13 @@ const privateFeature = composer.chatType('private');
 privateFeature.on(
   ['message:text', 'message:caption'],
   logHandle('download-message'),
-  async (context) => {
+  async (context, next) => {
     const { message } = context;
     const links = linksFromMessage(message);
 
+    // ponytail: fall through to unhandled/welcome; ERR_INVALID_URL only for bad downloadable URLs
     if (links.length === 0) {
-      await replyDownloadError(context, new Error(ERR_INVALID_URL));
-
-      return;
+      return next();
     }
 
     await downloadUrls(context, links, {
