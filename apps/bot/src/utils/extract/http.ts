@@ -1,5 +1,5 @@
 import { createWriteStream } from 'node:fs';
-import { Readable } from 'node:stream';
+import { Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import {
   Agent,
@@ -8,6 +8,7 @@ import {
   type RequestInfo,
   type RequestInit as UndiciRequestInit,
 } from 'undici';
+import { MAX_DOWNLOAD_BYTES } from '@/constants/limits';
 
 const agent = new Agent({
   bodyTimeout: 120_000,
@@ -22,6 +23,10 @@ export async function mediaFetch(input: RequestInfo, init?: UndiciRequestInit): 
   const response = await undiciFetch(input, { ...init, dispatcher: agent });
 
   return response as unknown as Response;
+}
+
+function sizeLimitError(): Error {
+  return new Error(`download failed: exceeds ${String(MAX_DOWNLOAD_BYTES)} bytes`);
 }
 
 export async function downloadUrlToFile(
@@ -53,7 +58,32 @@ export async function downloadUrlToFile(
       throw new Error('download failed: empty body');
     }
 
-    await pipeline(Readable.fromWeb(fetchResponse.body as never), createWriteStream(filePath));
+    const contentLength = Number(fetchResponse.headers.get('content-length'));
+
+    if (Number.isFinite(contentLength) && contentLength > MAX_DOWNLOAD_BYTES) {
+      throw sizeLimitError();
+    }
+
+    let bytes = 0;
+    const limiter = new Transform({
+      transform(chunk: Buffer, encoding, callback) {
+        bytes = bytes + chunk.length;
+
+        if (bytes > MAX_DOWNLOAD_BYTES) {
+          callback(sizeLimitError());
+
+          return;
+        }
+
+        callback(null, chunk);
+      },
+    });
+
+    await pipeline(
+      Readable.fromWeb(fetchResponse.body as never),
+      limiter,
+      createWriteStream(filePath),
+    );
   } finally {
     clearTimeout(timer);
   }

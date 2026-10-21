@@ -57,9 +57,6 @@ importers:
       '@grammyjs/commands':
         specifier: ^1.1.0
         version: 1.1.0(grammy@1.37.1)
-      '@grammyjs/hydrate':
-        specifier: ^1.4.1
-        version: 1.5.0(grammy@1.37.1)
       '@grammyjs/i18n':
         specifier: ^1.1.2
         version: 1.1.2(grammy@1.37.1)
@@ -72,9 +69,6 @@ importers:
       '@grammyjs/runner':
         specifier: ^2.0.3
         version: 2.0.3(grammy@1.37.1)
-      '@grammyjs/storage-redis':
-        specifier: ^2.5.1
-        version: 2.5.1
       '@grammyjs/types':
         specifier: ^3.21.0
         version: 3.21.0
@@ -519,12 +513,6 @@ packages:
     peerDependencies:
       grammy: ^1.17.1
 
-  '@grammyjs/hydrate@1.5.0':
-    resolution: {integrity: sha512-5OtGidRbqD3TGxQ9HXrVxCWhjzR0uJQ32SFNeJO/I+g2iMQ7pkBkhp7QK11x/K2nWfyu+EcPQE3fubLNb75xQw==}
-    engines: {node: ^12.20.0 || >=14.13.1}
-    peerDependencies:
-      grammy: ^1.20.1
-
   '@grammyjs/i18n@1.1.2':
     resolution: {integrity: sha512-PcK06mxuDDZjxdZ5HywBhr+erEITsR816KP4DNIDDds1jpA45pfz/nS9FdZmzF8H6lMyPix3mV5WL1rT4q+BuA==}
     engines: {node: '>=12'}
@@ -545,9 +533,6 @@ packages:
     engines: {node: '>=12.20.0 || >=14.13.1'}
     peerDependencies:
       grammy: ^1.13.1
-
-  '@grammyjs/storage-redis@2.5.1':
-    resolution: {integrity: sha512-Rz7bnrtDz8NOjgSRR4n/rBciHKSvmkrgIUc+8Yb96tSsecBlA91MGOmcgmQXKxb7gTmwliF37VgmMT85bsCZtA==}
 
   '@grammyjs/types@3.21.0':
     resolution: {integrity: sha512-IMj0EpmglPCICuyfGRx4ENKPSuzS2xMSoPgSPzHC6FtnWKDEmJLBP/GbPv/h3TAeb27txqxm/BUld+gbJk6ccQ==}
@@ -3790,11 +3775,6 @@ snapshots:
     dependencies:
       grammy: 1.37.1
 
-  '@grammyjs/hydrate@1.5.0(grammy@1.37.1)':
-    dependencies:
-      abort-controller: 3.0.0
-      grammy: 1.37.1
-
   '@grammyjs/i18n@1.1.2(grammy@1.37.1)':
     dependencies:
       '@deno/shim-deno': 0.18.2
@@ -3812,8 +3792,6 @@ snapshots:
     dependencies:
       abort-controller: 3.0.0
       grammy: 1.37.1
-
-  '@grammyjs/storage-redis@2.5.1': {}
 
   '@grammyjs/types@3.21.0': {}
 

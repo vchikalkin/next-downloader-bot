@@ -2,7 +2,7 @@ import type { Middleware } from 'grammy';
 import * as sentrySdk from '@sentry/node';
 import type { Context } from '@/bot/context';
 
-async function sentryMiddleware(ctx: Context, next: () => Promise<void>) {
+export const sentry: Middleware<Context> = async (ctx, next) => {
   await sentrySdk.withIsolationScope(async () => {
     if (ctx.from) {
       sentrySdk.setUser({
@@ -15,8 +15,4 @@ async function sentryMiddleware(ctx: Context, next: () => Promise<void>) {
 
     await sentrySdk.startSpan({ name: 'telegram.update', op: 'telegram.handle' }, () => next());
   });
-}
-
-export function sentry(): Middleware<Context> {
-  return sentryMiddleware;
-}
+};

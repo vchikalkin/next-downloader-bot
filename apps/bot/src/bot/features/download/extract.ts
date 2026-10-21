@@ -23,7 +23,7 @@ export function linksFromMessage(message: InlineInterface) {
   );
 }
 
-function linkBase(url: string) {
+export function linkBase(url: string) {
   return (url.split('?')[0] ?? url).replace(/\/+$/u, '');
 }
 

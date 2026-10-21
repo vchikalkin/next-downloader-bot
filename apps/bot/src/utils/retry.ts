@@ -6,10 +6,11 @@ export interface RetryOptions {
   retryCondition?: (error: unknown) => boolean;
 }
 
-const sleep = (ms: number) =>
-  { return new Promise((resolve) => {
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
     setTimeout(resolve, ms);
-  }) };
+  });
+}
 
 export async function retry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const { delayMs = 500, factor = 2, onRetry, retries = 3, retryCondition = () => true } = options;
@@ -23,9 +24,7 @@ export async function retry<T>(fn: () => Promise<T>, options: RetryOptions = {})
       }
 
       onRetry?.(error, attempt);
-      const delay = delayMs * factor ** (attempt - 1);
-
-      await sleep(delay);
+      await sleep(delayMs * factor ** (attempt - 1));
     }
   }
 

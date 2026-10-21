@@ -91,7 +91,7 @@ pnpm build
 pnpm start
 ```
 
-Other scripts: `pnpm lint`, `pnpm format`, `pnpm test:unit`, `pnpm test:e2e`.
+Other scripts: `pnpm lint`, `pnpm format`.
 
 ## Environment variables
 

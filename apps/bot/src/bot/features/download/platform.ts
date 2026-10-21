@@ -7,7 +7,6 @@ export interface DownloadResult {
   caption?: string;
   imagesUrls?: string[];
   videoFilePath?: string;
-  videoUrl?: string;
 }
 
 export type Platform = 'instagram' | 'tiktok' | 'youtube';
@@ -65,5 +64,5 @@ export async function fetchDownload(url: string, platform: Platform): Promise<Do
 }
 
 export function hasDownloadableMedia(result: DownloadResult): boolean {
-  return Boolean(result.videoUrl || result.videoFilePath || result.imagesUrls?.length);
+  return Boolean(result.videoFilePath || result.imagesUrls?.length);
 }

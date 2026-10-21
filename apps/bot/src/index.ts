@@ -4,7 +4,7 @@ import * as sentry from '@sentry/node';
 import { createBot } from './bot';
 import { env as environment } from './config/env';
 import { logger } from './utils/logger';
-import { getRedisInstance } from './utils/redis';
+import { redis } from './utils/redis';
 
 const bot = createBot({
   apiRoot: environment.TELEGRAM_API_ROOT,
@@ -19,7 +19,6 @@ bot.catch((error) => {
 });
 
 const runner = run(bot);
-const redis = getRedisInstance();
 
 async function gracefulShutdown(signal: string) {
   logger.info(`Received ${signal}, starting graceful shutdown...`);
@@ -51,11 +50,20 @@ process.once('SIGTERM', () => {
 });
 
 process.on('unhandledRejection', (reason) => {
+  sentry.captureException(reason);
   logger.error(`Unhandled Rejection: ${String(reason)}`);
 });
 
 process.on('uncaughtException', (error) => {
+  sentry.captureException(error);
   logger.error(`Uncaught Exception: ${String(error)}`);
+  // Process state is undefined after uncaught — flush Sentry then die.
+  sentry
+    .close(2000)
+    .catch(() => undefined)
+    .finally(() => {
+      process.exit(1);
+    });
 });
 
 logger.info('Bot started');

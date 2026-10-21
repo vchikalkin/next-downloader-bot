@@ -91,16 +91,18 @@ export async function downloadOnce(
     return;
   }
 
-  const contentMessageId = await sendMedia(context, url, result, target);
+  try {
+    const contentMessageId = await sendMedia(context, url, result, target);
 
-  if (statusMessageId && contentMessageId && contentMessageId !== statusMessageId) {
-    await dismissStatus?.();
+    await replyCaptionAndCache(context, result.caption, url, {
+      contentMessageId,
+      withCaption: opts.withCaption,
+    });
+  } finally {
+    if (statusMessageId) {
+      await dismissStatus?.();
+    }
   }
-
-  await replyCaptionAndCache(context, result.caption, url, {
-    contentMessageId,
-    withCaption: opts.withCaption,
-  });
 }
 
 export async function downloadUrls(

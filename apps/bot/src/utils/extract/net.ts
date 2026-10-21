@@ -1,14 +1,9 @@
+import { sleep } from '../retry';
 import { mediaFetch } from './http';
 
 export type Net = (url: string, init?: RequestInit, attempts?: number) => Promise<Response>;
 
 type FetchLike = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 function retryable(status: number): boolean {
   return status === 408 || status === 429 || status >= 500;

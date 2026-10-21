@@ -20,15 +20,6 @@
     },
     "lint-staged": {
       "cache": false
-    },
-    "graphql:codegen": {
-      "cache": false
-    },
-    "test:unit": {
-      "cache": false
-    },
-    "test:e2e": {
-      "cache": false
     }
   }
 }

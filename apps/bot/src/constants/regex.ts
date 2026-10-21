@@ -7,4 +7,4 @@ export const instagramUrlRegex =
 export const youtubeUrlRegex =
   /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([\w-]{11})(?:[?&]\S*)?/u;
 
-export const tagsRegex = /#[\p{L}\p{N}_]+/gu;
+export const tagsRegex = /#[\p{L}\p{N}_-]+/gu;
