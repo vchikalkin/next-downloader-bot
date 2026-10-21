@@ -50,11 +50,20 @@ process.once('SIGTERM', () => {
 });
 
 process.on('unhandledRejection', (reason) => {
+  sentry.captureException(reason);
   logger.error(`Unhandled Rejection: ${String(reason)}`);
 });
 
 process.on('uncaughtException', (error) => {
+  sentry.captureException(error);
   logger.error(`Uncaught Exception: ${String(error)}`);
+  // Process state is undefined after uncaught — flush Sentry then die.
+  sentry
+    .close(2000)
+    .catch(() => undefined)
+    .finally(() => {
+      process.exit(1);
+    });
 });
 
 logger.info('Bot started');
