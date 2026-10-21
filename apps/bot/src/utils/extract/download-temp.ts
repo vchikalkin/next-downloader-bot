@@ -44,6 +44,11 @@ async function fetchToFile(url: string, filePath: string, headers: Record<string
     } catch (error) {
       lastError = error;
 
+      // Size limit / hard fail — retrying the same URL will not help.
+      if (error instanceof Error && error.message.includes('exceeds')) {
+        break;
+      }
+
       if (attempt === DOWNLOAD_ATTEMPTS) {
         break;
       }

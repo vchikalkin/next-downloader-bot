@@ -2,7 +2,7 @@ import { mkdtemp, readdir, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ERR_VIDEO_DURATION_EXCEEDED } from '@/constants/i18n';
-import { MAX_VIDEO_DURATION_SECONDS } from '@/constants/limits';
+import { MAX_DOWNLOAD_BYTES, MAX_VIDEO_DURATION_SECONDS } from '@/constants/limits';
 import { runYtDlp } from './yt-dlp';
 
 // Progressive ~360p via android client. Adaptive needs PO tokens and hangs/403s.
@@ -23,6 +23,8 @@ export async function downloadToFile(url: string, outDir?: string): Promise<stri
       '--no-playlist',
       '--match-filter',
       `duration <= ${String(MAX_VIDEO_DURATION_SECONDS)}`,
+      '--max-filesize',
+      String(MAX_DOWNLOAD_BYTES),
       '-o',
       outputTemplate,
       url,
