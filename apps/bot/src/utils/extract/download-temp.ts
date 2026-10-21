@@ -1,17 +1,12 @@
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { retry } from '../retry';
 import { downloadUrlToFile } from './http';
 import type { StreamRef } from './types';
 
 const DOWNLOAD_TIMEOUT_MS = 120_000;
 const DOWNLOAD_ATTEMPTS = 3;
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 function describeFetchError(error: unknown): string {
   if (!(error instanceof Error)) {
@@ -34,30 +29,17 @@ function describeFetchError(error: unknown): string {
 }
 
 async function fetchToFile(url: string, filePath: string, headers: Record<string, string>): Promise<void> {
-  let lastError: unknown;
-
-  for (let attempt = 1; attempt <= DOWNLOAD_ATTEMPTS; attempt = attempt + 1) {
-    try {
-      await downloadUrlToFile(url, filePath, headers, DOWNLOAD_TIMEOUT_MS);
-
-      return;
-    } catch (error) {
-      lastError = error;
-
-      // Size limit / hard fail — retrying the same URL will not help.
-      if (error instanceof Error && error.message.includes('exceeds')) {
-        break;
-      }
-
-      if (attempt === DOWNLOAD_ATTEMPTS) {
-        break;
-      }
-
-      await sleep(500 * 2 ** (attempt - 1));
-    }
+  try {
+    await retry(() => downloadUrlToFile(url, filePath, headers, DOWNLOAD_TIMEOUT_MS), {
+      retries: DOWNLOAD_ATTEMPTS,
+      /** Size limit / hard fail — retrying the same URL will not help. */
+      retryCondition: (error) => {
+        return !(error instanceof Error && error.message.includes('exceeds'));
+      },
+    });
+  } catch (error) {
+    throw new Error(describeFetchError(error));
   }
-
-  throw new Error(describeFetchError(lastError));
 }
 
 export async function downloadToTempFile(stream: StreamRef, extension = 'mp4'): Promise<string> {
