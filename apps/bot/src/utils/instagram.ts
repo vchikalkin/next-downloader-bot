@@ -130,6 +130,20 @@ function mediaCaption(media: Json): string | undefined {
   return node ? (asString(node.text) ?? undefined) : undefined;
 }
 
+/** Logged-out GraphQL often omits video_duration; DASH MPD still has PT…S. */
+function dashDurationSeconds(manifest: unknown): number | null {
+  const raw = asString(manifest);
+  // MPD attribute, ISO-8601 duration: PT1H2M3.5S → hours=1, minutes=2, seconds=3.5
+  const match = raw?.match(
+    /mediaPresentationDuration="PT(?:(?<hours>\d+)H)?(?:(?<minutes>\d+)M)?(?:(?<seconds>\d+(?:\.\d+)?)S)?"/u,
+  );
+  const { hours = '0', minutes = '0', seconds = '0' } = match?.groups ?? {};
+  // Fold H/M into seconds: ((h * 60) + m) * 60 + s  e.g. 1h 2m 3s → 3723
+  const totalSeconds = (Number(hours) * 60 + Number(minutes)) * 60 + Number(seconds);
+
+  return Number.isFinite(totalSeconds) && totalSeconds > 0 ? totalSeconds : null;
+}
+
 function mediaVideoDuration(media: Json): number | null {
   const duration = asNumber(media.video_duration);
 
@@ -138,8 +152,13 @@ function mediaVideoDuration(media: Json): number | null {
   }
 
   const video = isRecord(media.video) ? media.video : null;
+  const fromVideo = video ? asNumber(video.duration) : null;
 
-  return video ? asNumber(video.duration) : null;
+  if (fromVideo !== null) {
+    return fromVideo;
+  }
+
+  return dashDurationSeconds(media.video_dash_manifest);
 }
 
 function collectMediaUrls(media: Json): { images: string[]; videoDuration: number | null; videoUrl: string | null } {
