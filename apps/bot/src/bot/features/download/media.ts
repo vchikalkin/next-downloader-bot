@@ -1,6 +1,7 @@
+import { createHash } from 'node:crypto';
 import { rm } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import { InputFile } from 'grammy';
+import { GrammyError, InputFile } from 'grammy';
 import { cluster } from 'radashi';
 import { code, expandableBlockquote, fmt } from '@grammyjs/parse-mode';
 import { TTL_URLS } from '@/config/redis';
@@ -8,7 +9,22 @@ import { redis } from '@/utils/redis';
 import { removeHashtags } from '@/utils/text';
 import type { Context } from '../../context';
 import { replyParams, type ReplyTarget } from './chat';
+import { linkBase } from './extract';
 import type { DownloadResult } from './platform';
+
+function mediaCacheKeys(url: string) {
+  const id = createHash('sha256').update(linkBase(url)).digest('hex');
+
+  return { caption: `caption:${id}`, video: `video:${id}` };
+}
+
+function isStaleFileIdError(error: unknown): boolean {
+  return (
+    error instanceof GrammyError &&
+    error.error_code === 400 &&
+    /wrong (?:remote )?file identifi/iu.test(error.description)
+  );
+}
 
 interface InlineInterface { contentMessageId?: number; withCaption: boolean }
 export async function replyCaptionAndCache(
@@ -21,7 +37,9 @@ export async function replyCaptionAndCache(
     return;
   }
 
-  await redis.set(`caption:${url}`, caption, 'EX', TTL_URLS);
+  const { caption: captionKey } = mediaCacheKeys(url);
+
+  await redis.set(captionKey, caption, 'EX', TTL_URLS);
 
   if (opts.withCaption) {
     await replyFormattedCaption(context, caption, opts.contentMessageId);
@@ -34,25 +52,36 @@ export async function replyFromCache(
   url: string,
   opts: InlineInterface2,
 ): Promise<boolean> {
-  const cachedVideoId = await redis.get(url);
+  const keys = mediaCacheKeys(url);
+  const cachedVideoId = await redis.get(keys.video);
 
   if (!cachedVideoId) {
     return false;
   }
 
-  const cachedMessage = await context.replyWithVideo(cachedVideoId, {
-    reply_parameters: replyParams(opts.replyTarget),
-  });
+  try {
+    const cachedMessage = await context.replyWithVideo(cachedVideoId, {
+      reply_parameters: replyParams(opts.replyTarget),
+    });
 
-  if (opts.withCaption) {
-    const cachedCaption = await redis.get(`caption:${url}`);
+    if (opts.withCaption) {
+      const cachedCaption = await redis.get(keys.caption);
 
-    if (cachedCaption) {
-      await replyFormattedCaption(context, cachedCaption, cachedMessage.message_id);
+      if (cachedCaption) {
+        await replyFormattedCaption(context, cachedCaption, cachedMessage.message_id);
+      }
     }
-  }
 
-  return true;
+    return true;
+  } catch (error) {
+    if (!isStaleFileIdError(error)) {
+      throw error;
+    }
+
+    await redis.del(keys.video, keys.caption);
+
+    return false;
+  }
 }
 
 export async function sendMedia(
@@ -142,7 +171,7 @@ async function sendVideoAndCache(context: Context, opts: SendVideoOptions) {
     reply_parameters: replyParams(replyTarget),
   });
 
-  await redis.set(url, video.file_id, 'EX', TTL_URLS);
+  await redis.set(mediaCacheKeys(url).video, video.file_id, 'EX', TTL_URLS);
 
   return videoMessage.message_id;
 }
