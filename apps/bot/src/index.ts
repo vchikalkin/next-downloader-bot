@@ -4,7 +4,7 @@ import * as sentry from '@sentry/node';
 import { createBot } from './bot';
 import { env as environment } from './config/env';
 import { logger } from './utils/logger';
-import { getRedisInstance } from './utils/redis';
+import { redis } from './utils/redis';
 
 const bot = createBot({
   apiRoot: environment.TELEGRAM_API_ROOT,
@@ -19,7 +19,6 @@ bot.catch((error) => {
 });
 
 const runner = run(bot);
-const redis = getRedisInstance();
 
 async function gracefulShutdown(signal: string) {
   logger.info(`Received ${signal}, starting graceful shutdown...`);

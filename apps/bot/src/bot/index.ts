@@ -5,7 +5,7 @@ import * as sentry from '@sentry/node';
 import { env } from '@/config/env';
 import { ERR_LIMIT_EXCEEDED } from '@/constants/i18n';
 import { logger } from '@/utils/logger';
-import { getRedisInstance } from '@/utils/redis';
+import { redis } from '@/utils/redis';
 import type { Context } from './context';
 import * as features from './features';
 import { errorHandler } from './handlers/errors';
@@ -19,8 +19,6 @@ interface CreateBotOptions {
   token: string;
 }
 
-const redis = getRedisInstance();
-
 export function createBot({ apiRoot, token }: CreateBotOptions) {
   const bot = new Bot<Context>(token, {
     client: {
@@ -28,7 +26,7 @@ export function createBot({ apiRoot, token }: CreateBotOptions) {
     },
   });
 
-  bot.use(middlewares.sentry());
+  bot.use(middlewares.sentry);
   bot.use(i18n);
 
   bot.use(
@@ -61,7 +59,7 @@ export function createBot({ apiRoot, token }: CreateBotOptions) {
 
   const protectedBot = bot.errorBoundary(errorHandler);
 
-  protectedBot.use(middlewares.updateLogger());
+  protectedBot.use(middlewares.updateLogger);
   protectedBot.use(autoChatAction(bot.api));
 
   protectedBot.use(features.welcome);

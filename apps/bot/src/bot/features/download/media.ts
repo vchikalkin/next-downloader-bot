@@ -4,13 +4,11 @@ import { InputFile } from 'grammy';
 import { cluster } from 'radashi';
 import { code, expandableBlockquote, fmt } from '@grammyjs/parse-mode';
 import { TTL_URLS } from '@/config/redis';
-import { getRedisInstance } from '@/utils/redis';
+import { redis } from '@/utils/redis';
 import { removeHashtags } from '@/utils/text';
 import type { Context } from '../../context';
 import { replyParams, type ReplyTarget } from './chat';
 import type { DownloadResult } from './platform';
-
-const redis = getRedisInstance();
 
 interface InlineInterface { contentMessageId?: number; withCaption: boolean }
 export async function replyCaptionAndCache(

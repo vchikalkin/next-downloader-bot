@@ -3,7 +3,7 @@ import type { Middleware } from 'grammy';
 import type { Context } from '@/bot/context';
 import { getUpdateInfo } from '@/bot/helpers/logging';
 
-async function updateLoggerMiddleware(ctx: Context, next: () => Promise<void>) {
+export const updateLogger: Middleware<Context> = async (ctx, next) => {
   ctx.api.config.use((previous, method, payload, signal) => {
     ctx.logger.debug({
       method,
@@ -23,18 +23,10 @@ async function updateLoggerMiddleware(ctx: Context, next: () => Promise<void>) {
 
   try {
     await next();
-
- return;
   } finally {
-    const endTime = performance.now();
-
     ctx.logger.debug({
-      elapsed: endTime - startTime,
+      elapsed: performance.now() - startTime,
       msg: 'Update processed',
     });
   }
-}
-
-export function updateLogger(): Middleware<Context> {
-  return updateLoggerMiddleware;
-}
+};
