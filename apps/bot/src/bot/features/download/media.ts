@@ -63,15 +63,21 @@ export async function sendMedia(
   result: DownloadResult,
   replyTarget?: ReplyTarget,
 ): Promise<number | undefined> {
-  const afterImages = await sendImages(context, result.imagesUrls ?? [], replyTarget);
+  try {
+    const afterImages = await sendImages(context, result.imagesUrls ?? [], replyTarget);
 
-  return sendVideoAndCache(context, {
-    existingContentMessageId: afterImages,
-    replyTarget,
-    url,
-    videoFilePath: result.videoFilePath,
-    videoUrl: result.videoUrl,
-  });
+    return await sendVideoAndCache(context, {
+      existingContentMessageId: afterImages,
+      replyTarget,
+      url,
+      videoFilePath: result.videoFilePath,
+      videoUrl: result.videoUrl,
+    });
+  } finally {
+    if (result.videoFilePath) {
+      await cleanupTempFile(result.videoFilePath);
+    }
+  }
 }
 
 async function cleanupTempFile(filePath: string) {
@@ -136,20 +142,14 @@ async function sendVideoAndCache(context: Context, opts: SendVideoOptions) {
     return existingContentMessageId;
   }
 
-  try {
-    const source = videoFilePath
-      ? new InputFile(videoFilePath)
-      : new InputFile({ url: videoUrl as string });
-    const { video, ...videoMessage } = await context.replyWithVideo(source, {
-      reply_parameters: replyParams(replyTarget),
-    });
+  const source = videoFilePath
+    ? new InputFile(videoFilePath)
+    : new InputFile({ url: videoUrl as string });
+  const { video, ...videoMessage } = await context.replyWithVideo(source, {
+    reply_parameters: replyParams(replyTarget),
+  });
 
-    await redis.set(url, video.file_id, 'EX', TTL_URLS);
+  await redis.set(url, video.file_id, 'EX', TTL_URLS);
 
-    return videoMessage.message_id;
-  } finally {
-    if (videoFilePath) {
-      await cleanupTempFile(videoFilePath);
-    }
-  }
+  return videoMessage.message_id;
 }
