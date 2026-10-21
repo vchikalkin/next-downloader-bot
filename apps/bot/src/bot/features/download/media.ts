@@ -71,7 +71,6 @@ export async function sendMedia(
       replyTarget,
       url,
       videoFilePath: result.videoFilePath,
-      videoUrl: result.videoUrl,
     });
   } finally {
     if (result.videoFilePath) {
@@ -132,20 +131,16 @@ interface SendVideoOptions {
   replyTarget?: ReplyTarget;
   url: string;
   videoFilePath?: string;
-  videoUrl?: string;
 }
 
 async function sendVideoAndCache(context: Context, opts: SendVideoOptions) {
-  const { existingContentMessageId, replyTarget, url, videoFilePath, videoUrl } = opts;
+  const { existingContentMessageId, replyTarget, url, videoFilePath } = opts;
 
-  if (!videoUrl && !videoFilePath) {
+  if (!videoFilePath) {
     return existingContentMessageId;
   }
 
-  const source = videoFilePath
-    ? new InputFile(videoFilePath)
-    : new InputFile({ url: videoUrl as string });
-  const { video, ...videoMessage } = await context.replyWithVideo(source, {
+  const { video, ...videoMessage } = await context.replyWithVideo(new InputFile(videoFilePath), {
     reply_parameters: replyParams(replyTarget),
   });
 

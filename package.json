@@ -8,10 +8,7 @@
     "lint:fix": "turbo lint:fix",
     "format": "prettier  --end-of-line lf --write \"**/*.{ts,tsx,md,mjs}\"",
     "prepare": "husky",
-    "lint-staged": "turbo lint-staged",
-    "graphql:codegen": "turbo graphql:codegen",
-    "test:unit": "turbo test:unit",
-    "test:e2e": "turbo test:e2e"
+    "lint-staged": "turbo lint-staged"
   },
   "dependencies": {
     "husky": "catalog:",

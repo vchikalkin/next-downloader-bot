@@ -8,7 +8,7 @@ const sheriffOptions = {
   lodash: false,
   remeda: false,
   playwright: false,
-  storybook: true,
+  storybook: false,
   jest: false,
   vitest: false,
   tsconfigRootDir: import.meta.dirname,

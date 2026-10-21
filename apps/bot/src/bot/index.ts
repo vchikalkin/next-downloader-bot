@@ -1,6 +1,5 @@
 import { Bot } from 'grammy';
 import { autoChatAction } from '@grammyjs/auto-chat-action';
-import { hydrate } from '@grammyjs/hydrate';
 import { limit } from '@grammyjs/ratelimiter';
 import * as sentry from '@sentry/node';
 import { env } from '@/config/env';
@@ -64,7 +63,6 @@ export function createBot({ apiRoot, token }: CreateBotOptions) {
 
   protectedBot.use(middlewares.updateLogger());
   protectedBot.use(autoChatAction(bot.api));
-  protectedBot.use(hydrate());
 
   protectedBot.use(features.welcome);
   protectedBot.use(features.download);
