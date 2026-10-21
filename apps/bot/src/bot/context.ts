@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-import type { Context as DefaultContext, SessionFlavor } from 'grammy';
+import type { Context as DefaultContext } from 'grammy';
 import type { AutoChatActionFlavor } from '@grammyjs/auto-chat-action';
 import type { CommandsFlavor } from '@grammyjs/commands';
 import type { HydrateFlavor } from '@grammyjs/hydrate';
@@ -10,10 +9,7 @@ export type Context = HydrateFlavor<
   AutoChatActionFlavor &
     CommandsFlavor &
     DefaultContext &
-    I18nFlavor &
-    SessionFlavor<SessionData> & {
+    I18nFlavor & {
       logger: typeof logger;
     }
 >;
-
-export interface SessionData {}

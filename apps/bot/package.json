@@ -27,7 +27,6 @@
     "@grammyjs/parse-mode": "^2.2.0",
     "@grammyjs/ratelimiter": "^1.2.1",
     "@grammyjs/runner": "^2.0.3",
-    "@grammyjs/storage-redis": "^2.5.1",
     "@grammyjs/types": "^3.21.0",
     "@repo/typescript-config": "workspace:*",
     "@sentry/node": "^11.8.0",
