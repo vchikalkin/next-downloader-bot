@@ -7,7 +7,7 @@ const text =
 const links = extractDownloadableUrls(text);
 
 assert.equal(links.length, 2);
-assert.ok(links.every((link) => link.url && link.quote !== undefined && link.quotePosition !== undefined));
+assert.ok(links.every((link) => link.url));
 assert.ok(links.some((link) => link.url.includes('instagram.com')));
 assert.ok(links.some((link) => link.url.includes('youtube.com')));
 assert.deepEqual(extractDownloadableUrls('no links here'), []);
@@ -16,7 +16,7 @@ const tiktok =
   'https://www.tiktok.com/@user/video/7123456789012345678?is_from_webapp=1&sender_device=pc';
 
 assert.deepEqual(extractDownloadableUrls(tiktok, [{ length: tiktok.length, offset: 0, type: 'url' }]), [
-  { quote: tiktok, quotePosition: 0, url: tiktok },
+  { url: tiktok },
 ]);
 
 const withQuery = 'https://www.instagram.com/reel/ABC123/?igsh=xyz';
@@ -30,3 +30,6 @@ assert.equal(
   ).length,
   2,
 );
+
+// Callers take [0] only
+assert.equal(links[0]?.url.includes('instagram.com'), true);

@@ -22,7 +22,7 @@ err-generic = ⚠️ Something went wrong. Try again in a few seconds
 err-limit-exceeded = 🚫 Too many requests. Wait a moment
 
 downloading-started = ⏳ Downloading…
-msg-download-links-capped = ℹ️ Downloaded the first { $count } links
+msg-sent-by = by { $username } from { $platform }
 
 err-invalid-tiktok-response = 🔍 Bad TikTok response. The video may be deleted or unavailable
 err-invalid-instagram-response = 🔍 Bad Instagram response. The post may be deleted or unavailable

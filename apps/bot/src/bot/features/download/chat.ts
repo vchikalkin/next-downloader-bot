@@ -2,44 +2,55 @@ import * as sentry from '@sentry/node';
 import { ERR_GENERIC } from '@/constants/i18n';
 import type { Context } from '../../context';
 
-export interface ReplyTarget {
-  messageId?: number;
-  quote?: string;
-  quotePosition?: number;
-}
-
-export function replyParams(target?: ReplyTarget) {
-  if (!target?.messageId) {
+export function replyParams(messageId?: number) {
+  if (!messageId) {
     return undefined;
   }
 
-  return {
-    message_id: target.messageId,
-    ...(target.quote !== undefined && target.quotePosition !== undefined
-      ? { quote: target.quote, quote_position: target.quotePosition }
-      : {}),
-  };
+  return { message_id: messageId };
 }
 
 export function createMessageDeleter(context: Context, messageId: number) {
   return async () => {
+    await deleteMessages(context, [messageId]);
+  };
+}
+
+export async function deleteMessages(context: Context, messageIds: number[]) {
+  if (!context.chatId || messageIds.length === 0) {
+    return;
+  }
+
+  for (const messageId of messageIds) {
     try {
-      if (context.chatId) {
-        await context.api.deleteMessage(context.chatId, messageId);
-      }
+      await context.api.deleteMessage(context.chatId, messageId);
     } catch {
       // Ignore if we can't delete
     }
-  };
+  }
+}
+
+export async function canBotDeleteMessages(context: Context): Promise<boolean> {
+  if (!context.chatId) {
+    return false;
+  }
+
+  try {
+    const me = await context.api.getChatMember(context.chatId, context.me.id);
+
+    return me.status === 'creator' || (me.status === 'administrator' && me.can_delete_messages);
+  } catch {
+    return false;
+  }
 }
 
 export async function replyDownloadError(
   context: Context,
   error: unknown,
-  target?: ReplyTarget,
+  replyToMessageId?: number,
 ) {
   const message = error instanceof Error ? error.message : String(error);
-  const options = { reply_parameters: replyParams(target) };
+  const options = { reply_parameters: replyParams(replyToMessageId) };
 
   if (message.startsWith('err-')) {
     return context.reply(context.t(message), options);
