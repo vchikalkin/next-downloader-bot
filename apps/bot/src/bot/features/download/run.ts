@@ -12,11 +12,11 @@ import {
   withActionIndicator,
 } from './chat';
 import type { DownloadableLink } from './extract';
-import { replyCaptionAndCache, replyFromCache, sendMedia } from './media';
+import { type AttributionCaption, replyCaptionAndCache, replyFromCache, sendMedia } from './media';
 import { detectPlatform, fetchDownload, hasDownloadableMedia } from './platform';
 
 export interface DownloadLinkOptions {
-  attributionCaption?: string;
+  attributionCaption?: AttributionCaption;
   /** After successful media send, delete these (link / mention). Implies no reply on media. */
   replaceMessageIds?: number[];
   replyToMessageId?: number;

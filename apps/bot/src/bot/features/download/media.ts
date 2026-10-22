@@ -4,6 +4,7 @@ import { dirname } from 'node:path';
 import { GrammyError, InputFile } from 'grammy';
 import { cluster } from 'radashi';
 import { code, expandableBlockquote, fmt } from '@grammyjs/parse-mode';
+import type { MessageEntity } from '@grammyjs/types';
 import { TTL_URLS } from '@/config/redis';
 import { redis } from '@/utils/redis';
 import { removeHashtags } from '@/utils/text';
@@ -12,8 +13,13 @@ import { replyParams } from './chat';
 import { linkBase } from './extract';
 import type { DownloadResult } from './platform';
 
+export interface AttributionCaption {
+  caption: string;
+  caption_entities?: MessageEntity[];
+}
+
 export interface SendMediaOptions {
-  attributionCaption?: string;
+  attributionCaption?: AttributionCaption;
   replyToMessageId?: number;
 }
 
@@ -66,7 +72,7 @@ export async function replyFromCache(
 
   try {
     const cachedMessage = await context.replyWithVideo(cachedVideoId, {
-      caption: opts.attributionCaption,
+      ...opts.attributionCaption,
       reply_parameters: replyParams(opts.replyToMessageId),
     });
 
@@ -159,7 +165,7 @@ async function sendImages(context: Context, imagesUrls: string[], opts: SendMedi
           media: imageUrl,
           type: 'photo' as const,
           ...(chunkIndex === 0 && index === 0 && opts.attributionCaption
-            ? { caption: opts.attributionCaption }
+            ? opts.attributionCaption
             : {}),
         };
       }),
@@ -187,7 +193,7 @@ async function sendVideoAndCache(context: Context, opts: SendVideoOptions) {
   }
 
   const { video, ...videoMessage } = await context.replyWithVideo(new InputFile(videoFilePath), {
-    caption: attributionCaption,
+    ...attributionCaption,
     reply_parameters: replyParams(replyToMessageId),
   });
 

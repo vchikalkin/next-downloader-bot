@@ -1,9 +1,11 @@
 import { Composer } from 'grammy';
+import { fmt, link as platformLink } from '@grammyjs/parse-mode';
 import { ERR_INVALID_URL, MSG_SENT_BY } from '@/constants/i18n';
 import type { Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
 import { canBotDeleteMessages, replyDownloadError } from './chat';
 import { linksFromMessage } from './extract';
+import type { AttributionCaption } from './media';
 import { detectPlatform, type Platform } from './platform';
 import { downloadLink } from './run';
 
@@ -47,7 +49,11 @@ function isBotMentionReply(context: Context): boolean {
   return Boolean(context.message?.reply_to_message) && mentionsBot(context);
 }
 
-function attributionCaption(context: Context, username: string | undefined, url: string) {
+function attributionCaption(
+  context: Context,
+  username: string | undefined,
+  url: string,
+): AttributionCaption | undefined {
   if (!username) {
     return undefined;
   }
@@ -58,10 +64,13 @@ function attributionCaption(context: Context, username: string | undefined, url:
     return undefined;
   }
 
-  return context.t(MSG_SENT_BY, {
-    platform: platformLabel[platform],
-    username: `@${username}`,
-  });
+  const prefix = context.t(MSG_SENT_BY, { username: `@${username}` });
+  const formatted = fmt`${prefix} ${platformLink(url)}${platformLabel[platform]}${platformLink}`;
+
+  return {
+    caption: formatted.caption,
+    caption_entities: formatted.caption_entities,
+  };
 }
 
 feature
