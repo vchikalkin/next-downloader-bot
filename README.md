@@ -1,5 +1,7 @@
 # Next Downloader Bot
 
+**Language:** English | [Русский](README.ru.md)
+
 <p align="center">
   <a href="https://t.me/next_downloader_bot"><img src="https://img.shields.io/badge/Telegram-@next__downloader__bot-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Open in Telegram" /></a>
 </p>
