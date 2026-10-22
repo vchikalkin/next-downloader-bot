@@ -4,7 +4,14 @@ import type { Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
 import { canBotDeleteMessages, replyDownloadError } from './chat';
 import { linksFromMessage } from './extract';
+import { detectPlatform, type Platform } from './platform';
 import { downloadLink } from './run';
+
+const platformLabel: Record<Platform, string> = {
+  instagram: 'Instagram',
+  tiktok: 'TikTok',
+  youtube: 'YouTube',
+};
 
 const composer = new Composer<Context>();
 const feature = composer.chatType(['group', 'supergroup']);
@@ -40,8 +47,21 @@ function isBotMentionReply(context: Context): boolean {
   return Boolean(context.message?.reply_to_message) && mentionsBot(context);
 }
 
-function attributionCaption(context: Context, username: string | undefined) {
-  return username ? context.t(MSG_SENT_BY, { username: `@${username}` }) : undefined;
+function attributionCaption(context: Context, username: string | undefined, url: string) {
+  if (!username) {
+    return undefined;
+  }
+
+  const platform = detectPlatform(url);
+
+  if (!platform) {
+    return undefined;
+  }
+
+  return context.t(MSG_SENT_BY, {
+    platform: platformLabel[platform],
+    username: `@${username}`,
+  });
 }
 
 feature
@@ -60,7 +80,7 @@ feature
     const linkAuthor = source.from?.username;
 
     await downloadLink(context, link, {
-      attributionCaption: canDelete ? attributionCaption(context, linkAuthor) : undefined,
+      attributionCaption: canDelete ? attributionCaption(context, linkAuthor, link.url) : undefined,
       replaceMessageIds: canDelete
         ? [source.message_id, context.message.message_id]
         : undefined,
@@ -83,7 +103,7 @@ feature
 
     await downloadLink(context, link, {
       attributionCaption: canDelete
-        ? attributionCaption(context, context.from.username)
+        ? attributionCaption(context, context.from.username, link.url)
         : undefined,
       replaceMessageIds: canDelete ? [context.message.message_id] : undefined,
       replyToMessageId: context.message.message_id,
