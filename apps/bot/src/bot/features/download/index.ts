@@ -3,7 +3,7 @@ import type { Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
 import { linksFromMessage } from './extract';
 import { groupDownload } from './group';
-import { downloadUrls } from './run';
+import { downloadLink } from './run';
 
 const composer = new Composer<Context>();
 
@@ -14,14 +14,14 @@ privateFeature.on(
   logHandle('download-message'),
   async (context, next) => {
     const { message } = context;
-    const links = linksFromMessage(message);
+    const link = linksFromMessage(message)[0];
 
     // ponytail: fall through to unhandled/welcome; ERR_INVALID_URL only for bad downloadable URLs
-    if (links.length === 0) {
+    if (!link) {
       return next();
     }
 
-    await downloadUrls(context, links, {
+    await downloadLink(context, link, {
       replyToMessageId: message.message_id,
       showStatus: true,
       withCaption: true,

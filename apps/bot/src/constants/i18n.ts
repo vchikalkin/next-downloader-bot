@@ -8,7 +8,7 @@ export function commandDescriptionKey(name: string) {
 }
 
 export const DOWNLOADING_STARTED = 'downloading-started';
-export const MSG_DOWNLOAD_LINKS_CAPPED = 'msg-download-links-capped';
+export const MSG_SENT_BY = 'msg-sent-by';
 export const MSG_WELCOME = 'msg-welcome';
 export const MSG_UNHANDLED = 'msg-unhandled';
 

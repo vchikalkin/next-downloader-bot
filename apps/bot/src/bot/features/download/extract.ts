@@ -5,18 +5,17 @@ import { isSupportedMediaUrl } from '@/utils/urls';
 const urlPatterns = [tiktokUrlRegex, instagramUrlRegex, youtubeUrlRegex];
 
 export interface DownloadableLink {
-  quote?: string;
-  quotePosition?: number;
   url: string;
 }
 
-interface InlineInterface {
+interface MessageLike {
   caption?: string;
   caption_entities?: MessageEntity[];
   entities?: MessageEntity[];
   text?: string;
 }
-export function linksFromMessage(message: InlineInterface) {
+
+export function linksFromMessage(message: MessageLike) {
   return extractDownloadableUrls(
     message.text ?? message.caption,
     message.entities ?? message.caption_entities,
@@ -42,7 +41,7 @@ export function extractDownloadableUrls(
   const found: DownloadableLink[] = [];
   const seen = new Set<string>();
 
-  const add = (urlRaw: string, quote?: string, quotePosition?: number) => {
+  const add = (urlRaw: string) => {
     const url = urlRaw.trim();
 
     if (
@@ -55,31 +54,21 @@ export function extractDownloadableUrls(
     }
 
     seen.add(url);
-    found.push({
-      url,
-      ...(quote
-        ? {
-            quote: quote.slice(0, 1024),
-            quotePosition,
-          }
-        : {}),
-    });
+    found.push({ url });
   };
 
   for (const entity of entities ?? []) {
     if (entity.type === 'url' && text) {
-      const quote = text.slice(entity.offset, entity.offset + entity.length);
-
-      add(quote, quote, entity.offset);
-    } else if (entity.type === 'text_link' && text) {
-      add(entity.url, text.slice(entity.offset, entity.offset + entity.length), entity.offset);
+      add(text.slice(entity.offset, entity.offset + entity.length));
+    } else if (entity.type === 'text_link') {
+      add(entity.url);
     }
   }
 
   if (text) {
     for (const pattern of urlPatterns) {
       for (const match of text.matchAll(withGlobalFlag(pattern))) {
-        add(match[0], match[0], match.index);
+        add(match[0]);
       }
     }
   }

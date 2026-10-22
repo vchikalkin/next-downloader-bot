@@ -22,7 +22,7 @@ err-generic = ⚠️ Что-то пошло не так. Попробуйте ч
 err-limit-exceeded = 🚫 Слишком много запросов. Подождите
 
 downloading-started = ⏳ Скачиваю…
-msg-download-links-capped = ℹ️ Скачал первые { $count } ссылки
+msg-sent-by = Прислал { $username }
 
 err-invalid-tiktok-response = 🔍 Некорректный ответ TikTok. Видео удалено или недоступно
 err-invalid-instagram-response = 🔍 Некорректный ответ Instagram. Запись удалена или недоступна

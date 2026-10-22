@@ -2,76 +2,68 @@ import {
   DOWNLOADING_STARTED,
   ERR_INVALID_DOWNLOAD_URLS,
   ERR_INVALID_URL,
-  MSG_DOWNLOAD_LINKS_CAPPED,
 } from '@/constants/i18n';
-import { MAX_DOWNLOAD_LINKS } from '@/constants/limits';
 import type { Context } from '../../context';
 import {
   createMessageDeleter,
+  deleteMessages,
   replyDownloadError,
   replyParams,
-  type ReplyTarget,
   withActionIndicator,
 } from './chat';
 import type { DownloadableLink } from './extract';
 import { replyCaptionAndCache, replyFromCache, sendMedia } from './media';
-import { detectPlatform, type DownloadResult, fetchDownload, hasDownloadableMedia } from './platform';
+import { detectPlatform, fetchDownload, hasDownloadableMedia } from './platform';
 
-export interface DownloadOnceOptions {
+export interface DownloadLinkOptions {
+  attributionCaption?: string;
+  /** After successful media send, delete these (link / mention). Implies no reply on media. */
+  replaceMessageIds?: number[];
   replyToMessageId?: number;
   showStatus: boolean;
   withCaption: boolean;
 }
 
-function toReplyTarget(link: DownloadableLink, replyToMessageId?: number): ReplyTarget | undefined {
-  if (!replyToMessageId) {
-    return undefined;
-  }
-
-  return {
-    messageId: replyToMessageId,
-    quote: link.quote,
-    quotePosition: link.quotePosition,
-  };
-}
-
-export async function downloadOnce(
+export async function downloadLink(
   context: Context,
   link: DownloadableLink,
-  opts: DownloadOnceOptions,
+  opts: DownloadLinkOptions,
 ) {
   const { url } = link;
-  const target = toReplyTarget(link, opts.replyToMessageId);
+  const isReplacing = Boolean(opts.replaceMessageIds?.length);
+  const mediaReplyTo = isReplacing ? undefined : opts.replyToMessageId;
+  const errorReplyTo = opts.replyToMessageId;
   const platform = detectPlatform(url);
 
   if (!platform) {
-    await replyDownloadError(context, new Error(ERR_INVALID_URL), target);
+    await replyDownloadError(context, new Error(ERR_INVALID_URL), errorReplyTo);
 
     return;
   }
 
   if (
     await replyFromCache(context, url, {
-      replyTarget: target,
+      attributionCaption: opts.attributionCaption,
+      replyToMessageId: mediaReplyTo,
       withCaption: opts.withCaption,
     })
   ) {
+    await deleteMessages(context, opts.replaceMessageIds ?? []);
+
     return;
   }
 
   let dismissStatus: (() => Promise<void>) | undefined;
-  let statusMessageId: number | undefined;
 
   if (opts.showStatus) {
     const statusMessage = await context.reply(context.t(DOWNLOADING_STARTED), {
-      reply_parameters: replyParams(target),
+      reply_parameters: replyParams(errorReplyTo),
     });
 
-    statusMessageId = statusMessage.message_id;
     dismissStatus = createMessageDeleter(context, statusMessage.message_id);
   }
 
-  let result: DownloadResult;
+  let result;
 
   try {
     result = opts.showStatus
@@ -79,48 +71,30 @@ export async function downloadOnce(
       : await fetchDownload(url, platform);
   } catch (error: unknown) {
     await dismissStatus?.();
-    await replyDownloadError(context, error, target);
+    await replyDownloadError(context, error, errorReplyTo);
 
     return;
   }
 
   if (!hasDownloadableMedia(result)) {
     await dismissStatus?.();
-    await replyDownloadError(context, new Error(ERR_INVALID_DOWNLOAD_URLS), target);
+    await replyDownloadError(context, new Error(ERR_INVALID_DOWNLOAD_URLS), errorReplyTo);
 
     return;
   }
 
   try {
-    const contentMessageId = await sendMedia(context, url, result, target);
+    const contentMessageId = await sendMedia(context, url, result, {
+      attributionCaption: opts.attributionCaption,
+      replyToMessageId: mediaReplyTo,
+    });
 
     await replyCaptionAndCache(context, result.caption, url, {
       contentMessageId,
       withCaption: opts.withCaption,
     });
+    await deleteMessages(context, opts.replaceMessageIds ?? []);
   } finally {
-    if (statusMessageId) {
-      await dismissStatus?.();
-    }
+    await dismissStatus?.();
   }
-}
-
-export async function downloadUrls(
-  context: Context,
-  links: DownloadableLink[],
-  opts: DownloadOnceOptions,
-) {
-  for (const link of links.slice(0, MAX_DOWNLOAD_LINKS)) {
-    await downloadOnce(context, link, opts);
-  }
-
-  if (links.length <= MAX_DOWNLOAD_LINKS) {
-    return;
-  }
-
-  await context.reply(context.t(MSG_DOWNLOAD_LINKS_CAPPED, { count: MAX_DOWNLOAD_LINKS }), {
-    reply_parameters: replyParams(
-      opts.replyToMessageId ? { messageId: opts.replyToMessageId } : undefined,
-    ),
-  });
 }

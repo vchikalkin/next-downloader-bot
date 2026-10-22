@@ -1,10 +1,10 @@
 import { Composer } from 'grammy';
-import { ERR_INVALID_URL } from '@/constants/i18n';
+import { ERR_INVALID_URL, MSG_SENT_BY } from '@/constants/i18n';
 import type { Context } from '../../context';
 import { logHandle } from '../../helpers/logging';
-import { replyDownloadError } from './chat';
+import { canBotDeleteMessages, replyDownloadError } from './chat';
 import { linksFromMessage } from './extract';
-import { downloadUrls } from './run';
+import { downloadLink } from './run';
 
 const composer = new Composer<Context>();
 const feature = composer.chatType(['group', 'supergroup']);
@@ -40,21 +40,30 @@ function isBotMentionReply(context: Context): boolean {
   return Boolean(context.message?.reply_to_message) && mentionsBot(context);
 }
 
+function attributionCaption(context: Context, username: string | undefined) {
+  return username ? context.t(MSG_SENT_BY, { username: `@${username}` }) : undefined;
+}
+
 feature
   .filter(isBotMentionReply)
   .on('message', logHandle('group-download-mention'), async (context) => {
     const source = context.message.reply_to_message;
-    const links = source ? linksFromMessage(source) : [];
+    const link = source ? linksFromMessage(source)[0] : undefined;
 
-    if (!source || links.length === 0) {
-      await replyDownloadError(context, new Error(ERR_INVALID_URL), {
-        messageId: source?.message_id,
-      });
+    if (!source || !link) {
+      await replyDownloadError(context, new Error(ERR_INVALID_URL), source?.message_id);
 
       return;
     }
 
-    await downloadUrls(context, links, {
+    const canDelete = await canBotDeleteMessages(context);
+    const linkAuthor = source.from?.username;
+
+    await downloadLink(context, link, {
+      attributionCaption: canDelete ? attributionCaption(context, linkAuthor) : undefined,
+      replaceMessageIds: canDelete
+        ? [source.message_id, context.message.message_id]
+        : undefined,
       replyToMessageId: source.message_id,
       showStatus: false,
       withCaption: false,
@@ -64,13 +73,19 @@ feature
 feature
   .filter((context) => !isBotMentionReply(context))
   .on(['message:text', 'message:caption'], logHandle('group-download-auto'), async (context) => {
-    const links = linksFromMessage(context.message);
+    const link = linksFromMessage(context.message)[0];
 
-    if (links.length === 0) {
+    if (!link) {
       return;
     }
 
-    await downloadUrls(context, links, {
+    const canDelete = await canBotDeleteMessages(context);
+
+    await downloadLink(context, link, {
+      attributionCaption: canDelete
+        ? attributionCaption(context, context.from.username)
+        : undefined,
+      replaceMessageIds: canDelete ? [context.message.message_id] : undefined,
       replyToMessageId: context.message.message_id,
       showStatus: false,
       withCaption: false,
