@@ -15,9 +15,9 @@
   <a href="https://github.com/vchikalkin/next-downloader-bot"><img src="https://img.shields.io/github/stars/vchikalkin/next-downloader-bot?style=flat-square" alt="GitHub stars" /></a>
 </p>
 
-Telegram bot that downloads **TikTok**, **Instagram**, and **YouTube** (including Shorts) media and sends it back in chat. Works in private chats, groups, and groups with topics. TikTok and Instagram come without watermarks when the source allows it.
+Telegram bot for **TikTok**, **Instagram**, and **YouTube** (including Shorts). Send a link in a private chat, a group, or a group with topics, and it returns the file. TikTok and Instagram come without watermarks when the source allows it.
 
-**Live bot:** [t.me/next_downloader_bot](https://t.me/next_downloader_bot). Paste a link, get the file.
+Live bot: [t.me/next_downloader_bot](https://t.me/next_downloader_bot)
 
 ## What it supports
 
@@ -27,7 +27,7 @@ Telegram bot that downloads **TikTok**, **Instagram**, and **YouTube** (includin
 | Instagram | Reels, posts, IGTV, stories URLs | Video or image carousels |
 | YouTube | Videos and Shorts | Via [yt-dlp](https://github.com/yt-dlp/yt-dlp), up to **180 seconds** |
 
-Also built in: Redis cache for repeat URLs, rate limiting, English / Russian i18n, optional Sentry, Docker Compose (bot + Redis + local Telegram Bot API).
+Redis caches repeat URLs. There is rate limiting, English and Russian i18n, optional Sentry, and Docker Compose for the bot, Redis, and a local Telegram Bot API.
 
 ## Try it
 
@@ -36,19 +36,19 @@ Also built in: Redis cache for repeat URLs, rate limiting, English / Russian i18
    - `https://vt.tiktok.com/...`
    - `https://www.instagram.com/reel/...` or `/p/...`
    - `https://www.youtube.com/watch?v=...` or `/shorts/...`
-3. Get the media. In private chat the bot also sends the post text when the extractor finds one.
+3. Wait for the media. In a private chat the bot also sends the post text when it can extract one.
 
 ### Groups
 
-Add the bot to a group or a forum (groups with topics). Behavior is the same in both.
+Add the bot to a group or a forum (topics). Same rules in both.
 
-**To see every link:** turn off Group Privacy in [@BotFather](https://t.me/BotFather), or make the bot an admin. With privacy on and no admin rights, Telegram only delivers @mentions and replies to the bot.
+To see every link, turn off Group Privacy in [@BotFather](https://t.me/BotFather) or make the bot an admin. Otherwise Telegram only sends it @mentions and replies to its own messages.
 
-**Admin with “Delete messages”:** the bot deletes the original link (and the @mention message, if you used that), then posts the media with attribution (`by @user from TikTok` / `Прислал @user из TikTok`). Prefer this setup in groups and topics.
+If the bot is an admin with **Delete messages**, it removes the original link (and your @mention message, when you used one) and posts the media with a short credit: `by @user from TikTok` / `Прислал @user из TikTok`. That is the usual setup for groups and topics.
 
-**Member without delete rights:** the bot replies to the link and leaves it in the chat. No attribution on the media. Post text from the platform stays private-chat only.
+Without delete rights, it replies to the link and leaves the message in place. There is no credit line on the media, and platform post text is private-chat only.
 
-You can also reply to a link message and @mention the bot; it downloads that link the same way.
+You can also reply to a link message and @mention the bot; it downloads that link.
 
 Support: [@vchikalkin](https://t.me/vchikalkin)
 
@@ -77,7 +77,7 @@ cd next-downloader-bot
 pnpm install
 ```
 
-Create `.env` in the repo root (dev script also loads `.env.local`):
+Create `.env` in the repo root (the dev script also loads `.env.local`):
 
 ```env
 BOT_TOKEN=
@@ -129,7 +129,7 @@ Local / self-host stack (builds the bot image):
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-Production compose (`docker-compose.yml`) pulls `${DOCKERHUB_USERNAME}/next-downloader-bot:${BOT_IMAGE_TAG}` and runs Redis + bot + Telegram Bot API. CI on `master` builds, pushes to Docker Hub, and deploys via [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+Production compose (`docker-compose.yml`) pulls `${DOCKERHUB_USERNAME}/next-downloader-bot:${BOT_IMAGE_TAG}` and runs Redis, the bot, and Telegram Bot API. CI on `master` builds, pushes to Docker Hub, and deploys via [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
 
 ## Project layout
 
@@ -143,7 +143,7 @@ docker-compose.yml        production stack
 docker-compose.dev.yml    local build + ports for Redis / Bot API
 ```
 
-Download flow: validate URL → platform detect → Redis cache hit or fetch → send media → cache message ids for the next request with the same URL.
+Download flow: validate URL → detect platform → Redis cache hit or fetch → send media → cache file ids for the next request with the same URL.
 
 ## Internationalization
 
@@ -152,12 +152,12 @@ Fluent files live in `apps/bot/locales/`:
 - `en.ftl` — English
 - `ru.ftl` — Russian
 
-To add a language: new `.ftl`, wire it in `apps/bot/src/bot/i18n.ts`, and set bot name / descriptions through the settings helpers if you need them on Telegram’s side.
+To add a language, add a `.ftl` file, wire it in `apps/bot/src/bot/i18n.ts`, and update the bot name / descriptions through the settings helpers if you need them on Telegram’s side.
 
 ## Contributing
 
 1. Fork and branch from `master`
-2. Keep changes focused; match existing TypeScript and lint setup
+2. Keep the diff small and match the existing TypeScript and lint setup
 3. Open a PR against [vchikalkin/next-downloader-bot](https://github.com/vchikalkin/next-downloader-bot)
 
 Issues: [github.com/vchikalkin/next-downloader-bot/issues](https://github.com/vchikalkin/next-downloader-bot/issues)

@@ -15,9 +15,9 @@
   <a href="https://github.com/vchikalkin/next-downloader-bot"><img src="https://img.shields.io/github/stars/vchikalkin/next-downloader-bot?style=flat-square" alt="GitHub stars" /></a>
 </p>
 
-Telegram-бот скачивает медиа с **TikTok**, **Instagram** и **YouTube** (включая Shorts) и присылает файл в чат. Работает в личке, в группах и в группах с темами. TikTok и Instagram без водяных знаков, если источник это позволяет.
+Telegram-бот для **TikTok**, **Instagram** и **YouTube** (включая Shorts). Кидаешь ссылку в личку, группу или группу с темами, бот присылает файл. TikTok и Instagram без водяных знаков, если источник это позволяет.
 
-**Бот:** [t.me/next_downloader_bot](https://t.me/next_downloader_bot). Кидаешь ссылку — получаешь файл.
+Бот: [t.me/next_downloader_bot](https://t.me/next_downloader_bot)
 
 ## Что поддерживает
 
@@ -27,7 +27,7 @@ Telegram-бот скачивает медиа с **TikTok**, **Instagram** и **
 | Instagram | Reels, посты, IGTV, stories | Видео или карусели картинок |
 | YouTube | Видео и Shorts | Через [yt-dlp](https://github.com/yt-dlp/yt-dlp), до **180 секунд** |
 
-Ещё внутри: Redis-кэш повторяющихся URL, rate limit, i18n (en / ru), опциональный Sentry, Docker Compose (бот + Redis + локальный Telegram Bot API).
+Повторные URL кэшируются в Redis. Есть rate limit, i18n (en / ru), опциональный Sentry и Docker Compose для бота, Redis и локального Telegram Bot API.
 
 ## Попробовать
 
@@ -36,19 +36,19 @@ Telegram-бот скачивает медиа с **TikTok**, **Instagram** и **
    - `https://vt.tiktok.com/...`
    - `https://www.instagram.com/reel/...` или `/p/...`
    - `https://www.youtube.com/watch?v=...` или `/shorts/...`
-3. Получи медиа. В личке бот ещё присылает текст поста, если экстрактор его нашёл.
+3. Дождись медиа. В личке бот ещё присылает текст поста, если его удалось вытащить.
 
 ### Группы
 
-Добавь бота в группу или в форум (группу с темами). Поведение одинаковое.
+Добавь бота в группу или в форум (темы). Правила те же.
 
-**Чтобы видеть все ссылки:** выключи Group Privacy в [@BotFather](https://t.me/BotFather) или сделай бота админом. С включённой privacy и без админки Telegram отдаёт боту только @упоминания и ответы на его сообщения.
+Чтобы бот видел все ссылки, выключи Group Privacy в [@BotFather](https://t.me/BotFather) или сделай его админом. Иначе Telegram отдаёт только @упоминания и ответы на сообщения бота.
 
-**Админ с правом «Удаление сообщений»:** бот удаляет исходную ссылку (и сообщение с @упоминанием, если оно было), затем шлёт медиа с подписью (`by @user from TikTok` / `Прислал @user из TikTok`). Так удобнее и в обычных группах, и в топиках.
+Если бот админ с правом **Удаление сообщений**, он удаляет исходную ссылку (и твоё сообщение с @упоминанием, если оно было) и шлёт медиа с подписью: `by @user from TikTok` / `Прислал @user из TikTok`. Так обычно и ставят бота в группах и топиках.
 
-**Участник без права удаления:** бот отвечает reply на ссылку и оставляет её в чате. Подписи attribution на медиа нет. Текст поста с платформы — только в личке.
+Без права удаления бот отвечает reply на ссылку и оставляет сообщение на месте. Подписи «Прислал…» на медиа нет, текст поста с платформы приходит только в личке.
 
-Можно ответить на сообщение со ссылкой и @упомянуть бота: он скачает эту ссылку тем же способом.
+Можно ответить на сообщение со ссылкой и @упомянуть бота: он скачает эту ссылку.
 
 Поддержка: [@vchikalkin](https://t.me/vchikalkin)
 
@@ -129,7 +129,7 @@ pnpm start
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-Продакшен-compose (`docker-compose.yml`) тянет `${DOCKERHUB_USERNAME}/next-downloader-bot:${BOT_IMAGE_TAG}` и поднимает Redis + бот + Telegram Bot API. CI на `master` собирает образ, пушит в Docker Hub и деплоит через [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+Продакшен-compose (`docker-compose.yml`) тянет `${DOCKERHUB_USERNAME}/next-downloader-bot:${BOT_IMAGE_TAG}` и поднимает Redis, бота и Telegram Bot API. CI на `master` собирает образ, пушит в Docker Hub и деплоит через [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
 
 ## Структура проекта
 
@@ -143,7 +143,7 @@ docker-compose.yml        продакшен-стек
 docker-compose.dev.yml    локальная сборка + порты Redis / Bot API
 ```
 
-Сценарий скачивания: проверка URL → определение платформы → попадание в Redis-кэш или загрузка → отправка медиа → кэш file id для следующего запроса с тем же URL.
+Скачивание: проверка URL → платформа → Redis-кэш или загрузка → отправка медиа → кэш file id для следующего такого же URL.
 
 ## Локализация
 
@@ -152,12 +152,12 @@ Fluent-файлы в `apps/bot/locales/`:
 - `en.ftl` — английский
 - `ru.ftl` — русский
 
-Новый язык: добавь `.ftl`, подключи в `apps/bot/src/bot/i18n.ts`, при необходимости обнови имя и описания бота через settings-хелперы на стороне Telegram.
+Новый язык: добавь `.ftl`, подключи в `apps/bot/src/bot/i18n.ts`. Имя и описания бота в Telegram при необходимости обновляются через settings-хелперы.
 
 ## Участие
 
 1. Форкни репозиторий и сделай ветку от `master`
-2. Держи изменения узкими; следуй текущему TypeScript и lint
+2. Держи diff небольшим и следуй текущему TypeScript и lint
 3. Открой PR в [vchikalkin/next-downloader-bot](https://github.com/vchikalkin/next-downloader-bot)
 
 Issues: [github.com/vchikalkin/next-downloader-bot/issues](https://github.com/vchikalkin/next-downloader-bot/issues)
