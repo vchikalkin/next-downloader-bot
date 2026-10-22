@@ -13,7 +13,7 @@
   <a href="https://github.com/vchikalkin/next-downloader-bot"><img src="https://img.shields.io/github/stars/vchikalkin/next-downloader-bot?style=flat-square" alt="GitHub stars" /></a>
 </p>
 
-Telegram bot that downloads **TikTok**, **Instagram**, and **YouTube** (including Shorts) media and sends it back in chat. You can add it to a group. TikTok and Instagram come without watermarks when the source allows it. Captions are kept where available.
+Telegram bot that downloads **TikTok**, **Instagram**, and **YouTube** (including Shorts) media and sends it back in chat. Works in private chats, groups, and groups with topics. TikTok and Instagram come without watermarks when the source allows it.
 
 **Live bot:** [t.me/next_downloader_bot](https://t.me/next_downloader_bot). Paste a link, get the file.
 
@@ -34,11 +34,19 @@ Also built in: Redis cache for repeat URLs, rate limiting, English / Russian i18
    - `https://vt.tiktok.com/...`
    - `https://www.instagram.com/reel/...` or `/p/...`
    - `https://www.youtube.com/watch?v=...` or `/shorts/...`
-3. Get the media (and caption when the extractor finds one)
+3. Get the media. In private chat the bot also sends the post text when the extractor finds one.
 
 ### Groups
 
-Add the bot to a group. It downloads supported links from messages it receives. To receive every group message (not only @mentions and replies to the bot), disable Group Privacy in [@BotFather](https://t.me/BotFather) or promote the bot to admin.
+Add the bot to a group or a forum (groups with topics). Behavior is the same in both.
+
+**To see every link:** turn off Group Privacy in [@BotFather](https://t.me/BotFather), or make the bot an admin. With privacy on and no admin rights, Telegram only delivers @mentions and replies to the bot.
+
+**Admin with “Delete messages”:** the bot deletes the original link (and the @mention message, if you used that), then posts the media with attribution (`by @user from TikTok` / `Прислал @user из TikTok`). Prefer this setup in groups and topics.
+
+**Member without delete rights:** the bot replies to the link and leaves it in the chat. No attribution on the media. Post text from the platform stays private-chat only.
+
+You can also reply to a link message and @mention the bot; it downloads that link the same way.
 
 Support: [@vchikalkin](https://t.me/vchikalkin)
 
