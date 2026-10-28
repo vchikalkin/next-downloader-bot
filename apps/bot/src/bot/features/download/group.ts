@@ -45,7 +45,7 @@ function mentionsBot(context: Context): boolean {
   return false;
 }
 
-function isBotMentionReply(context: Context): boolean {
+export function isBotMentionReply(context: Context): boolean {
   return Boolean(context.message?.reply_to_message) && mentionsBot(context);
 }
 

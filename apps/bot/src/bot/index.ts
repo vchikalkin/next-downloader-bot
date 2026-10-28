@@ -9,6 +9,7 @@ import { redis } from '@/utils/redis';
 import type { Context } from './context';
 import * as features from './features';
 import { errorHandler } from './handlers/errors';
+import { downloadRequestKey } from './helpers/rate-limit';
 import { i18n } from './i18n';
 import * as middlewares from './middlewares';
 import { setCommands } from './settings/commands';
@@ -31,7 +32,7 @@ export function createBot({ apiRoot, token }: CreateBotOptions) {
 
   bot.use(
     limit({
-      keyGenerator: (ctx) => ctx.from?.id.toString(),
+      keyGenerator: downloadRequestKey,
       limit: env.RATE_LIMIT,
       onLimitExceeded: (ctx) => {
         ctx.reply(ctx.t(ERR_LIMIT_EXCEEDED)).catch(() => undefined);
