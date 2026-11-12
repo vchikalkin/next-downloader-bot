@@ -28,7 +28,7 @@ services:
     env_file:
       - .env
     volumes:
-      # Host file persists across deploys; empty/missing cookies → public-only downloads
+      # Host file persists across deploys; used by Instagram (empty → public-only)
       - ./cookies.txt:/cookies.txt:ro
     depends_on:
       - redis

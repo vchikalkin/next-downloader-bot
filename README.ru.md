@@ -118,18 +118,15 @@ pnpm start
 | `RATE_LIMIT_TIME` | нет | `3000` | Окно rate limit в мс |
 | `SENTRY_DSN` | нет | | Sentry DSN |
 | `YTDLP_PATH` | нет | | Путь к `yt-dlp`, если его нет в `PATH` |
-| `COOKIES_FILE` | нет | | Путь к Netscape `cookies.txt` (Instagram + YouTube login-wall / age-gate) |
+| `COOKIES_FILE` | нет | | Путь к Netscape `cookies.txt` (Instagram login-wall) |
 
-### Cookies для login-wall / age-gate
+### Cookies для Instagram login-wall
 
-Compose всегда монтирует `./cookies.txt:/cookies.txt:ro`, в prod-деплое задаётся `COOKIES_FILE=/cookies.txt`. Пустой placeholder на VPS создаётся только если файла ещё нет — CI не затирает твои cookies. Пока в файле нет сессии, публичный контент работает как раньше.
+Compose всегда монтирует `./cookies.txt:/cookies.txt:ro`, в prod-деплое задаётся `COOKIES_FILE=/cookies.txt`. Пустой placeholder на VPS создаётся только если файла ещё нет — CI не затирает твои cookies. Без сессии публичный Instagram работает как раньше. YouTube этот файл не использует.
 
-Для login-wall / age-gate:
-
-1. Throwaway-аккаунты Instagram / Google (не основные).
-2. Экспорт Netscape cookies расширением (например Get cookies.txt LOCALLY).
-3. YouTube: private/incognito → логин → в той же вкладке `https://www.youtube.com/robots.txt` → export → сразу закрыть окно (чтобы браузер не ротировал cookies).
-4. Положи Instagram и YouTube cookies в один `cookies.txt` рядом с compose на сервере (gitignore). Локально (`pnpm dev`): укажи `COOKIES_FILE` в `.env.local`.
+1. Throwaway-аккаунт Instagram (не основной).
+2. Экспорт Netscape cookies расширением (например Get cookies.txt LOCALLY) для `instagram.com`.
+3. Положи `cookies.txt` рядом с compose на сервере (gitignore). Локально (`pnpm dev`): укажи `COOKIES_FILE` в `.env.local`.
 
 Когда сессия умрёт — новый export и замена файла на диске (ребилд образа не нужен).
 
