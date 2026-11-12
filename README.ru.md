@@ -93,6 +93,7 @@ RATE_LIMIT=2
 RATE_LIMIT_TIME=3000
 SENTRY_DSN=
 YTDLP_PATH=
+COOKIES_FILE=
 ```
 
 ```bash
@@ -117,6 +118,20 @@ pnpm start
 | `RATE_LIMIT_TIME` | нет | `3000` | Окно rate limit в мс |
 | `SENTRY_DSN` | нет | | Sentry DSN |
 | `YTDLP_PATH` | нет | | Путь к `yt-dlp`, если его нет в `PATH` |
+| `COOKIES_FILE` | нет | | Путь к Netscape `cookies.txt` (Instagram + YouTube login-wall / age-gate) |
+
+### Cookies для login-wall / age-gate
+
+Compose всегда монтирует `./cookies.txt:/cookies.txt:ro`, в prod-деплое задаётся `COOKIES_FILE=/cookies.txt`. Пустой placeholder на VPS создаётся только если файла ещё нет — CI не затирает твои cookies. Пока в файле нет сессии, публичный контент работает как раньше.
+
+Для login-wall / age-gate:
+
+1. Throwaway-аккаунты Instagram / Google (не основные).
+2. Экспорт Netscape cookies расширением (например Get cookies.txt LOCALLY).
+3. YouTube: private/incognito → логин → в той же вкладке `https://www.youtube.com/robots.txt` → export → сразу закрыть окно (чтобы браузер не ротировал cookies).
+4. Положи Instagram и YouTube cookies в один `cookies.txt` рядом с compose на сервере (gitignore). Локально (`pnpm dev`): укажи `COOKIES_FILE` в `.env.local`.
+
+Когда сессия умрёт — новый export и замена файла на диске (ребилд образа не нужен).
 
 Для Compose с [aiogram/telegram-bot-api](https://hub.docker.com/r/aiogram/telegram-bot-api) ещё задай `TELEGRAM_API_ID` и `TELEGRAM_API_HASH` с [my.telegram.org](https://my.telegram.org).
 

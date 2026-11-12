@@ -23,6 +23,8 @@ services:
     restart: always
     env_file:
       - .env
+    volumes:
+      - ./cookies.txt:/cookies.txt:ro
     depends_on:
       - redis
       - telegram-bot-api
