@@ -617,23 +617,38 @@ async function graphqlMedia(
   return media && hasUsableMedia(media, isVideoRequired) ? media : null;
 }
 
-async function resolveInstagramMedia(url: string): Promise<Json> {
+async function resolveInstagramMedia(
+  url: string,
+): Promise<{ authCookie: string | null; media: Json }> {
   const code = shortcode(url);
   const isVideoRequired = /\/(?:reel|reels|tv)\//u.test(asUrl(url).pathname);
   const net = createNet();
-  const authCookie = await cookieHeader('instagram.com');
-  const resolvers: (() => Promise<Json | null>)[] = [
-    () => { return pageMedia(net, code, isVideoRequired, authCookie) },
-    () => { return mobileMedia(net, code, isVideoRequired, authCookie) },
-    () => { return embedMedia(net, code, isVideoRequired, authCookie) },
-    () => { return graphqlMedia(net, code, isVideoRequired, authCookie) },
-  ];
+  const fileCookie = await cookieHeader('instagram.com');
+  // Dead session cookies can break public posts — fall back to anonymous.
+  const cookiePasses: (string | null)[] = fileCookie ? [fileCookie, null] : [null];
 
-  for (const resolve of resolvers) {
-    const candidate = await resolve();
+  for (const authCookie of cookiePasses) {
+    const resolvers: (() => Promise<Json | null>)[] = [
+      () => {
+        return pageMedia(net, code, isVideoRequired, authCookie);
+      },
+      () => {
+        return mobileMedia(net, code, isVideoRequired, authCookie);
+      },
+      () => {
+        return embedMedia(net, code, isVideoRequired, authCookie);
+      },
+      () => {
+        return graphqlMedia(net, code, isVideoRequired, authCookie);
+      },
+    ];
 
-    if (candidate) {
-      return candidate;
+    for (const resolve of resolvers) {
+      const media = await resolve();
+
+      if (media) {
+        return { authCookie, media };
+      }
     }
   }
 
@@ -641,7 +656,7 @@ async function resolveInstagramMedia(url: string): Promise<Json> {
 }
 
 export async function getInstagramDownloadUrl(url: string): Promise<InstagramDownloadResult> {
-  const media = await retry(() => resolveInstagramMedia(url), {
+  const { authCookie, media } = await retry(() => resolveInstagramMedia(url), {
     delayMs: INSTAGRAM_DOWNLOAD_RETRY_DELAY_MS,
     factor: 2,
     onRetry: (error, attempt) => {
@@ -661,7 +676,6 @@ export async function getInstagramDownloadUrl(url: string): Promise<InstagramDow
   if (videoUrl) {
     assertMaxVideoDuration(videoDuration);
 
-    const authCookie = await cookieHeader('instagram.com');
     const filePath = await downloadToTempFile({
       headers: withAuthCookie({ 'user-agent': browserUserAgent() }, authCookie),
       url: videoUrl,
