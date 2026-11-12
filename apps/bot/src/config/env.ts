@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const envSchema = z.object({
   BOT_TOKEN: z.string(),
+  COOKIES_FILE: z.string().optional(),
   DONATE_LINK: z.string(),
   RATE_LIMIT: z
     .string()

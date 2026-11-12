@@ -27,6 +27,9 @@ services:
     restart: always
     env_file:
       - .env
+    volumes:
+      # Host file persists across deploys; empty/missing cookies → public-only downloads
+      - ./cookies.txt:/cookies.txt:ro
     depends_on:
       - redis
       - telegram-bot-api

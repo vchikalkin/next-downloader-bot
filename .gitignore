@@ -12,6 +12,10 @@ node_modules
 .env.test.local
 .env.production.local
 
+# Browser session cookies for login-wall / age-gate downloads
+cookies.txt
+**/cookies.txt
+
 # Testing
 coverage
 

@@ -1,4 +1,5 @@
 import { ERR_INVALID_INSTAGRAM_RESPONSE } from '@/constants/i18n';
+import { cookieHeader, cookieValue, mergeCookieHeaders } from './cookies';
 import {
   asNumber,
   asString,
@@ -299,8 +300,23 @@ function inlineMedia(html: string, code: string): Json | null {
   return null;
 }
 
-async function pageMedia(net: Net, code: string, isVideoRequired: boolean): Promise<Json | null> {
-  const response = await net(`https://www.instagram.com/p/${code}/`, { headers: navigationHeaders() });
+function withAuthCookie(headers: Record<string, string>, authCookie: string | null): Record<string, string> {
+  if (!authCookie) {
+    return headers;
+  }
+
+  return { ...headers, cookie: mergeCookieHeaders(headers.cookie, authCookie) };
+}
+
+async function pageMedia(
+  net: Net,
+  code: string,
+  isVideoRequired: boolean,
+  authCookie: string | null,
+): Promise<Json | null> {
+  const response = await net(`https://www.instagram.com/p/${code}/`, {
+    headers: withAuthCookie(navigationHeaders(), authCookie),
+  });
 
   if (!response.ok) {
     return null;
@@ -311,11 +327,11 @@ async function pageMedia(net: Net, code: string, isVideoRequired: boolean): Prom
   return media && hasUsableMedia(media, isVideoRequired) ? media : null;
 }
 
-async function mediaId(net: Net, code: string): Promise<string | null> {
+async function mediaId(net: Net, code: string, authCookie: string | null): Promise<string | null> {
   const url = new URL('https://i.instagram.com/api/v1/oembed/');
 
   url.searchParams.set('url', `https://www.instagram.com/p/${code}/`);
-  const response = await net(url.href, { headers: mobileHeaders() }, 1);
+  const response = await net(url.href, { headers: withAuthCookie(mobileHeaders(), authCookie) }, 1);
 
   if (!response.ok) {
     return null;
@@ -326,8 +342,12 @@ async function mediaId(net: Net, code: string): Promise<string | null> {
   return isRecord(payload) ? asString(payload.media_id) : null;
 }
 
-async function mobileInfo(net: Net, id: string): Promise<Json | null> {
-  const response = await net(`https://i.instagram.com/api/v1/media/${id}/info/`, { headers: mobileHeaders() }, 1);
+async function mobileInfo(net: Net, id: string, authCookie: string | null): Promise<Json | null> {
+  const response = await net(
+    `https://i.instagram.com/api/v1/media/${id}/info/`,
+    { headers: withAuthCookie(mobileHeaders(), authCookie) },
+    1,
+  );
 
   if (!response.ok) {
     return null;
@@ -340,14 +360,19 @@ async function mobileInfo(net: Net, id: string): Promise<Json | null> {
   return isRecord(first) ? first : null;
 }
 
-async function mobileMedia(net: Net, code: string, isVideoRequired: boolean): Promise<Json | null> {
-  const id = await mediaId(net, code);
+async function mobileMedia(
+  net: Net,
+  code: string,
+  isVideoRequired: boolean,
+  authCookie: string | null,
+): Promise<Json | null> {
+  const id = await mediaId(net, code, authCookie);
 
   if (!id) {
     return null;
   }
 
-  const media = await mobileInfo(net, id);
+  const media = await mobileInfo(net, id, authCookie);
 
   return media && hasUsableMedia(media, isVideoRequired) ? media : null;
 }
@@ -372,9 +397,14 @@ function gqlShortcodeMedia(data: Json): Json | null {
   return isRecord(media) ? media : null;
 }
 
-async function embedMedia(net: Net, code: string, isVideoRequired: boolean): Promise<Json | null> {
+async function embedMedia(
+  net: Net,
+  code: string,
+  isVideoRequired: boolean,
+  authCookie: string | null,
+): Promise<Json | null> {
   const response = await net(`https://www.instagram.com/p/${code}/embed/captioned/`, {
-    headers: embedHeaders(),
+    headers: withAuthCookie(embedHeaders(), authCookie),
   });
 
   if (!response.ok) {
@@ -477,9 +507,10 @@ function instagramCookies(headers: Headers, fallback: Record<string, string | nu
 async function graphqlParams(
   net: Net,
   code: string,
+  authCookie: string | null,
 ): Promise<{ body: Record<string, string>; headers: Record<string, string> } | null> {
   const response = await net(`https://www.instagram.com/p/${code}/`, {
-    headers: embedHeaders(),
+    headers: withAuthCookie(embedHeaders(), authCookie),
   });
 
   if (!response.ok) {
@@ -493,7 +524,7 @@ async function graphqlParams(
   const push = entryObject('InstagramWebPushInfo', html);
   const lsd = entryObject('LSD', html)?.token ?? randomToken();
   const csrf = entryObject('InstagramSecurityConfig', html)?.csrf_token;
-  const cookie = instagramCookies(response.headers, {
+  const guestCookie = instagramCookies(response.headers, {
     csrftoken: asString(csrf),
     dpr: '2',
     ig_did: asString(polaris?.device_id),
@@ -501,6 +532,8 @@ async function graphqlParams(
     mid: asString(polaris?.machine_id),
     wd: '1280x720',
   });
+  const cookie = mergeCookieHeaders(guestCookie, authCookie);
+  const userId = cookieValue(authCookie, 'ds_user_id') ?? '0';
 
   return {
     body: {
@@ -518,14 +551,14 @@ async function graphqlParams(
       __spin_b: asString(site?.__spin_b) ?? 'trunk',
       __spin_r: asString(site?.__spin_r) ?? '1019933358',
       __spin_t: String(asNumber(site?.__spin_t) ?? Math.floor(Date.now() / 1000)),
-      __user: '0',
-      av: '0',
+      __user: userId,
+      av: userId,
       dpr: '2',
       jazoest: String(queryNumber('jazoest', html) ?? Math.floor(Math.random() * 10_000)),
       lsd: asString(lsd) ?? randomToken(),
     },
     headers: {
-      'X-CSRFToken': asString(csrf) ?? '',
+      'X-CSRFToken': cookieValue(cookie, 'csrftoken') ?? asString(csrf) ?? '',
       'X-FB-LSD': asString(lsd) ?? randomToken(),
       'X-Bloks-Version-Id': asString(entryObject('WebBloksVersioningID', html)?.versioningID) ?? '',
       cookie,
@@ -535,8 +568,13 @@ async function graphqlParams(
   };
 }
 
-async function graphqlMedia(net: Net, code: string, isVideoRequired: boolean): Promise<Json | null> {
-  const params = await graphqlParams(net, code);
+async function graphqlMedia(
+  net: Net,
+  code: string,
+  isVideoRequired: boolean,
+  authCookie: string | null,
+): Promise<Json | null> {
+  const params = await graphqlParams(net, code, authCookie);
 
   if (!params) {
     return null;
@@ -544,7 +582,6 @@ async function graphqlMedia(net: Net, code: string, isVideoRequired: boolean): P
 
   const body = new URLSearchParams({
     ...params.body,
-    av: '0',
     doc_id: '8845758582119845',
     fb_api_caller_class: 'RelayModern',
     fb_api_req_friendly_name: 'PolarisPostActionLoadPostQueryQuery',
@@ -560,7 +597,7 @@ async function graphqlMedia(net: Net, code: string, isVideoRequired: boolean): P
   const response = await net('https://www.instagram.com/graphql/query', {
     body,
     headers: {
-      ...embedHeaders(),
+      ...withAuthCookie(embedHeaders(), authCookie),
       ...params.headers,
       'X-FB-Friendly-Name': 'PolarisPostActionLoadPostQueryQuery',
       'X-Requested-With': 'XMLHttpRequest',
@@ -584,11 +621,12 @@ async function resolveInstagramMedia(url: string): Promise<Json> {
   const code = shortcode(url);
   const isVideoRequired = /\/(?:reel|reels|tv)\//u.test(asUrl(url).pathname);
   const net = createNet();
+  const authCookie = await cookieHeader('instagram.com');
   const resolvers: (() => Promise<Json | null>)[] = [
-    () => { return pageMedia(net, code, isVideoRequired) },
-    () => { return mobileMedia(net, code, isVideoRequired) },
-    () => { return embedMedia(net, code, isVideoRequired) },
-    () => { return graphqlMedia(net, code, isVideoRequired) },
+    () => { return pageMedia(net, code, isVideoRequired, authCookie) },
+    () => { return mobileMedia(net, code, isVideoRequired, authCookie) },
+    () => { return embedMedia(net, code, isVideoRequired, authCookie) },
+    () => { return graphqlMedia(net, code, isVideoRequired, authCookie) },
   ];
 
   for (const resolve of resolvers) {
@@ -623,8 +661,9 @@ export async function getInstagramDownloadUrl(url: string): Promise<InstagramDow
   if (videoUrl) {
     assertMaxVideoDuration(videoDuration);
 
+    const authCookie = await cookieHeader('instagram.com');
     const filePath = await downloadToTempFile({
-      headers: { 'user-agent': browserUserAgent() },
+      headers: withAuthCookie({ 'user-agent': browserUserAgent() }, authCookie),
       url: videoUrl,
     });
 
