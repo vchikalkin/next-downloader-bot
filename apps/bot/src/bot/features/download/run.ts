@@ -36,6 +36,13 @@ function trackDownload(platform: Platform, outcome: 'cache' | 'error' | 'success
   });
 }
 
+function trackDownloadDuration(platform: Platform, outcome: 'error' | 'success', ms: number) {
+  sentry.metrics.distribution('bot.download.duration', ms, {
+    attributes: { outcome, platform },
+    unit: 'millisecond',
+  });
+}
+
 export async function downloadLink(
   context: Context,
   link: DownloadableLink,
@@ -79,12 +86,14 @@ export async function downloadLink(
   }
 
   let result;
+  const fetchStarted = performance.now();
 
   try {
     result = opts.showStatus
       ? await withActionIndicator(context, () => fetchDownload(url, platform))
       : await fetchDownload(url, platform);
   } catch (error: unknown) {
+    trackDownloadDuration(platform, 'error', performance.now() - fetchStarted);
     await dismissStatus?.();
     trackDownload(platform, 'error');
     await replyDownloadError(context, error, errorReplyTo);
@@ -92,13 +101,18 @@ export async function downloadLink(
     return;
   }
 
+  const fetchMs = performance.now() - fetchStarted;
+
   if (!hasDownloadableMedia(result)) {
+    trackDownloadDuration(platform, 'error', fetchMs);
     await dismissStatus?.();
     trackDownload(platform, 'error');
     await replyDownloadError(context, new Error(ERR_INVALID_DOWNLOAD_URLS), errorReplyTo);
 
     return;
   }
+
+  trackDownloadDuration(platform, 'success', fetchMs);
 
   try {
     const contentMessageId = await sendMedia(context, url, result, {
