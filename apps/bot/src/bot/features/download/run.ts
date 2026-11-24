@@ -1,3 +1,4 @@
+import * as sentry from '@sentry/node';
 import {
   DOWNLOADING_STARTED,
   ERR_INVALID_DOWNLOAD_URLS,
@@ -13,7 +14,12 @@ import {
 } from './chat';
 import type { DownloadableLink } from './extract';
 import { type AttributionCaption, replyCaptionAndCache, replyFromCache, sendMedia } from './media';
-import { detectPlatform, fetchDownload, hasDownloadableMedia } from './platform';
+import {
+  detectPlatform,
+  fetchDownload,
+  hasDownloadableMedia,
+  type Platform,
+} from './platform';
 
 export interface DownloadLinkOptions {
   attributionCaption?: AttributionCaption;
@@ -22,6 +28,12 @@ export interface DownloadLinkOptions {
   replyToMessageId?: number;
   showStatus: boolean;
   withCaption: boolean;
+}
+
+function trackDownload(platform: Platform, outcome: 'cache' | 'error' | 'success') {
+  sentry.metrics.count('bot.download', 1, {
+    attributes: { outcome, platform },
+  });
 }
 
 export async function downloadLink(
@@ -41,6 +53,8 @@ export async function downloadLink(
     return;
   }
 
+  sentry.setTag('platform', platform);
+
   if (
     await replyFromCache(context, url, {
       attributionCaption: opts.attributionCaption,
@@ -48,6 +62,7 @@ export async function downloadLink(
       withCaption: opts.withCaption,
     })
   ) {
+    trackDownload(platform, 'cache');
     await deleteMessages(context, opts.replaceMessageIds ?? []);
 
     return;
@@ -71,6 +86,7 @@ export async function downloadLink(
       : await fetchDownload(url, platform);
   } catch (error: unknown) {
     await dismissStatus?.();
+    trackDownload(platform, 'error');
     await replyDownloadError(context, error, errorReplyTo);
 
     return;
@@ -78,6 +94,7 @@ export async function downloadLink(
 
   if (!hasDownloadableMedia(result)) {
     await dismissStatus?.();
+    trackDownload(platform, 'error');
     await replyDownloadError(context, new Error(ERR_INVALID_DOWNLOAD_URLS), errorReplyTo);
 
     return;
@@ -94,6 +111,10 @@ export async function downloadLink(
       withCaption: opts.withCaption,
     });
     await deleteMessages(context, opts.replaceMessageIds ?? []);
+    trackDownload(platform, 'success');
+  } catch (error: unknown) {
+    trackDownload(platform, 'error');
+    throw error;
   } finally {
     await dismissStatus?.();
   }
