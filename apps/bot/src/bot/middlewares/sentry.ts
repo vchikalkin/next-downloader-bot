@@ -11,7 +11,12 @@ export const sentry: Middleware<Context> = async (ctx, next) => {
       });
     }
 
-    sentrySdk.metrics.count('bot.update');
+    const chatType = ctx.chat?.type ?? 'unknown';
+
+    sentrySdk.setTag('chat.type', chatType);
+    sentrySdk.metrics.count('bot.update', 1, {
+      attributes: { chat_type: chatType },
+    });
 
     await sentrySdk.startSpan({ name: 'telegram.update', op: 'telegram.handle' }, () => next());
   });
