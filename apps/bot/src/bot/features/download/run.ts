@@ -30,15 +30,28 @@ export interface DownloadLinkOptions {
   withCaption: boolean;
 }
 
-function trackDownload(platform: Platform, outcome: 'cache' | 'error' | 'success') {
+function chatType(context: Context) {
+  return context.chat?.type ?? 'unknown';
+}
+
+function trackDownload(
+  context: Context,
+  platform: Platform,
+  outcome: 'cache' | 'error' | 'success',
+) {
   sentry.metrics.count('bot.download', 1, {
-    attributes: { outcome, platform },
+    attributes: { chat_type: chatType(context), outcome, platform },
   });
 }
 
-function trackDownloadDuration(platform: Platform, outcome: 'error' | 'success', ms: number) {
+function trackDownloadDuration(
+  context: Context,
+  platform: Platform,
+  outcome: 'error' | 'success',
+  ms: number,
+) {
   sentry.metrics.distribution('bot.download.duration', ms, {
-    attributes: { outcome, platform },
+    attributes: { chat_type: chatType(context), outcome, platform },
     unit: 'millisecond',
   });
 }
@@ -69,7 +82,7 @@ export async function downloadLink(
       withCaption: opts.withCaption,
     })
   ) {
-    trackDownload(platform, 'cache');
+    trackDownload(context, platform, 'cache');
     await deleteMessages(context, opts.replaceMessageIds ?? []);
 
     return;
@@ -93,9 +106,9 @@ export async function downloadLink(
       ? await withActionIndicator(context, () => fetchDownload(url, platform))
       : await fetchDownload(url, platform);
   } catch (error: unknown) {
-    trackDownloadDuration(platform, 'error', performance.now() - fetchStarted);
+    trackDownloadDuration(context, platform, 'error', performance.now() - fetchStarted);
     await dismissStatus?.();
-    trackDownload(platform, 'error');
+    trackDownload(context, platform, 'error');
     await replyDownloadError(context, error, errorReplyTo);
 
     return;
@@ -104,15 +117,15 @@ export async function downloadLink(
   const fetchMs = performance.now() - fetchStarted;
 
   if (!hasDownloadableMedia(result)) {
-    trackDownloadDuration(platform, 'error', fetchMs);
+    trackDownloadDuration(context, platform, 'error', fetchMs);
     await dismissStatus?.();
-    trackDownload(platform, 'error');
+    trackDownload(context, platform, 'error');
     await replyDownloadError(context, new Error(ERR_INVALID_DOWNLOAD_URLS), errorReplyTo);
 
     return;
   }
 
-  trackDownloadDuration(platform, 'success', fetchMs);
+  trackDownloadDuration(context, platform, 'success', fetchMs);
 
   try {
     const contentMessageId = await sendMedia(context, url, result, {
@@ -125,9 +138,9 @@ export async function downloadLink(
       withCaption: opts.withCaption,
     });
     await deleteMessages(context, opts.replaceMessageIds ?? []);
-    trackDownload(platform, 'success');
+    trackDownload(context, platform, 'success');
   } catch (error: unknown) {
-    trackDownload(platform, 'error');
+    trackDownload(context, platform, 'error');
     throw error;
   } finally {
     await dismissStatus?.();
