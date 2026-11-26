@@ -42,8 +42,8 @@ FROM alpine AS runner
 ARG PROJECT
 
 # Pin yt-dlp (Alpine package is often too old for YouTube). Bump version + sha when updating.
-ARG YT_DLP_VERSION=2026.08.19
-ARG YT_DLP_SHA256=1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6
+ARG YT_DLP_VERSION=2026.11.23
+ARG YT_DLP_SHA256=e8665ed64d6b9172773e812f891fb707a0cb1ee8d9ef4fc1acb00cabee4c5256
 RUN apk add --no-cache \
     ca-certificates \
     ffmpeg \

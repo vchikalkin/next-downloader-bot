@@ -16,6 +16,7 @@ import {
 import { logger } from './logger';
 import { retry } from './retry';
 import { assertMaxVideoDuration } from './video-duration';
+import { downloadInstagramVideo } from './yt-dlp';
 
 const PREFERRED_WIDTH = 720;
 const APP_ID = '936619743392459';
@@ -644,10 +645,17 @@ async function resolveInstagramMedia(
     ];
 
     for (const resolve of resolvers) {
-      const media = await resolve();
+      try {
+        const media = await resolve();
 
-      if (media) {
-        return { authCookie, media };
+        if (media) {
+          return { authCookie, media };
+        }
+      } catch (error) {
+        logger.debug(
+          { error: error instanceof Error ? error.message : String(error), url },
+          'Instagram resolver failed, trying next',
+        );
       }
     }
   }
@@ -656,6 +664,18 @@ async function resolveInstagramMedia(
 }
 
 export async function getInstagramDownloadUrl(url: string): Promise<InstagramDownloadResult> {
+  try {
+    const video = await downloadInstagramVideo(url);
+
+    return { caption: video.caption, filePath: video.filePath, images: [] };
+  } catch (error) {
+    // yt-dlp is missing, rate-limited, or has no video (photo post). Built-in resolver below.
+    logger.warn(
+      { error: error instanceof Error ? error.message : String(error), url },
+      'yt-dlp Instagram download failed, trying built-in resolver',
+    );
+  }
+
   const { authCookie, media } = await retry(() => resolveInstagramMedia(url), {
     delayMs: INSTAGRAM_DOWNLOAD_RETRY_DELAY_MS,
     factor: 2,

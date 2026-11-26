@@ -1,10 +1,10 @@
 import { spawn } from 'node:child_process';
-import { env } from '@/config/env';
 
 const YTDLP_TIMEOUT_MS = 120_000;
 
 function getYtDlpPath(): string {
-  return env.YTDLP_PATH || 'yt-dlp';
+  // ponytail: read process.env so selfcheck can import yt-dlp helpers without loading env schema
+  return process.env.YTDLP_PATH || 'yt-dlp';
 }
 
 export function runYtDlp(args: string[]): Promise<string> {
