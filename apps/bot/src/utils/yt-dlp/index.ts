@@ -1,1 +1,1 @@
-export { downloadToFile } from './download-to-file';
+export { downloadInstagramVideo, downloadToFile } from './download-to-file';
