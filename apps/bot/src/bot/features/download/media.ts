@@ -6,6 +6,8 @@ import { cluster } from 'radashi';
 import { code, expandableBlockquote, fmt } from '@grammyjs/parse-mode';
 import type { MessageEntity } from '@grammyjs/types';
 import { TTL_URLS } from '@/config/redis';
+import { browserUserAgent } from '@/utils/extract';
+import { mediaFetch } from '@/utils/extract/http';
 import { redis } from '@/utils/redis';
 import { removeHashtags } from '@/utils/text';
 import type { Context } from '../../context';
@@ -150,6 +152,27 @@ async function replyFormattedCaption(context: Context, caption: string, replyToM
   });
 }
 
+/**
+ * Telegram often cannot fetch signed CDN links itself (WEBPAGE_CURL_FAILED),
+ * so download the image here and upload it. Fall back to the URL on failure.
+ */
+async function photoInput(url: string): Promise<InputFile | string> {
+  try {
+    const response = await mediaFetch(url, {
+      headers: { 'user-agent': browserUserAgent() },
+      signal: AbortSignal.timeout(30_000),
+    });
+
+    if (!response.ok) {
+      return url;
+    }
+
+    return new InputFile(Buffer.from(await response.arrayBuffer()), 'photo.jpg');
+  } catch {
+    return url;
+  }
+}
+
 async function sendImages(context: Context, imagesUrls: string[], opts: SendMediaOptions) {
   if (imagesUrls.length === 0) {
     return undefined;
@@ -159,10 +182,11 @@ async function sendImages(context: Context, imagesUrls: string[], opts: SendMedi
   const options = { reply_parameters: replyParams(opts.replyToMessageId) };
 
   for (const [chunkIndex, chunk] of cluster(imagesUrls, 10).entries()) {
+    const inputs = await Promise.all(chunk.map(photoInput));
     const imageMessages = await context.replyWithMediaGroup(
-      chunk.map((imageUrl, index) => {
+      inputs.map((input, index) => {
         return {
-          media: imageUrl,
+          media: input,
           type: 'photo' as const,
           ...(chunkIndex === 0 && index === 0 && opts.attributionCaption
             ? opts.attributionCaption
